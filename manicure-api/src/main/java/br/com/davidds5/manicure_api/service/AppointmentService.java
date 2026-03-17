@@ -11,6 +11,7 @@ import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
 import br.com.davidds5.manicure_api.entity.ServiceEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
+import br.com.davidds5.manicure_api.mapper.AppointmentMapper;
 import br.com.davidds5.manicure_api.repository.AppointmentRepository;
 import br.com.davidds5.manicure_api.repository.ClientRepository;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
