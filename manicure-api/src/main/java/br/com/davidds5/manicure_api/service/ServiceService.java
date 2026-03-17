@@ -1,7 +1,10 @@
 package br.com.davidds5.manicure_api.service;
+import br.com.davidds5.manicure_api.dto.ServiceCreateDTO;
+import br.com.davidds5.manicure_api.dto.ServiceDTO;
 import br.com.davidds5.manicure_api.entity.ServiceEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
+import br.com.davidds5.manicure_api.mapper.ServiceMapper;
 import br.com.davidds5.manicure_api.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

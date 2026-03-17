@@ -1,8 +1,11 @@
-package com.manicure.service;
+package br.com.davidds5.manicure_api.service;
 
 
+import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
+import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
+import br.com.davidds5.manicure_api.mapper.ProfessionalMapper;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,7 @@ public class ProfessionalService {
     private final ProfessionalMapper professionalMapper;
 
     @Transactional
-    public ProfessionalDTO createProfessional(ProfessionalCreateDTO dto) {
+    public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
         log.info("Criando novo profissional: {}", dto.getName());
 
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
@@ -48,7 +51,7 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public ProfessionalDTO updateProfessional(Long id, ProfessionalCreateDTO dto) {
+    public ProfessionalDTO updateProfessional(Long id, ProfessionalCreatedDTO dto) {
         log.info("Atualizando profissional ID: {}", id);
 
         ProfessionalEntity existing = professionalRepository.findById(id)
