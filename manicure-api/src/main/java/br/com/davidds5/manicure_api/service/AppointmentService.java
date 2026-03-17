@@ -3,6 +3,8 @@ package br.com.davidds5.manicure_api.service;
 
 
 import br.com.davidds5.manicure_api.dto.AppointmentCreateDTO;
+import br.com.davidds5.manicure_api.dto.AppointmentDTO;
+import br.com.davidds5.manicure_api.dto.AppointmentUpdateDTO;
 import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.entity.ClientEntity;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
@@ -62,7 +64,7 @@ public class AppointmentService {
 
         // 6. Verifica se horário está ocupado (REGRAS DE NEGÓCIO CRÍTICA)
         List<AppointmentEntity> existingAppointments = appointmentRepository
-                .findByProfessionalAndDateTime(dto.getProfessionalId(), dto.getDateTime());
+                .findByProfessionalAndDateTime(dto.getP(), dto.getDateTime());
 
         if (!existingAppointments.isEmpty()) {
             throw new BusinessException("Horário já reservado para este profissional");
