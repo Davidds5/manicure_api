@@ -155,5 +155,29 @@ public class AppointmentService {
             existing.setStatus(AppointmentEntity.AppointmentStatus.CONFIRMED);
             return appointmentMapper.toDTO(appointmentRepository.save(existing));
         }
+
+
+        @Transactional(readOnly = true)
+        public AppointmentDTO findById (Long id){
+            log.debug("Buscando agendamento {}", id);
+            return appointmentMapper.toDTO(getAppointment(id));
+        }
+
+        @Transactional(readOnly = true)
+        public Page<AppointmentDTO> findAll (Pageable pageable){
+            return appointmentRepository.findAll(pageable).map(appointmentMapper::toDTO);
+        }
+
+        @Transactional(readOnly = true)
+        public Page<AppointmentDTO> findByClientId (Long clientId, Pageable pageable){
+            return appointmentRepository.findByClientId(clientId, pageable)
+                    .map(appointmentMapper::toDTO);
+        }
+
+        @Transactional(readOnly = true)
+        public Page<AppointmentDTO> findByProfessionalId (Long professionalId, Pageable pageable){
+            return appointmentRepository.findByProfessionalId(professionalId, pageable)
+                    .map(appointmentMapper::toDTO);
+        }
     }
 }
