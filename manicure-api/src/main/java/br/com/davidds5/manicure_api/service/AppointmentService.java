@@ -67,4 +67,24 @@ public class AppointmentService {
             throw new BusinessException("Agendamento concluído não pode ser alterado");
         }
     }
+
+    private void validateTimeConflict(Long professionalId, LocalDateTime dateTime, Long excludeId) {
+        List<AppointmentEntity> conflicts = appointmentData
+                .findByProfessionalIdAndDateTime(professionalId, dateTime);
+
+        boolean hasConflict = conflicts.stream()
+                .anyMatch(a -> excludeId == null || !a.getId().equals(excludeId));
+
+        if (hasConflict) {
+            throw new BusinessException(Constants.TIME_CONFLICT);
+        }
+    }
+
+    private void validateStatusTransition(AppointmentEntity.AppointmentStatus current,
+                                          AppointmentEntity.AppointmentStatus next) {
+        if (current == AppointmentEntity.AppointmentStatus.CANCELLED ||
+                current == AppointmentEntity.AppointmentStatus.COMPLETED) {
+            throw new BusinessException("Status finalizado não pode ser alterado");
+        }
+    }
 }
