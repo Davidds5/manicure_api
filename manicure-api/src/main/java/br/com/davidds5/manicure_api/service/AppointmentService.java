@@ -15,15 +15,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import br.com.davidds5.manicure_api.util.DateUtil;
-import br.com.davidds5.manicure_api.util.Constants;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
 @Service
-
+@RequiredArgsConstructor
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
@@ -31,16 +29,8 @@ public class AppointmentService {
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
     private final AppointmentMapper appointmentMapper;
-    private final AppointmentData appointmentData; // ✅ Substitui Repository
+    private final AppointmentData appointmentData;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, ClientRepository clientRepository, ProfessionalRepository professionalRepository, ServiceRepository serviceRepository, AppointmentMapper appointmentMapper, AppointmentData appointmentData) {
-        this.appointmentRepository = appointmentRepository;
-        this.clientRepository = clientRepository;
-        this.professionalRepository = professionalRepository;
-        this.serviceRepository = serviceRepository;
-        this.appointmentMapper = appointmentMapper;
-        this.appointmentData = appointmentData;
-    }
 
 
     private void validateTimeConflict(Long professionalId, LocalDateTime dateTime, Long appointmentId) {
