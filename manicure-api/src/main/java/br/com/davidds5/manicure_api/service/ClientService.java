@@ -2,12 +2,15 @@ package br.com.davidds5.manicure_api.service;
 
 import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
+import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.entity.ClientEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ClientMapper;
 import br.com.davidds5.manicure_api.repository.ClientRepository;
 
+import br.com.davidds5.manicure_api.util.Constants;
+import br.com.davidds5.manicure_api.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,5 +97,16 @@ public class ClientService {
 
         clientRepository.delete(existing);
         log.info("Cliente deletado com ID: {}", id);
+    }
+
+    @Transactional
+    public void cancelAppointment(Long id) {
+        AppointmentEntity existing = getAppointment(id);
+
+        if (!DateUtil.canCancel(existing.getDateTime())) {
+            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
+        }
+
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
     }
 }

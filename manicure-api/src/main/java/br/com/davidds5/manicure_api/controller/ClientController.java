@@ -5,6 +5,8 @@ import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
 
 import br.com.davidds5.manicure_api.service.ClientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class ClientController {
 
     private final ClientService clientService;
+
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     @PostMapping
     @Operation(summary = "Criar novo cliente")

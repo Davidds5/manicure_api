@@ -6,6 +6,8 @@ import br.com.davidds5.manicure_api.dto.PaymentCreateDTO;
 import br.com.davidds5.manicure_api.dto.PaymentDTO;
 import br.com.davidds5.manicure_api.service.PaymentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
@@ -18,10 +20,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @RestController
 @RequestMapping("/api/v1/payments")
 @Tag(name = "Pagamentos", description = "Gerenciamento de pagamentos")
-@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
+
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @PostMapping("/appointments/{appointmentId}")
     @Operation(summary = "Registrar pagamento de agendamento")

@@ -5,6 +5,7 @@ import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import com.manicure.service.ProfessionalService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;

@@ -1,7 +1,5 @@
 package br.com.davidds5.manicure_api.entity;
 
-
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +26,7 @@ public class AppointmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professional_id", nullable = false)
-    private ProfessionalEntity professionalEntity;
+    private ProfessionalEntity professional; // ✅ CORRIGIDO: professional (não professionalEntity)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
@@ -39,12 +37,13 @@ public class AppointmentEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AppointmentEntity status;
+    private AppointmentStatus status; // ✅ CORRIGIDO: AppointmentStatus (enum interno)
 
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
     private PaymentEntity payment;
 
-    public enum AppointmentStatus{
+    // ✅ ENUM INTERNO (acessível como AppointmentEntity.AppointmentStatus.SCHEDULED)
+    public enum AppointmentStatus {
         SCHEDULED, CONFIRMED, COMPLETED, CANCELLED
     }
 }

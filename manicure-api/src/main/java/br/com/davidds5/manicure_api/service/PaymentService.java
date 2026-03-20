@@ -8,6 +8,8 @@ import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.PaymentMapper;
 import br.com.davidds5.manicure_api.repository.AppointmentRepository;
+import br.com.davidds5.manicure_api.util.Constants;
+import br.com.davidds5.manicure_api.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,5 +52,16 @@ public class PaymentService {
 
         log.info("Pagamento registrado com ID: {}", saved.getId());
         return paymentMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public void cancelAppointment(Long id) {
+        AppointmentEntity existing = getAppointment(id);
+
+        if (!DateUtil.canCancel(existing.getDateTime())) {
+            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
+        }
+
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
     }
 }

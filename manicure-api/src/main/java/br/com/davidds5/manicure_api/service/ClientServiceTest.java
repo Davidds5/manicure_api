@@ -3,9 +3,14 @@ package br.com.davidds5.manicure_api.service;
 
 import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
+import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.entity.ClientEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
+import br.com.davidds5.manicure_api.mapper.ClientMapper;
+import br.com.davidds5.manicure_api.repository.ClientRepository;
+import br.com.davidds5.manicure_api.util.Constants;
+import br.com.davidds5.manicure_api.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +22,6 @@ import java.util.Optional;
 
 import static javax.management.Query.times;
 import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
-import static jdk.jfr.internal.jfc.model.Constraint.any;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +39,7 @@ class ClientServiceTest {
     @InjectMocks
     private ClientService clientService;
 
-    private ClientCreateDTO createDTO;
+    private ClientCreatedDTO createDTO;
     private ClientEntity entity;
     private ClientDTO dto;
 
@@ -99,5 +103,16 @@ class ClientServiceTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> clientService.findById(999L));
         assertEquals("Cliente não encontrado com ID: 999", exception.getMessage());
+    }
+
+    @Transactional
+    public void cancelAppointment(Long id) {
+        AppointmentEntity existing = getAppointment(id);
+
+        if (!DateUtil.canCancel(existing.getDateTime())) {
+            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
+        }
+
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
     }
 }

@@ -1,92 +1,71 @@
 package br.com.davidds5.manicure_api.controller;
 
-
 import br.com.davidds5.manicure_api.dto.AppointmentCreateDTO;
 import br.com.davidds5.manicure_api.dto.AppointmentDTO;
 import br.com.davidds5.manicure_api.dto.AppointmentUpdateDTO;
 import br.com.davidds5.manicure_api.service.AppointmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.hateoas.EntityModel;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
-
 @RestController
 @RequestMapping("/api/v1/appointments")
-@Tag(name = "Agendamentos", description = "Gerenciamento de agendamentos")
-@RequiredArgsConstructor
+@Tag(name = "📅 Agendamentos")
+
 public class AppointmentController {
 
-    private final AppointmentService appointmentService;
+    private final AppointmentService appointmentService; // ✅ Injetado pelo Lombok
+
+    public AppointmentController(AppointmentService appointmentService) {
+        this.appointmentService = appointmentService;
+    }
 
     @PostMapping
-    @Operation(summary = "Criar novo agendamento")
-    public ResponseEntity<EntityModel<AppointmentDTO>> create(@Valid @RequestBody AppointmentCreateDTO dto) {
-        AppointmentDTO appointment = appointmentService.createAppointment(dto);
-
-        EntityModel<AppointmentDTO> resource = EntityModel.of(appointment);
-        resource.add(linkTo(methodOn(AppointmentController.class).findById(appointment.getId())).withSelfRel());
-        resource.add(linkTo(methodOn(AppointmentController.class).findAll(null)).withRel("all-appointments"));
-
-        return ResponseEntity.status(201).body(resource);
+    @Operation(summary = "Criar agendamento")
+    public ResponseEntity<AppointmentDTO> create(@Valid @RequestBody AppointmentCreateDTO dto) {
+        return ResponseEntity.status(201).body(appointmentService.createAppointment(dto));
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os agendamentos")
+    @Operation(summary = "Listar agendamentos")
     public ResponseEntity<Page<AppointmentDTO>> findAll(@PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(appointmentService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar agendamento por ID")
-    public ResponseEntity<EntityModel<AppointmentDTO>> findById(@PathVariable Long id) {
-        AppointmentDTO appointment = appointmentService.findById(id);
-
-        EntityModel<AppointmentDTO> resource = EntityModel.of(appointment);
-        resource.add(linkTo(methodOn(AppointmentController.class).findAll(null)).withRel("all-appointments"));
-
-        return ResponseEntity.ok(resource);
+    @Operation(summary = "Buscar agendamento")
+    public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.findById(id));
     }
 
     @GetMapping("/client/{clientId}")
-    @Operation(summary = "Listar agendamentos de um cliente")
-    public ResponseEntity<Page<AppointmentDTO>> findByClientId(@PathVariable Long clientId,
-                                                               @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.findByClientId(clientId, pageable));
-    }
-
-    @GetMapping("/professional/{professionalId}")
-    @Operation(summary = "Listar agendamentos de um profissional")
-    public ResponseEntity<Page<AppointmentDTO>> findByProfessionalId(@PathVariable Long professionalId,
-                                                                     @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.findByProfessionalId(professionalId, pageable));
+    @Operation(summary = "Agendamentos do cliente")
+    public ResponseEntity<Page<AppointmentDTO>> findByClient(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(appointmentService.findByClientId(id, pageable));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar agendamento")
-    public ResponseEntity<EntityModel<AppointmentDTO>> update(@PathVariable Long id,
-                                                              @Valid @RequestBody AppointmentUpdateDTO dto) {
-        AppointmentDTO appointment = appointmentService.updateAppointment(id, dto);
-
-        EntityModel<AppointmentDTO> resource = EntityModel.of(appointment);
-        resource.add(linkTo(methodOn(AppointmentController.class).findById(appointment.getId())).withSelfRel());
-
-        return ResponseEntity.ok(resource);
+    public ResponseEntity<AppointmentDTO> update(@PathVariable Long id, @Valid @RequestBody AppointmentUpdateDTO dto) {
+        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/cancel")
     @Operation(summary = "Cancelar agendamento")
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
-        // Aqui você pode chamar um método específico de cancelamento no service
-        appointmentService.updateAppointment(id, AppointmentUpdateDTO.builder()
-                .status(AppointmentDTO.AppointmentStatus.CANCELLED)
-                .build());
+        appointmentService.cancelAppointment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/confirm")
+    @Operation(summary = "Confirmar agendamento")
+    public ResponseEntity<AppointmentDTO> confirm(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.confirmAppointment(id));
     }
 }

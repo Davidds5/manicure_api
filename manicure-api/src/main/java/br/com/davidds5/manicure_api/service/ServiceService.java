@@ -1,11 +1,14 @@
 package br.com.davidds5.manicure_api.service;
 import br.com.davidds5.manicure_api.dto.ServiceCreateDTO;
 import br.com.davidds5.manicure_api.dto.ServiceDTO;
+import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.entity.ServiceEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ServiceMapper;
 import br.com.davidds5.manicure_api.repository.ServiceRepository;
+import br.com.davidds5.manicure_api.util.Constants;
+import br.com.davidds5.manicure_api.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -82,5 +85,16 @@ public class ServiceService {
 
         serviceRepository.delete(existing);
         log.info("Serviço deletado com ID: {}", id);
+    }
+
+    @Transactional
+    public void cancelAppointment(Long id) {
+        AppointmentEntity existing = getAppointment(id);
+
+        if (!DateUtil.canCancel(existing.getDateTime())) {
+            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
+        }
+
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
     }
 }
