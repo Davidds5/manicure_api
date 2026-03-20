@@ -86,5 +86,74 @@ public class AppointmentService {
                 current == AppointmentEntity.AppointmentStatus.COMPLETED) {
             throw new BusinessException("Status finalizado não pode ser alterado");
         }
+        // ================= CREATE =================
+        @Transactional
+        public AppointmentDTO createAppointment (AppointmentCreateDTO dto){
+            log.info("Criando agendamento para cliente {}", dto.getClientId());
+
+            ClientEntity client = getClient(dto.getClientId());
+            ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
+            ServiceEntity service = getService(dto.getServiceId());
+
+            validateFutureDate(dto.getDateTime());
+            validateTimeConflict(professional.getId(), dto.getDateTime(), null);
+
+            AppointmentEntity entity = appointmentMapper.toEntity(dto, client, professional, service);
+            AppointmentEntity saved = appointmentRepository.save(entity);
+
+            log.info("✅ Agendamento {} criado", saved.getId());
+            return appointmentMapper.toDTO(saved);
+        }
+
+        @Transactional
+        public AppointmentDTO updateAppointment (Long id, AppointmentUpdateDTO dto){
+            log.info("Atualizando agendamento {}", id);
+
+            AppointmentEntity existing = getAppointment(id);
+            validateNotCompleted(existing);
+
+            if (dto.getDateTime() != null) {
+                validateFutureDate(dto.getDateTime());
+                validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), id);
+                existing.setDateTime(dto.getDateTime());
+            }
+
+            if (dto.getStatus() != null) {
+                validateStatusTransition(existing.getStatus(), dto.getStatus());
+                existing.setStatus(dto.getStatus());
+            }
+
+            return appointmentMapper.toDTO(appointmentRepository.save(existing));
+        }
+
+        // ================= CANCEL/CONFIRM =================
+        @Transactional
+        public void cancelAppointment (Long id){
+            log.info("Cancelando agendamento {}", id);
+
+            AppointmentEntity existing = getAppointment(id);
+            validateNotCompleted(existing);
+
+            if (!DateUtil.canCancel(existing.getDateTime())) {
+                throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência");
+            }
+
+            existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
+            appointmentRepository.save(existing);
+        }
+
+        @Transactional
+        public AppointmentDTO confirmAppointment (Long id){
+            log.info("Confirmando agendamento {}", id);
+
+            AppointmentEntity existing = getAppointment(id);
+
+            if (existing.getStatus() != AppointmentEntity.AppointmentStatus.SCHEDULED) {
+                throw new BusinessException("Apenas SCHEDULED pode ser confirmado");
+            }
+
+            existing.setStatus(AppointmentEntity.AppointmentStatus.CONFIRMED);
+            return appointmentMapper.toDTO(appointmentRepository.save(existing));
+        }
     }
 }
