@@ -32,6 +32,7 @@ public class AppointmentService {
     private final AppointmentData appointmentData;
 
     // ================= PRIVATE HELPERS =================
+
     private AppointmentEntity getAppointment(Long id) {
         return appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado: " + id));
@@ -45,9 +46,11 @@ public class AppointmentService {
     private ProfessionalEntity getProfessional(Long id) {
         ProfessionalEntity professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + id));
+
         if (!professional.getActive()) {
             throw new BusinessException("Profissional inativo");
         }
+
         return professional;
     }
 
@@ -82,102 +85,121 @@ public class AppointmentService {
 
     private void validateStatusTransition(AppointmentEntity.AppointmentStatus current,
                                           AppointmentEntity.AppointmentStatus next) {
+
         if (current == AppointmentEntity.AppointmentStatus.CANCELLED ||
                 current == AppointmentEntity.AppointmentStatus.COMPLETED) {
             throw new BusinessException("Status finalizado não pode ser alterado");
         }
-        // ================= CREATE =================
-        @Transactional
-        public AppointmentDTO createAppointment (AppointmentCreateDTO dto){
-            log.info("Criando agendamento para cliente {}", dto.getClientId());
+    }
 
-            ClientEntity client = getClient(dto.getClientId());
-            ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
-            ServiceEntity service = getService(dto.getServiceId());
+    // ================= CREATE =================
 
+    @Transactional
+    public AppointmentDTO createAppointment(AppointmentCreateDTO dto) {
+
+        // 1. Buscar entidades relacionadas
+        ClientEntity client = clientRepository.findById(dto.getClientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+        ProfessionalEntity professional = professionalRepository.findById(dto.getProfessionalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado"));
+
+        ServiceEntity service = serviceRepository.findById(dto.getServiceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+
+        // 2. Criar entidade (AQUI entra o trecho que você perguntou)
+        AppointmentEntity entity = new AppointmentEntity();
+
+        entity.setClient(client);
+        entity.setProfessional(professional);
+        entity.setService(service);
+        entity.setStatus(AppointmentEntity.AppointmentStatus.SCHEDULED);
+
+        // se tiver data:
+        entity.setDateTime(dto.getDateTime());
+
+        // 3. Salvar
+        AppointmentEntity saved = appointmentRepository.save(entity);
+
+        // 4. Converter pra DTO
+        return appointmentMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public AppointmentDTO updateAppointment(Long id, AppointmentUpdateDTO dto) {
+        log.info("Atualizando agendamento {}", id);
+
+        AppointmentEntity existing = getAppointment(id);
+        validateNotCompleted(existing);
+
+        if (dto.getDateTime() != null) {
             validateFutureDate(dto.getDateTime());
-            validateTimeConflict(professional.getId(), dto.getDateTime(), null);
-
-            AppointmentEntity entity = appointmentMapper.toEntity(dto, client, professional, service);
-            AppointmentEntity saved = appointmentRepository.save(entity);
-
-            log.info("✅ Agendamento {} criado", saved.getId());
-            return appointmentMapper.toDTO(saved);
+            validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), id);
+            existing.setDateTime(dto.getDateTime());
         }
 
-        @Transactional
-        public AppointmentDTO updateAppointment (Long id, AppointmentUpdateDTO dto){
-            log.info("Atualizando agendamento {}", id);
-
-            AppointmentEntity existing = getAppointment(id);
-            validateNotCompleted(existing);
-
-            if (dto.getDateTime() != null) {
-                validateFutureDate(dto.getDateTime());
-                validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), id);
-                existing.setDateTime(dto.getDateTime());
-            }
-
-            if (dto.getStatus() != null) {
-                validateStatusTransition(existing.getStatus(), dto.getStatus());
-                existing.setStatus(dto.getStatus());
-            }
-
-            return appointmentMapper.toDTO(appointmentRepository.save(existing));
+        if (dto.getStatus() != null) {
+            validateStatusTransition(existing.getStatus(), dto.getStatus());
+            existing.setStatus(dto.getStatus());
         }
 
-        // ================= CANCEL/CONFIRM =================
-        @Transactional
-        public void cancelAppointment (Long id){
-            log.info("Cancelando agendamento {}", id);
+        return appointmentMapper.toDTO(appointmentRepository.save(existing));
+    }
 
-            AppointmentEntity existing = getAppointment(id);
-            validateNotCompleted(existing);
+    // ================= CANCEL/CONFIRM =================
 
-            if (!DateUtil.canCancel(existing.getDateTime())) {
-                throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência");
-            }
+    @Transactional
+    public void cancelAppointment(Long id) {
+        log.info("Cancelando agendamento {}", id);
 
-            existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
-            appointmentRepository.save(existing);
+        AppointmentEntity existing = getAppointment(id);
+        validateNotCompleted(existing);
+
+        if (!DateUtil.canCancel(existing.getDateTime())) {
+            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência");
         }
 
-        @Transactional
-        public AppointmentDTO confirmAppointment (Long id){
-            log.info("Confirmando agendamento {}", id);
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
+        appointmentRepository.save(existing);
+    }
 
-            AppointmentEntity existing = getAppointment(id);
+    @Transactional
+    public AppointmentDTO confirmAppointment(Long id) {
+        log.info("Confirmando agendamento {}", id);
 
-            if (existing.getStatus() != AppointmentEntity.AppointmentStatus.SCHEDULED) {
-                throw new BusinessException("Apenas SCHEDULED pode ser confirmado");
-            }
+        AppointmentEntity existing = getAppointment(id);
 
-            existing.setStatus(AppointmentEntity.AppointmentStatus.CONFIRMED);
-            return appointmentMapper.toDTO(appointmentRepository.save(existing));
+        if (existing.getStatus() != AppointmentEntity.AppointmentStatus.SCHEDULED) {
+            throw new BusinessException("Apenas SCHEDULED pode ser confirmado");
         }
 
+        existing.setStatus(AppointmentEntity.AppointmentStatus.CONFIRMED);
+        return appointmentMapper.toDTO(appointmentRepository.save(existing));
+    }
 
-        @Transactional(readOnly = true)
-        public AppointmentDTO findById (Long id){
-            log.debug("Buscando agendamento {}", id);
-            return appointmentMapper.toDTO(getAppointment(id));
-        }
+    // ================= FIND =================
 
-        @Transactional(readOnly = true)
-        public Page<AppointmentDTO> findAll (Pageable pageable){
-            return appointmentRepository.findAll(pageable).map(appointmentMapper::toDTO);
-        }
+    @Transactional(readOnly = true)
+    public AppointmentDTO findById(Long id) {
+        log.debug("Buscando agendamento {}", id);
+        return appointmentMapper.toDTO(getAppointment(id));
+    }
 
-        @Transactional(readOnly = true)
-        public Page<AppointmentDTO> findByClientId (Long clientId, Pageable pageable){
-            return appointmentRepository.findByClientId(clientId, pageable)
-                    .map(appointmentMapper::toDTO);
-        }
+    @Transactional(readOnly = true)
+    public Page<AppointmentDTO> findAll(Pageable pageable) {
+        return appointmentRepository.findAll(pageable)
+                .map(appointmentMapper::toDTO);
+    }
 
-        @Transactional(readOnly = true)
-        public Page<AppointmentDTO> findByProfessionalId (Long professionalId, Pageable pageable){
-            return appointmentRepository.findByProfessionalId(professionalId, pageable)
-                    .map(appointmentMapper::toDTO);
-        }
+    @Transactional(readOnly = true)
+    public Page<AppointmentDTO> findByClientId(Long clientId, Pageable pageable) {
+        return appointmentRepository.findByClientId(clientId, pageable)
+                .map(appointmentMapper::toDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AppointmentDTO> findByProfessionalId(Long professionalId, Pageable pageable) {
+        return appointmentRepository.findByProfessionalId(professionalId, pageable)
+                .map(appointmentMapper::toDTO);
     }
 }

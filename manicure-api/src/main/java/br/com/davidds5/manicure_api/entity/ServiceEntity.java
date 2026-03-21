@@ -21,10 +21,15 @@ public class ServiceEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false,precision = 10, scale = 2)
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private Double price;
 
     @Column(nullable = false)
-    private Integer duration;
+    private Integer durationMinutes;
 
+    @Column(nullable = false)
+    private Boolean active;
 }

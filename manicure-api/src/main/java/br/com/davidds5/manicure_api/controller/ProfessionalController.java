@@ -1,15 +1,14 @@
 package br.com.davidds5.manicure_api.controller;
 
-
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
-import com.manicure.service.ProfessionalService;
+import br.com.davidds5.manicure_api.service.ProfessionalService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,7 +56,7 @@ public class ProfessionalController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar profissional")
     public ResponseEntity<EntityModel<ProfessionalDTO>> update(@PathVariable Long id,
-                                                               @Valid @RequestBody ProfessionalCreateDTO dto) {
+                                                               @Valid @RequestBody ProfessionalCreatedDTO dto) {
         ProfessionalDTO professional = professionalService.updateProfessional(id, dto);
 
         EntityModel<ProfessionalDTO> resource = EntityModel.of(professional);

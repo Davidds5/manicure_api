@@ -1,9 +1,8 @@
 package br.com.davidds5.manicure_api.controller;
 
-
 import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
-
+import br.com.davidds5.manicure_api.dto.ClientUpdateDTO;
 import br.com.davidds5.manicure_api.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,12 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.EntityModel;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("/api/v1/clients")
@@ -28,20 +27,17 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
-    }
-
     @PostMapping
     @Operation(summary = "Criar novo cliente")
     public ResponseEntity<EntityModel<ClientDTO>> create(@Valid @RequestBody ClientCreatedDTO dto) {
         ClientDTO client = clientService.createClient(dto);
 
-        EntityModel<ClientDTO> resource = EntityModel.of(client);
-        resource.add(linkTo(methodOn(ClientController.class).findById(client.getId())).withSelfRel());
-        resource.add(linkTo(methodOn(ClientController.class).findAll(null)).withRel("all-clients"));
+        EntityModel<ClientDTO> resource = buildResource(client);
 
-        return ResponseEntity.status(201).body(resource);
+        URI location = linkTo(methodOn(ClientController.class)
+                .findById(client.getId())).toUri();
+
+        return ResponseEntity.created(location).body(resource);
     }
 
     @GetMapping
@@ -54,23 +50,15 @@ public class ClientController {
     @Operation(summary = "Buscar cliente por ID")
     public ResponseEntity<EntityModel<ClientDTO>> findById(@PathVariable Long id) {
         ClientDTO client = clientService.findById(id);
-
-        EntityModel<ClientDTO> resource = EntityModel.of(client);
-        resource.add(linkTo(methodOn(ClientController.class).findAll(null)).withRel("all-clients"));
-
-        return ResponseEntity.ok(resource);
+        return ResponseEntity.ok(buildResource(client));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar cliente")
     public ResponseEntity<EntityModel<ClientDTO>> update(@PathVariable Long id,
-                                                         @Valid @RequestBody ClientCreatedDTO dto) {
+                                                         @Valid @RequestBody ClientUpdateDTO dto) {
         ClientDTO client = clientService.updateClient(id, dto);
-
-        EntityModel<ClientDTO> resource = EntityModel.of(client);
-        resource.add(linkTo(methodOn(ClientController.class).findById(client.getId())).withSelfRel());
-
-        return ResponseEntity.ok(resource);
+        return ResponseEntity.ok(buildResource(client));
     }
 
     @DeleteMapping("/{id}")
@@ -78,5 +66,14 @@ public class ClientController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ================= HATEOAS PADRÃO =================
+
+    private EntityModel<ClientDTO> buildResource(ClientDTO client) {
+        return EntityModel.of(client,
+                linkTo(methodOn(ClientController.class).findById(client.getId())).withSelfRel(),
+                linkTo(methodOn(ClientController.class).findAll(Pageable.unpaged())).withRel("all-clients")
+        );
     }
 }

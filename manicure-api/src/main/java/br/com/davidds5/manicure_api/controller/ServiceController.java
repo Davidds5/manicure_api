@@ -1,17 +1,22 @@
 package br.com.davidds5.manicure_api.controller;
 
-
 import br.com.davidds5.manicure_api.dto.ServiceCreateDTO;
 import br.com.davidds5.manicure_api.dto.ServiceDTO;
+import br.com.davidds5.manicure_api.dto.ServiceUpdateDTO;
 import br.com.davidds5.manicure_api.service.ServiceService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.EntityModel;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -37,8 +42,23 @@ public class ServiceController {
 
     @GetMapping
     @Operation(summary = "Listar todos os serviços")
-    public ResponseEntity<List<ServiceDTO>> findAll() {
-        return ResponseEntity.ok(serviceService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<ServiceDTO>>> findAll() {
+        List<EntityModel<ServiceDTO>> services = serviceService.findAll()
+                .stream()
+                .map(service -> {
+                    EntityModel<ServiceDTO> resource = EntityModel.of(service);
+                    resource.add(linkTo(methodOn(ServiceController.class)
+                            .findById(service.getId())).withSelfRel());
+                    return resource;
+                })
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<ServiceDTO>> collection =
+                CollectionModel.of(services);
+
+        collection.add(linkTo(methodOn(ServiceController.class).findAll()).withSelfRel());
+
+        return ResponseEntity.ok(collection);
     }
 
     @GetMapping("/{id}")
@@ -54,12 +74,15 @@ public class ServiceController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar serviço")
-    public ResponseEntity<EntityModel<ServiceDTO>> update(@PathVariable Long id,
-                                                          @Valid @RequestBody ServiceCreateDTO dto) {
+    public ResponseEntity<EntityModel<ServiceDTO>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody ServiceUpdateDTO dto) {
+
         ServiceDTO service = serviceService.updateService(id, dto);
 
         EntityModel<ServiceDTO> resource = EntityModel.of(service);
-        resource.add(linkTo(methodOn(ServiceController.class).findById(service.getId())).withSelfRel());
+        resource.add(linkTo(methodOn(ServiceController.class)
+                .findById(service.getId())).withSelfRel());
 
         return ResponseEntity.ok(resource);
     }

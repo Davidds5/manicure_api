@@ -1,14 +1,14 @@
 package br.com.davidds5.manicure_api.service;
+
 import br.com.davidds5.manicure_api.dto.ServiceCreateDTO;
 import br.com.davidds5.manicure_api.dto.ServiceDTO;
-import br.com.davidds5.manicure_api.entity.AppointmentEntity;
+import br.com.davidds5.manicure_api.dto.ServiceUpdateDTO;
 import br.com.davidds5.manicure_api.entity.ServiceEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ServiceMapper;
 import br.com.davidds5.manicure_api.repository.ServiceRepository;
-import br.com.davidds5.manicure_api.util.Constants;
-import br.com.davidds5.manicure_api.util.DateUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ServiceService {
 
     private final ServiceRepository serviceRepository;
@@ -39,21 +39,19 @@ public class ServiceService {
         ServiceEntity entity = serviceMapper.toEntity(dto);
         ServiceEntity saved = serviceRepository.save(entity);
 
-        log.info("Serviço criado com ID: {}", saved.getId());
         return serviceMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public ServiceDTO findById(Long id) {
-        log.info("Buscando serviço por ID: {}", id);
         ServiceEntity entity = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com ID: " + id));
+
         return serviceMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)
     public List<ServiceDTO> findAll() {
-        log.info("Listando todos os serviços");
         return serviceRepository.findAll()
                 .stream()
                 .map(serviceMapper::toDTO)
@@ -61,40 +59,49 @@ public class ServiceService {
     }
 
     @Transactional
-    public ServiceDTO updateService(Long id, ServiceCreateDTO dto) {
-        log.info("Atualizando serviço ID: {}", id);
+    public ServiceDTO updateService(Long id, ServiceUpdateDTO dto) {
 
         ServiceEntity existing = serviceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
 
-        existing.setName(dto.getName());
-        existing.setPrice(dto.getPrice());
-        existing.setDuration(dto.getDuration());
+        if (dto.getName() != null) {
+            existing.setName(dto.getName());
+        }
+
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
+        }
+
+        if (dto.getPrice() != null && dto.getPrice() <= 0) {
+            throw new BusinessException("Preço deve ser maior que zero");
+        }
+
+        if (dto.getDurationMinutes() != null && dto.getDurationMinutes() <= 0) {
+            throw new BusinessException("Duração deve ser maior que zero");
+        }
+
+        if (dto.getPrice() != null) {
+            existing.setPrice(dto.getPrice());
+        }
+
+        if (dto.getDurationMinutes() != null) {
+            existing.setDurationMinutes(dto.getDurationMinutes());
+        }
+
+        if (dto.getActive() != null) {
+            existing.setActive(dto.getActive());
+        }
 
         ServiceEntity updated = serviceRepository.save(existing);
-        log.info("Serviço atualizado com ID: {}", updated.getId());
+
         return serviceMapper.toDTO(updated);
     }
 
     @Transactional
     public void deleteService(Long id) {
-        log.info("Deletando serviço ID: {}", id);
+        ServiceEntity entity = serviceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
 
-        ServiceEntity existing = serviceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com ID: " + id));
-
-        serviceRepository.delete(existing);
-        log.info("Serviço deletado com ID: {}", id);
-    }
-
-    @Transactional
-    public void cancelAppointment(Long id) {
-        AppointmentEntity existing = getAppointment(id);
-
-        if (!DateUtil.canCancel(existing.getDateTime())) {
-            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
-        }
-
-        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
+        serviceRepository.delete(entity);
     }
 }

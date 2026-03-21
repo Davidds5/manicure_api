@@ -2,15 +2,13 @@ package br.com.davidds5.manicure_api.service;
 
 import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
-import br.com.davidds5.manicure_api.entity.AppointmentEntity;
+import br.com.davidds5.manicure_api.dto.ClientUpdateDTO;
 import br.com.davidds5.manicure_api.entity.ClientEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ClientMapper;
 import br.com.davidds5.manicure_api.repository.ClientRepository;
 
-import br.com.davidds5.manicure_api.util.Constants;
-import br.com.davidds5.manicure_api.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,10 +26,9 @@ public class ClientService {
     private final ClientMapper clientMapper;
 
     @Transactional
-    public ClientDTO createClient(@org.jetbrains.annotations.NotNull ClientCreatedDTO dto) {
+    public ClientDTO createClient(ClientCreatedDTO dto) {
         log.info("Criando novo cliente: {}", dto.getEmail());
 
-        // Verifica se email já existe
         if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BusinessException("Email já cadastrado: " + dto.getEmail());
         }
@@ -46,14 +43,17 @@ public class ClientService {
     @Transactional(readOnly = true)
     public ClientDTO findById(Long id) {
         log.info("Buscando cliente por ID: {}", id);
+
         ClientEntity entity = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
+
         return clientMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)
     public Page<ClientDTO> findAll(Pageable pageable) {
-        log.info("Listando todos os clientes com paginação");
+        log.info("Listando clientes");
+
         return clientRepository.findAll(pageable)
                 .map(clientMapper::toDTO);
     }
@@ -61,29 +61,37 @@ public class ClientService {
     @Transactional(readOnly = true)
     public Page<ClientDTO> findByNameContaining(String name, Pageable pageable) {
         log.info("Buscando clientes por nome: {}", name);
+
         return clientRepository.findByNameContaining(name, pageable)
                 .map(clientMapper::toDTO);
     }
 
     @Transactional
-    public ClientDTO updateClient(Long id, ClientCreatedDTO) {
+    public ClientDTO updateClient(Long id, ClientUpdateDTO dto) {
         log.info("Atualizando cliente ID: {}", id);
 
         ClientEntity existing = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
 
-        // Verifica se email mudou e se já existe em outro cliente
-        if (!existing.getEmail().equals(dto.getEmail())) {
+        // Atualiza email se vier e for diferente
+        if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
             if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
                 throw new BusinessException("Email já cadastrado: " + dto.getEmail());
             }
+            existing.setEmail(dto.getEmail());
         }
 
-        existing.setName(dto.getName());
-        existing.setPhone(dto.getPhone());
-        existing.setEmail(dto.getEmail());
+        // Atualizações parciais (evita sobrescrever com null)
+        if (dto.getName() != null) {
+            existing.setName(dto.getName());
+        }
+
+        if (dto.getPhone() != null) {
+            existing.setPhone(dto.getPhone());
+        }
 
         ClientEntity updated = clientRepository.save(existing);
+
         log.info("Cliente atualizado com ID: {}", updated.getId());
         return clientMapper.toDTO(updated);
     }
@@ -97,16 +105,5 @@ public class ClientService {
 
         clientRepository.delete(existing);
         log.info("Cliente deletado com ID: {}", id);
-    }
-
-    @Transactional
-    public void cancelAppointment(Long id) {
-        AppointmentEntity existing = getAppointment(id);
-
-        if (!DateUtil.canCancel(existing.getDateTime())) {
-            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
-        }
-
-        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
     }
 }
