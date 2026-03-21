@@ -1,7 +1,11 @@
 package br.com.davidds5.manicure_api.dto;
 
+import br.com.davidds5.manicure_api.entity.AppointmentEntity.AppointmentStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
@@ -10,5 +14,5 @@ import java.time.LocalDateTime;
 @Builder
 public class AppointmentUpdateDTO {
     private LocalDateTime dateTime;
-    private AppointmentDTO.AppointmentStatus status;
+    private AppointmentStatus status; // agora é o mesmo enum da entity
 }

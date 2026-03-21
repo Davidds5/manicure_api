@@ -5,7 +5,7 @@ import br.com.davidds5.manicure_api.dto.*;
 import br.com.davidds5.manicure_api.entity.*;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
-import br.com.davidds5.manicure_api.mapper.AppointmentMapper;
+
 import br.com.davidds5.manicure_api.repository.*;
 import br.com.davidds5.manicure_api.util.Constants;
 import br.com.davidds5.manicure_api.util.DateUtil;
@@ -28,7 +28,6 @@ public class AppointmentService {
     private final ClientRepository clientRepository;
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
-    private final AppointmentMapper appointmentMapper;
     private final AppointmentData appointmentData;
 
     // ================= PRIVATE HELPERS =================
@@ -96,34 +95,29 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentDTO createAppointment(AppointmentCreateDTO dto) {
+        log.info("Criando agendamento");
 
-        // 1. Buscar entidades relacionadas
-        ClientEntity client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+        ClientEntity client = getClient(dto.getClientId());
+        ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
+        ServiceEntity service = getService(dto.getServiceId());
 
-        ProfessionalEntity professional = professionalRepository.findById(dto.getProfessionalId())
-                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado"));
+        validateFutureDate(dto.getDateTime());
+        validateTimeConflict(professional.getId(), dto.getDateTime(), null);
 
-        ServiceEntity service = serviceRepository.findById(dto.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
-
-        // 2. Criar entidade (AQUI entra o trecho que você perguntou)
         AppointmentEntity entity = new AppointmentEntity();
 
         entity.setClient(client);
         entity.setProfessional(professional);
         entity.setService(service);
+        entity.setDateTime(dto.getDateTime());
         entity.setStatus(AppointmentEntity.AppointmentStatus.SCHEDULED);
 
-        // se tiver data:
-        entity.setDateTime(dto.getDateTime());
-
-        // 3. Salvar
         AppointmentEntity saved = appointmentRepository.save(entity);
 
-        // 4. Converter pra DTO
-        return appointmentMapper.toDTO(saved);
+        return toDTO(saved);
     }
+
+    // ================= UPDATE =================
 
     @Transactional
     public AppointmentDTO updateAppointment(Long id, AppointmentUpdateDTO dto) {
@@ -143,10 +137,12 @@ public class AppointmentService {
             existing.setStatus(dto.getStatus());
         }
 
-        return appointmentMapper.toDTO(appointmentRepository.save(existing));
+        AppointmentEntity updated = appointmentRepository.save(existing);
+
+        return toDTO(updated);
     }
 
-    // ================= CANCEL/CONFIRM =================
+    // ================= CANCEL =================
 
     @Transactional
     public void cancelAppointment(Long id) {
@@ -156,12 +152,16 @@ public class AppointmentService {
         validateNotCompleted(existing);
 
         if (!DateUtil.canCancel(existing.getDateTime())) {
-            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência");
+            throw new BusinessException(
+                    "Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência"
+            );
         }
 
         existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
         appointmentRepository.save(existing);
     }
+
+    // ================= CONFIRM =================
 
     @Transactional
     public AppointmentDTO confirmAppointment(Long id) {
@@ -174,7 +174,10 @@ public class AppointmentService {
         }
 
         existing.setStatus(AppointmentEntity.AppointmentStatus.CONFIRMED);
-        return appointmentMapper.toDTO(appointmentRepository.save(existing));
+
+        AppointmentEntity updated = appointmentRepository.save(existing);
+
+        return toDTO(updated);
     }
 
     // ================= FIND =================
@@ -182,24 +185,40 @@ public class AppointmentService {
     @Transactional(readOnly = true)
     public AppointmentDTO findById(Long id) {
         log.debug("Buscando agendamento {}", id);
-        return appointmentMapper.toDTO(getAppointment(id));
+        return toDTO(getAppointment(id));
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findAll(Pageable pageable) {
         return appointmentRepository.findAll(pageable)
-                .map(appointmentMapper::toDTO);
+                .map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findByClientId(Long clientId, Pageable pageable) {
         return appointmentRepository.findByClientId(clientId, pageable)
-                .map(appointmentMapper::toDTO);
+                .map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findByProfessionalId(Long professionalId, Pageable pageable) {
         return appointmentRepository.findByProfessionalId(professionalId, pageable)
-                .map(appointmentMapper::toDTO);
+                .map(this::toDTO);
+    }
+    private AppointmentDTO toDTO(AppointmentEntity entity) {
+        if (entity == null) return null;
+
+        return AppointmentDTO.builder()
+                .id(entity.getId())
+                .clientId(entity.getClient().getId())
+                .clientName(entity.getClient().getName())
+                .professionalId(entity.getProfessional().getId())
+                .professionalName(entity.getProfessional().getName())
+                .serviceId(entity.getService().getId())
+                .serviceName(entity.getService().getName())
+                .servicePrice(entity.getService().getPrice())
+                .dateTime(entity.getDateTime())
+                .status(entity.getStatus())
+                .build();
     }
 }

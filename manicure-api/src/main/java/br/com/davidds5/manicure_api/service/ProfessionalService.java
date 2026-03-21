@@ -1,6 +1,5 @@
 package br.com.davidds5.manicure_api.service;
 
-
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.entity.AppointmentEntity;
@@ -8,6 +7,7 @@ import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ProfessionalMapper;
+import br.com.davidds5.manicure_api.repository.AppointmentRepository;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
 import br.com.davidds5.manicure_api.util.Constants;
 import br.com.davidds5.manicure_api.util.DateUtil;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,15 +25,14 @@ import java.util.List;
 public class ProfessionalService {
 
     private final ProfessionalRepository professionalRepository;
+    private final AppointmentRepository appointmentRepository;
     private final ProfessionalMapper professionalMapper;
 
     @Transactional
     public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
-        log.info("Criando novo profissional: {}", dto.getName());
-
+        log.info("Criando novo profissional: {}", dto.getNome());
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
         ProfessionalEntity saved = professionalRepository.save(entity);
-
         log.info("Profissional criado com ID: {}", saved.getId());
         return professionalMapper.toDTO(saved);
     }
@@ -48,10 +48,11 @@ public class ProfessionalService {
     @Transactional(readOnly = true)
     public List<ProfessionalDTO> findAllActive() {
         log.info("Listando todos os profissionais ativos");
-        return professionalRepository.findByActiveTrue()
+        List<ProfessionalDTO> collect = professionalRepository.findByActiveTrue()
                 .stream()
-                .map(professionalMapper::toDTO)
-                .toList();
+                .map((ProfessionalRepository entity) -> professionalMapper.toDTO((ProfessionalEntity) entity))
+                .collect(Collectors.toList());
+        return collect; // compatível com Java 8+
     }
 
     @Transactional
@@ -61,7 +62,7 @@ public class ProfessionalService {
         ProfessionalEntity existing = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
-        existing.setName(dto.getName());
+        existing.setName(dto.getNome());
         existing.setSpecialty(dto.getSpecialty());
         existing.setActive(dto.isActive());
 
@@ -82,13 +83,22 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public void cancelAppointment(Long id) {
-        AppointmentEntity existing = getAppointment(id);
+    public void cancelAppointment(Long appointmentId) {
+        log.info("Cancelando agendamento ID: {}", appointmentId);
+        AppointmentEntity appointment = getAppointment(appointmentId);
 
-        if (!DateUtil.canCancel(existing.getDateTime())) {
-            throw new BusinessException("Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
+        if (!DateUtil.canCancel(appointment.getDateTime())) {
+            throw new BusinessException("Cancelamento só permitido com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
         }
 
-        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
+        appointment.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment); // salva a alteração
+        log.info("Agendamento ID {} cancelado", appointmentId);
+    }
+
+    // método auxiliar para buscar agendamento
+    private AppointmentEntity getAppointment(Long id) {
+        return appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado com ID: " + id));
     }
 }

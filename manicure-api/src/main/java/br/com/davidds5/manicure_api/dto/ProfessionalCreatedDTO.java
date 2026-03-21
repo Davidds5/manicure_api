@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProfessionalCreatedDTO {
-    @NotBlank(message = "Nome e obrigatorio")
-    @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 characters")
-    private String nome;
+
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
+    private String nome;  // renomeado de 'nome' para 'name'
 
     @NotBlank(message = "Especialidade é obrigatória")
-    @Size(min = 3, max = 50, message = "Especialidade deve ter entre 3 a 50 characters")
+    @Size(min = 3, max = 50, message = "Especialidade deve ter entre 3 a 50 caracteres")
     private String specialty;
 
-
-    private Boolean active = true;
+    private boolean active = true; // boolean primitivo gera isActive()
 }

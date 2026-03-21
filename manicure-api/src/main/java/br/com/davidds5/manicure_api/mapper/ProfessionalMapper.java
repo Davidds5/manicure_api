@@ -3,22 +3,21 @@ package br.com.davidds5.manicure_api.mapper;
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
-import com.github.dozermapper.core.Mapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class ProfessionalMapper {
-    private final com.github.dozermapper.core.Mapper mapper;
+@Mapper(componentModel = "spring")
+public interface ProfessionalMapper {
 
-    public ProfessionalMapper(Mapper dozerMapper){
-        this.mapper = dozerMapper;
-    }
+    // Mapeia de entity -> DTO
+    @Mapping(target = "name", source = "name")          // ProfessionalEntity.name -> ProfessionalDTO.name
+    @Mapping(target = "specialty", source = "specialty")
+    @Mapping(target = "active", source = "active")
+    ProfessionalDTO toDTO(ProfessionalEntity entity);
 
-    public ProfessionalDTO toDTO(ProfessionalEntity entity){
-        return mapper.map(entity, ProfessionalDTO.class);
-    }
-
-    public ProfessionalEntity toEntity(ProfessionalCreatedDTO dto){
-        return mapper.map(dto, ProfessionalEntity.class);
-    }
+    // Mapeia de DTO -> entity
+    @Mapping(target = "name", source = "nome")         // ProfessionalCreatedDTO.nome -> ProfessionalEntity.name
+    @Mapping(target = "specialty", source = "specialty")
+    @Mapping(target = "active", source = "active")
+    ProfessionalEntity toEntity(ProfessionalCreatedDTO dto);
 }
