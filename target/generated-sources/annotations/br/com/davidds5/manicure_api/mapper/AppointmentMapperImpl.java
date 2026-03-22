@@ -1,6 +1,8 @@
 package br.com.davidds5.manicure_api.mapper;
 
+import br.com.davidds5.manicure_api.dto.AppointmentCreateDTO;
 import br.com.davidds5.manicure_api.dto.AppointmentDTO;
+import br.com.davidds5.manicure_api.dto.AppointmentUpdateDTO;
 import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.entity.ClientEntity;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
@@ -10,21 +12,35 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-03-21T20:29:48-0300",
+    date = "2026-03-21T21:05:22-0300",
     comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.10 (Microsoft)"
 )
 @Component
 public class AppointmentMapperImpl implements AppointmentMapper {
 
     @Override
-    public AppointmentDTO toDTO(AppointmentEntity entity) {
+    public AppointmentEntity toEntity(AppointmentCreateDTO dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        AppointmentEntity.AppointmentEntityBuilder appointmentEntity = AppointmentEntity.builder();
+
+        appointmentEntity.dateTime( dto.getDateTime() );
+
+        appointmentEntity.status( AppointmentEntity.AppointmentStatus.SCHEDULED );
+
+        return appointmentEntity.build();
+    }
+
+    @Override
+    public AppointmentDTO toDto(AppointmentEntity entity) {
         if ( entity == null ) {
             return null;
         }
 
         AppointmentDTO.AppointmentDTOBuilder appointmentDTO = AppointmentDTO.builder();
 
-        appointmentDTO.id( entity.getId() );
         appointmentDTO.clientId( entityClientId( entity ) );
         appointmentDTO.clientName( entityClientName( entity ) );
         appointmentDTO.professionalId( entityProfessionalId( entity ) );
@@ -32,10 +48,25 @@ public class AppointmentMapperImpl implements AppointmentMapper {
         appointmentDTO.serviceId( entityServiceId( entity ) );
         appointmentDTO.serviceName( entityServiceName( entity ) );
         appointmentDTO.servicePrice( entityServicePrice( entity ) );
+        appointmentDTO.id( entity.getId() );
         appointmentDTO.dateTime( entity.getDateTime() );
         appointmentDTO.status( entity.getStatus() );
 
         return appointmentDTO.build();
+    }
+
+    @Override
+    public void partialUpdate(AppointmentUpdateDTO dto, AppointmentEntity entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.getDateTime() != null ) {
+            entity.setDateTime( dto.getDateTime() );
+        }
+        if ( dto.getStatus() != null ) {
+            entity.setStatus( dto.getStatus() );
+        }
     }
 
     private Long entityClientId(AppointmentEntity appointmentEntity) {

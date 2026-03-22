@@ -7,14 +7,17 @@ import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AppointmentMapper {
 
     @Mapping(target = "client", ignore = true)
     @Mapping(target = "professional", ignore = true)
     @Mapping(target = "service", ignore = true)
     @Mapping(target = "status", constant = "SCHEDULED")
+    @Mapping(target = "payment", ignore = true)
     AppointmentEntity toEntity(AppointmentCreateDTO dto);
 
     @Mapping(source = "client.id", target = "clientId")
@@ -24,7 +27,7 @@ public interface AppointmentMapper {
     @Mapping(source = "service.id", target = "serviceId")
     @Mapping(source = "service.name", target = "serviceName")
     @Mapping(source = "service.price", target = "servicePrice")
-    AppointmentDTO toDTO(AppointmentEntity entity);
+    AppointmentDTO toDto(AppointmentEntity entity);
 
-    void updateEntity(AppointmentUpdateDTO dto, @MappingTarget AppointmentEntity entity);
+    void partialUpdate(AppointmentUpdateDTO dto, @MappingTarget AppointmentEntity entity);
 }

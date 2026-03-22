@@ -45,8 +45,10 @@ public class AppointmentController {
 
     @GetMapping("/client/{clientId}")
     @Operation(summary = "Agendamentos do cliente")
-    public ResponseEntity<Page<AppointmentDTO>> findByClient(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.findByClientId(id, pageable));
+    public ResponseEntity<Page<AppointmentDTO>> findByClient(
+            @PathVariable("clientId") Long clientId,
+            Pageable pageable) {
+        return ResponseEntity.ok(appointmentService.findByClientId(clientId, pageable));
     }
 
     @PutMapping("/{id}")
