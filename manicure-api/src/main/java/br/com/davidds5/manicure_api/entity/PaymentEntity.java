@@ -24,7 +24,7 @@ public class PaymentEntity {
     @JoinColumn(name = "appointment_id", nullable = false, unique = true)
     private AppointmentEntity appointment;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Double amount;
 
     @Column(nullable = false, length = 50)

@@ -1,0 +1,12 @@
+{
+  "jdk.jdkhome": "${env:JAVA_HOME}",
+  "jdk.project.jdkhome": "${env:JAVA_HOME}",
+  "java.jdt.ls.java.home": "${env:JAVA_HOME}",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "${env:JAVA_HOME}",
+      "default": true
+    }
+  ]
+}

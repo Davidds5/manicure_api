@@ -1,0 +1,16 @@
+2026-03-23 00:26:29.110 -03 [4380] LOG:  starting PostgreSQL 16.13, compiled by Visual C++ build 1944, 64-bit
+2026-03-23 00:26:29.119 -03 [4380] LOG:  listening on IPv6 address "::1", port 5432
+2026-03-23 00:26:29.119 -03 [4380] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2026-03-23 00:26:29.489 -03 [19016] LOG:  database system was shut down at 2026-03-23 00:25:01 -03
+2026-03-23 00:26:29.903 -03 [4380] LOG:  database system is ready to accept connections
+2026-03-23 00:29:20.413 -03 [27172] FATAL:  password authentication failed for user "postgres"
+2026-03-23 00:29:20.413 -03 [27172] DETAIL:  Connection matched file "C:/manicure-api/postgres-data/pg_hba.conf" line 117: "host    all             all             ::1/128                 scram-sha-256"
+2026-03-23 00:29:39.174 -03 [4380] LOG:  received fast shutdown request
+2026-03-23 00:29:39.177 -03 [4380] LOG:  aborting any active transactions
+2026-03-23 00:29:39.202 -03 [4380] LOG:  background worker "logical replication launcher" (PID 23900) exited with exit code 1
+2026-03-23 00:29:39.215 -03 [3828] LOG:  shutting down
+2026-03-23 00:29:39.217 -03 [3828] LOG:  checkpoint starting: shutdown immediate
+2026-03-23 00:29:39.242 -03 [3828] LOG:  checkpoint complete: wrote 46 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.009 s, sync=0.009 s, total=0.028 s; sync files=11, longest=0.001 s, average=0.001 s; distance=276 kB, estimate=276 kB; lsn=0/15BD0C0, redo lsn=0/15BD0C0
+2026-03-23 00:29:39.266 -03 [4380] LOG:  database system is shut down
+2026-03-23 09:51:25.071 -03 [32640] FATAL:  lock file "postmaster.pid" already exists
+2026-03-23 09:51:25.071 -03 [32640] HINT:  Is another postmaster (PID 4620) running in data directory "C:/manicure-api/postgres-data"?

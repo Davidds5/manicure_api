@@ -24,7 +24,7 @@ public class ServiceEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Double price;
 
     @Column(nullable = false)

@@ -18,7 +18,7 @@ public interface ClientData extends JpaRepository<ClientEntity, Long> {
     @Query("SELECT c FROM ClientEntity c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     Page<ClientEntity> searchByName(@Param("name") String name, Pageable pageable);
 
-    @Query("SELECT c FROM ClientEntity c ORDER BY c.createdAt DESC")
+    @Query("SELECT c FROM ClientEntity c ORDER BY c.createAt DESC")
     Page<ClientEntity> findRecentClients(Pageable pageable);
 
     long countByEmail(String email);
