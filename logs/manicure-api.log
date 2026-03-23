@@ -478,3 +478,118 @@ Identify and stop the process that's listening on port 8080 or configure this ap
         ? rows 
     fetch
         first ? rows only
+2026-03-23 10:07:35.544 [http-nio-8080-exec-5] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-03-23 10:07:35.545 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-03-23 10:07:35.741 [http-nio-8080-exec-6] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-03-23 10:07:35.744 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-03-23 10:14:16.509 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        ae1_0.id,
+        ae1_0.client_id,
+        ae1_0.date_time,
+        ae1_0.professional_id,
+        ae1_0.service_id,
+        ae1_0.status 
+    from
+        appointments ae1_0 
+    where
+        ae1_0.client_id=? 
+    fetch
+        first ? rows only
+2026-03-23 10:16:52.983 [http-nio-8080-exec-3] INFO  b.c.d.m.service.ProfessionalService - Listando todos os profissionais ativos
+2026-03-23 10:16:52.990 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        pe1_0.id,
+        pe1_0.active,
+        pe1_0.name,
+        pe1_0.specialty 
+    from
+        professionals pe1_0 
+    where
+        pe1_0.active=true
+2026-03-23 10:18:17.426 [http-nio-8080-exec-6] INFO  b.c.d.m.service.ProfessionalService - Criando novo profissional: Ana Paula
+2026-03-23 10:18:17.427 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        professionals
+        (active, name, specialty) 
+    values
+        (?, ?, ?)
+2026-03-23 10:18:17.433 [http-nio-8080-exec-6] INFO  b.c.d.m.service.ProfessionalService - Profissional criado com ID: 1
+2026-03-23 10:18:33.435 [http-nio-8080-exec-7] INFO  b.c.d.m.service.ProfessionalService - Listando todos os profissionais ativos
+2026-03-23 10:18:33.437 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        pe1_0.id,
+        pe1_0.active,
+        pe1_0.name,
+        pe1_0.specialty 
+    from
+        professionals pe1_0 
+    where
+        pe1_0.active=true
+2026-03-23 10:18:33.468 [http-nio-8080-exec-7] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.ClassCastException: class jdk.proxy4.$Proxy191 cannot be cast to class br.com.davidds5.manicure_api.entity.ProfessionalEntity (jdk.proxy4.$Proxy191 is in module jdk.proxy4 of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2; br.com.davidds5.manicure_api.entity.ProfessionalEntity is in unnamed module of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2)]
+2026-03-23 10:18:35.681 [http-nio-8080-exec-9] INFO  b.c.d.m.service.ProfessionalService - Listando todos os profissionais ativos
+2026-03-23 10:18:35.682 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        pe1_0.id,
+        pe1_0.active,
+        pe1_0.name,
+        pe1_0.specialty 
+    from
+        professionals pe1_0 
+    where
+        pe1_0.active=true
+2026-03-23 10:18:35.688 [http-nio-8080-exec-9] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.ClassCastException: class jdk.proxy4.$Proxy191 cannot be cast to class br.com.davidds5.manicure_api.entity.ProfessionalEntity (jdk.proxy4.$Proxy191 is in module jdk.proxy4 of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2; br.com.davidds5.manicure_api.entity.ProfessionalEntity is in unnamed module of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2)]
+2026-03-23 10:18:55.054 [http-nio-8080-exec-1] INFO  b.c.d.m.service.ProfessionalService - Listando todos os profissionais ativos
+2026-03-23 10:18:55.055 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        pe1_0.id,
+        pe1_0.active,
+        pe1_0.name,
+        pe1_0.specialty 
+    from
+        professionals pe1_0 
+    where
+        pe1_0.active=true
+2026-03-23 10:18:55.060 [http-nio-8080-exec-1] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.ClassCastException: class jdk.proxy4.$Proxy191 cannot be cast to class br.com.davidds5.manicure_api.entity.ProfessionalEntity (jdk.proxy4.$Proxy191 is in module jdk.proxy4 of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2; br.com.davidds5.manicure_api.entity.ProfessionalEntity is in unnamed module of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2)]
+2026-03-23 10:21:28.238 [http-nio-8080-exec-3] INFO  b.c.d.m.service.ProfessionalService - Listando todos os profissionais ativos
+2026-03-23 10:21:28.239 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        pe1_0.id,
+        pe1_0.active,
+        pe1_0.name,
+        pe1_0.specialty 
+    from
+        professionals pe1_0 
+    where
+        pe1_0.active=true
+2026-03-23 10:21:28.245 [http-nio-8080-exec-3] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.ClassCastException: class jdk.proxy4.$Proxy191 cannot be cast to class br.com.davidds5.manicure_api.entity.ProfessionalEntity (jdk.proxy4.$Proxy191 is in module jdk.proxy4 of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2; br.com.davidds5.manicure_api.entity.ProfessionalEntity is in unnamed module of loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader @23b823d2)]
+2026-03-23 10:31:11.077 [SpringApplicationShutdownHook] INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-23 10:31:11.625 [tomcat-shutdown] INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-23 10:31:11.638 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-23 10:31:11.660 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-23 10:31:11.670 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
