@@ -60,18 +60,4 @@ public class PaymentService {
         return paymentMapper.toDTO(saved);
     }
 
-    @Transactional
-    public void cancelAppointment(Long id) {
-
-        AppointmentEntity existing = appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado"));
-
-        if (!DateUtil.canCancel(existing.getDateTime())) {
-            throw new BusinessException(
-                    "Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência"
-            );
-        }
-
-        existing.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
-    }
 }

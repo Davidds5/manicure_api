@@ -50,7 +50,7 @@ public class ProfessionalService {
         log.info("Listando todos os profissionais ativos");
         List<ProfessionalDTO> collect = professionalRepository.findByActiveTrue()
                 .stream()
-                .map((ProfessionalRepository entity) -> professionalMapper.toDTO((ProfessionalEntity) entity))
+                .map(professionalMapper::toDTO)
                 .collect(Collectors.toList());
         return collect; // compatível com Java 8+
     }
@@ -80,25 +80,5 @@ public class ProfessionalService {
 
         professionalRepository.delete(existing);
         log.info("Profissional deletado com ID: {}", id);
-    }
-
-    @Transactional
-    public void cancelAppointment(Long appointmentId) {
-        log.info("Cancelando agendamento ID: {}", appointmentId);
-        AppointmentEntity appointment = getAppointment(appointmentId);
-
-        if (!DateUtil.canCancel(appointment.getDateTime())) {
-            throw new BusinessException("Cancelamento só permitido com " + Constants.CANCEL_HOURS_AHEAD + "h de antecedência");
-        }
-
-        appointment.setStatus(AppointmentEntity.AppointmentStatus.CANCELLED);
-        appointmentRepository.save(appointment); // salva a alteração
-        log.info("Agendamento ID {} cancelado", appointmentId);
-    }
-
-    // método auxiliar para buscar agendamento
-    private AppointmentEntity getAppointment(Long id) {
-        return appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado com ID: " + id));
     }
 }
