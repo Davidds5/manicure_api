@@ -3,6 +3,7 @@ package br.com.davidds5.manicure_api.controller;
 import br.com.davidds5.manicure_api.dto.ClientCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ClientDTO;
 import br.com.davidds5.manicure_api.exceptions.GlobalExceptionHandler;
+import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.service.ClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @ExtendWith(MockitoExtension.class)
 class ClientControllerTest {
@@ -79,8 +83,45 @@ class ClientControllerTest {
     .andExpect(status().isBadRequest())
     .andExpect(jsonPath("$.error").value("Validacao falhou"))
     .andExpect(jsonPath("$.message").value("Um ou mais campos estao invalidos"))
-    .andExpect(jsonPath("$.errors").isArray());
-    
-        
+    .andExpect(jsonPath("$.errors").isArray());        
     } 
+
+    @Test
+    void findById_ValidId_ReturnsOK() throws Exception {
+
+        ClientDTO responseDto = new ClientDTO();
+        responseDto.setId(1L);
+        responseDto.setName("Maria da Silva");
+
+        Mockito.when(clientService.findById(1L)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/api/v1/clients/1")
+    .contentType(MediaType.APPLICATION_JSON))
+    .andExpect(status().isOk())
+    .andExpect(jsonPath("$.id").value(1L))
+    .andExpect(jsonPath("$.name").value("Maria da Silva"));
+    }
+
+    @Test
+    void findById_InvalidId_ReturnsNotFound() throws Exception {
+        Mockito.when(clientService.findById(999L))
+        .thenThrow(new ResourceNotFoundException("Cliente nao encontrado com o ID: 999"));
+
+        mockMvc.perform(get("/api/v1/clients/999")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Recurso nao encontrado"));
+     
+    }
+
+    @Test
+    void delete_ValidId_ReturnsNoContent() throws Exception{
+        // Arrange - Ensinando o duble a fazer nada quando mandamos deletar o ID 1
+        Mockito.doNothing().when(clientService).deleteClient(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/clients/1")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+    }
 }
