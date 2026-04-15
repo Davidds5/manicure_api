@@ -26,7 +26,7 @@ public class AppointmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professional_id", nullable = false)
-    private ProfessionalEntity professional; // ✅ CORRIGIDO: professional (não professionalEntity)
+    private ProfessionalEntity professional;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
@@ -37,12 +37,12 @@ public class AppointmentEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status; // ✅ CORRIGIDO: AppointmentStatus (enum interno)
+    private AppointmentStatus status;
 
     @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL)
     private PaymentEntity payment;
 
-    // ✅ ENUM INTERNO (acessível como AppointmentEntity.AppointmentStatus.SCHEDULED)
+
     public enum AppointmentStatus {
         SCHEDULED, CONFIRMED, COMPLETED, CANCELLED
     }

@@ -90,3 +90,401 @@ Caused by: org.postgresql.util.PSQLException: FATAL: n�o existe o banco de dad
 	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
 	at org.flywaydb.core.internal.jdbc.JdbcUtils.openConnection(JdbcUtils.java:65)
 	... 26 common frames omitted
+2026-04-15 01:03:19.181 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Starting ManicureApiApplication using Java 21.0.10 with PID 50432 (C:\manicure-api\manicure-api\target\classes started by davis in C:\manicure-api)
+2026-04-15 01:03:19.185 [restartedMain] DEBUG b.c.d.m.ManicureApiApplication - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-04-15 01:03:19.187 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - No active profile set, falling back to 1 default profile: "default"
+2026-04-15 01:03:19.302 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-15 01:03:19.303 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-15 01:03:20.002 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-15 01:03:20.823 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-15 01:03:20.945 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 106 ms. Found 10 JPA repository interfaces.
+2026-04-15 01:03:22.066 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-04-15 01:03:22.089 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-15 01:03:22.094 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-15 01:03:22.094 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-04-15 01:03:22.189 [restartedMain] INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 2885 ms
+2026-04-15 01:03:22.738 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-15 01:03:23.195 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1f057e13
+2026-04-15 01:03:23.199 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-15 01:03:23.244 [restartedMain] INFO  org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:5432/manicure_db (PostgreSQL 16.13)
+2026-04-15 01:03:23.329 [restartedMain] INFO  o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+2026-04-15 01:03:23.335 [restartedMain] INFO  o.f.core.internal.command.DbValidate - Successfully validated 6 migrations (execution time 00:00.047s)
+2026-04-15 01:03:23.356 [restartedMain] INFO  org.flywaydb.core.Flyway - All configured schemas are empty; baseline operation skipped. A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.
+2026-04-15 01:03:23.363 [restartedMain] INFO  o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+2026-04-15 01:03:23.498 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+2026-04-15 01:03:23.511 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create clients table"
+2026-04-15 01:03:23.625 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - create professionals table"
+2026-04-15 01:03:23.651 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - create services table"
+2026-04-15 01:03:23.678 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create appointments table"
+2026-04-15 01:03:23.709 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - create payments table"
+2026-04-15 01:03:23.746 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - align schema with entities"
+2026-04-15 01:03:23.911 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Successfully applied 6 migrations to schema "public", now at version v6 (execution time 00:00.236s)
+2026-04-15 01:03:24.138 [restartedMain] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-15 01:03:24.282 [restartedMain] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-04-15 01:03:25.189 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-15 01:03:25.301 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-15 01:03:25.335 [restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/manicure_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 16.13
+	Default catalog/schema: manicure_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-15 01:03:26.858 [restartedMain] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-15 01:03:26.927 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-15 01:03:27.066 [restartedMain] INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-15 01:03:28.490 [restartedMain] WARN  o.s.b.j.a.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-15 01:03:29.471 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-15 01:03:29.505 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-04-15 01:03:29.514 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Started ManicureApiApplication in 11.385 seconds (process running for 12.409)
+2026-04-15 01:05:16.968 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-15 01:05:16.968 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-15 01:05:16.970 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-04-15 01:05:17.148 [http-nio-8080-exec-1] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource swagger-ui/index.html for request '/swagger-ui/index.html'.]
+2026-04-15 01:05:17.217 [http-nio-8080-exec-2] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico for request '/favicon.ico'.]
+2026-04-15 01:05:43.013 [http-nio-8080-exec-3] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource swagger-ui/index.html for request '/swagger-ui/index.html'.]
+2026-04-15 01:05:43.106 [http-nio-8080-exec-4] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico for request '/favicon.ico'.]
+2026-04-15 01:05:49.916 [http-nio-8080-exec-5] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource swagger-ui/index.html for request '/swagger-ui/index.html'.]
+2026-04-15 01:05:49.983 [http-nio-8080-exec-6] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico for request '/favicon.ico'.]
+2026-04-15 01:06:00.661 [http-nio-8080-exec-7] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource swagger-ui/index.html for request '/swagger-ui/index.html'.]
+2026-04-15 01:06:00.725 [http-nio-8080-exec-8] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico for request '/favicon.ico'.]
+2026-04-15 01:08:15.817 [http-nio-8080-exec-10] INFO  b.c.d.m.service.ClientService - Buscando cliente por ID: 999
+2026-04-15 01:08:15.886 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 01:08:15.962 [http-nio-8080-exec-10] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException: Cliente não encontrado com ID: 999]
+2026-04-15 01:29:31.030 [HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=20m37s826ms392µs).
+2026-04-15 08:52:09.108 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Starting ManicureApiApplication using Java 21.0.10 with PID 6376 (C:\manicure-api\manicure-api\target\classes started by davis in C:\manicure-api)
+2026-04-15 08:52:09.115 [restartedMain] DEBUG b.c.d.m.ManicureApiApplication - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-04-15 08:52:09.118 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - No active profile set, falling back to 1 default profile: "default"
+2026-04-15 08:52:09.267 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-15 08:52:09.268 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-15 08:52:10.013 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-15 08:52:11.174 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-15 08:52:11.361 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 163 ms. Found 10 JPA repository interfaces.
+2026-04-15 08:52:12.730 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-04-15 08:52:12.755 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-15 08:52:12.761 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-15 08:52:12.761 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-04-15 08:52:12.898 [restartedMain] INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3628 ms
+2026-04-15 08:52:13.463 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-15 08:52:13.946 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3214138d
+2026-04-15 08:52:13.950 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-15 08:52:14.034 [restartedMain] INFO  org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:5432/manicure_db (PostgreSQL 16.13)
+2026-04-15 08:52:14.279 [restartedMain] INFO  o.f.core.internal.command.DbValidate - Successfully validated 6 migrations (execution time 00:00.107s)
+2026-04-15 08:52:14.313 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Current version of schema "public": 6
+2026-04-15 08:52:14.321 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Schema "public" is up to date. No migration necessary.
+2026-04-15 08:52:14.582 [restartedMain] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-15 08:52:14.754 [restartedMain] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-04-15 08:52:15.829 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-15 08:52:15.976 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-15 08:52:16.019 [restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/manicure_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 16.13
+	Default catalog/schema: manicure_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-15 08:52:18.472 [restartedMain] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-15 08:52:18.591 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-15 08:52:18.755 [restartedMain] INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-15 08:52:21.163 [restartedMain] WARN  o.s.b.j.a.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-15 08:52:22.594 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-15 08:52:22.641 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-04-15 08:52:22.652 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Started ManicureApiApplication in 14.659 seconds (process running for 15.809)
+2026-04-15 08:52:34.005 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-15 08:52:34.006 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-15 08:52:34.008 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-04-15 08:52:34.161 [http-nio-8080-exec-2] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource clients for request '/clients'.]
+2026-04-15 08:52:43.870 [http-nio-8080-exec-4] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource clients for request '/clients'.]
+2026-04-15 08:53:39.631 [http-nio-8080-exec-6] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource clients/999999 for request '/clients/999999'.]
+2026-04-15 08:54:58.274 [http-nio-8080-exec-8] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/v1/clients%0A for request '/api/v1/clients%0A'.]
+2026-04-15 08:55:11.777 [http-nio-8080-exec-9] INFO  b.c.d.m.service.ClientService - Buscando cliente por ID: 999
+2026-04-15 08:55:11.831 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 08:55:11.876 [http-nio-8080-exec-9] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException: Cliente não encontrado com ID: 999]
+2026-04-15 08:55:19.029 [http-nio-8080-exec-1] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-04-15 08:55:19.099 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-04-15 08:55:19.118 [http-nio-8080-exec-1] WARN  o.s.d.w.c.SpringDataJackson3Configuration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-04-15 08:56:51.543 [http-nio-8080-exec-4] INFO  b.c.d.m.service.ClientService - Buscando cliente por ID: 999
+2026-04-15 08:56:51.544 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 08:56:51.548 [http-nio-8080-exec-4] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException: Cliente não encontrado com ID: 999]
+2026-04-15 08:57:12.165 [http-nio-8080-exec-5] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-04-15 08:57:12.167 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-04-15 08:59:54.300 [http-nio-8080-exec-7] INFO  b.c.d.m.service.ClientService - Criando novo cliente: maria@gmail.com
+2026-04-15 08:59:54.374 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.email=?
+2026-04-15 08:59:54.425 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        clients
+        (created_at, email, name, phone) 
+    values
+        (?, ?, ?, ?)
+2026-04-15 08:59:54.450 [http-nio-8080-exec-7] INFO  b.c.d.m.service.ClientService - Cliente criado com ID: 1
+2026-04-15 09:00:15.493 [http-nio-8080-exec-10] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<org.springframework.hateoas.EntityModel<br.com.davidds5.manicure_api.dto.ClientDTO>> br.com.davidds5.manicure_api.controller.ClientController.create(br.com.davidds5.manicure_api.dto.ClientCreatedDTO) with 2 errors: [Field error in object 'clientCreatedDTO' on field 'name': rejected value []; codes [Size.clientCreatedDTO.name,Size.name,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [clientCreatedDTO.name,name]; arguments []; default message [name],100,3]; default message [Nome deve ter entre 3 e 100 caracteres]] [Field error in object 'clientCreatedDTO' on field 'name': rejected value []; codes [NotBlank.clientCreatedDTO.name,NotBlank.name,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [clientCreatedDTO.name,name]; arguments []; default message [name]]; default message [Nome é obrigatório]] ]
+2026-04-15 09:02:18.099 [http-nio-8080-exec-1] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-04-15 09:02:18.101 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-04-15 09:02:49.118 [http-nio-8080-exec-2] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' is not supported]
+2026-04-15 09:02:51.817 [http-nio-8080-exec-4] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' is not supported]
+2026-04-15 09:04:06.252 [http-nio-8080-exec-6] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' is not supported]
+2026-04-15 09:04:13.480 [http-nio-8080-exec-7] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'PUT' is not supported]
+2026-04-15 09:04:35.816 [http-nio-8080-exec-9] INFO  b.c.d.m.service.ClientService - Atualizando cliente ID: 1
+2026-04-15 09:04:35.817 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 09:04:35.829 [http-nio-8080-exec-9] INFO  b.c.d.m.service.ClientService - Cliente atualizado com ID: 1
+2026-04-15 09:04:35.840 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    update
+        clients 
+    set
+        created_at=?,
+        email=?,
+        name=?,
+        phone=? 
+    where
+        id=?
+2026-04-15 09:05:04.932 [http-nio-8080-exec-1] INFO  b.c.d.m.service.ClientService - Atualizando cliente ID: 1
+2026-04-15 09:05:04.933 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 09:05:04.936 [http-nio-8080-exec-1] INFO  b.c.d.m.service.ClientService - Cliente atualizado com ID: 1
+2026-04-15 09:05:04.937 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    update
+        clients 
+    set
+        created_at=?,
+        email=?,
+        name=?,
+        phone=? 
+    where
+        id=?
+2026-04-15 15:39:47.424 [SpringApplicationShutdownHook] INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-15 15:39:47.451 [tomcat-shutdown] INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-15 15:39:47.467 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-15 15:39:47.481 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-04-15 15:39:47.506 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-04-15 15:56:02.611 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Starting ManicureApiApplication using Java 21.0.10 with PID 28232 (C:\manicure-api\manicure-api\target\classes started by davis in C:\manicure-api)
+2026-04-15 15:56:02.618 [restartedMain] DEBUG b.c.d.m.ManicureApiApplication - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-04-15 15:56:02.619 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - No active profile set, falling back to 1 default profile: "default"
+2026-04-15 15:56:02.746 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-15 15:56:02.746 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-15 15:56:03.501 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-15 15:56:04.509 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-15 15:56:04.647 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 120 ms. Found 10 JPA repository interfaces.
+2026-04-15 15:56:05.732 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-04-15 15:56:05.756 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-15 15:56:05.759 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-15 15:56:05.760 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-04-15 15:56:05.912 [restartedMain] INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3163 ms
+2026-04-15 15:56:06.576 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-15 15:56:06.973 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5ddd4d
+2026-04-15 15:56:06.976 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-15 15:56:07.025 [restartedMain] INFO  org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:5432/manicure_db (PostgreSQL 16.13)
+2026-04-15 15:56:07.154 [restartedMain] INFO  o.f.core.internal.command.DbValidate - Successfully validated 6 migrations (execution time 00:00.069s)
+2026-04-15 15:56:07.201 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Current version of schema "public": 6
+2026-04-15 15:56:07.207 [restartedMain] INFO  o.f.core.internal.command.DbMigrate - Schema "public" is up to date. No migration necessary.
+2026-04-15 15:56:07.384 [restartedMain] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-15 15:56:07.512 [restartedMain] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-04-15 15:56:08.325 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-15 15:56:08.433 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-15 15:56:08.466 [restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/manicure_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 16.13
+	Default catalog/schema: manicure_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-15 15:56:10.075 [restartedMain] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-15 15:56:10.199 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-15 15:56:10.420 [restartedMain] INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-15 15:56:12.150 [restartedMain] WARN  o.s.b.j.a.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-15 15:56:13.359 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-15 15:56:13.402 [restartedMain] INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-04-15 15:56:13.410 [restartedMain] INFO  b.c.d.m.ManicureApiApplication - Started ManicureApiApplication in 12.22 seconds (process running for 13.789)
+2026-04-15 15:56:26.198 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-15 15:56:26.199 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-15 15:56:26.201 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-04-15 15:56:26.451 [http-nio-8080-exec-2] INFO  b.c.d.m.service.ClientService - Atualizando cliente ID: 1
+2026-04-15 15:56:26.504 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 15:56:26.565 [http-nio-8080-exec-2] INFO  b.c.d.m.service.ClientService - Cliente atualizado com ID: 1
+2026-04-15 15:56:30.409 [http-nio-8080-exec-3] INFO  b.c.d.m.service.ClientService - Buscando cliente por ID: 1
+2026-04-15 15:56:30.410 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.id=?
+2026-04-15 15:56:41.358 [http-nio-8080-exec-4] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-04-15 15:56:41.541 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-04-15 15:56:41.570 [http-nio-8080-exec-4] WARN  o.s.d.w.c.SpringDataJackson3Configuration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-04-15 15:57:53.243 [http-nio-8080-exec-7] INFO  b.c.d.m.service.ClientService - Listando clientes
+2026-04-15 15:57:53.244 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-04-15 15:59:18.935 [http-nio-8080-exec-10] INFO  b.c.d.m.service.ClientService - Criando novo cliente: david@gmail.com
+2026-04-15 15:59:19.026 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.created_at,
+        ce1_0.email,
+        ce1_0.name,
+        ce1_0.phone 
+    from
+        clients ce1_0 
+    where
+        ce1_0.email=?
+2026-04-15 15:59:19.069 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        clients
+        (created_at, email, name, phone) 
+    values
+        (?, ?, ?, ?)
+2026-04-15 15:59:19.093 [http-nio-8080-exec-10] INFO  b.c.d.m.service.ClientService - Cliente criado com ID: 2

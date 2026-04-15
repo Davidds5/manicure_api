@@ -64,4 +64,23 @@ class ClientControllerTest {
                 .andExpect(jsonPath("$.id").value(10L))
                 .andExpect(jsonPath("$.name").value("João Testador"));
     }
+
+    @Test
+    void createClient_InvalidDto_ReturnsBadRequest() throws Exception {
+
+        ClientCreatedDTO requestDto = new ClientCreatedDTO();
+        requestDto.setName("");
+        requestDto.setEmail("email-invalido");
+        requestDto.setPhone("11988888888");
+
+        mockMvc.perform(post("/api/v1/clients")
+    .contentType(MediaType.APPLICATION_JSON)
+    .content(objectMapper.writeValueAsString(requestDto)))
+    .andExpect(status().isBadRequest())
+    .andExpect(jsonPath("$.error").value("Validacao falhou"))
+    .andExpect(jsonPath("$.message").value("Um ou mais campos estao invalidos"))
+    .andExpect(jsonPath("$.errors").isArray());
+    
+        
+    } 
 }
