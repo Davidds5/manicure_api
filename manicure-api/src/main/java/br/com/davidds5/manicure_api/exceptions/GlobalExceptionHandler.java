@@ -1,5 +1,6 @@
 package br.com.davidds5.manicure_api.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,59 +9,74 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException e){
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Recurso nao encontrado");
-        response.put("message", e.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    public ResponseEntity<StandardError> handleResourceNotFound(ResourceNotFoundException e, HttpServletRequest request){
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        
+        
+        StandardError error = new StandardError(
+        LocalDateTime.now(),
+        status.value(), 
+        "Recurso nao encontrado", 
+        e.getMessage(),
+        request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Erro de negócio");
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    public ResponseEntity<StandardError> handleBusinessException(BusinessException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        StandardError error = new StandardError(LocalDateTime.now(), 
+        status.value(),
+        "Erro de negocio", 
+        ex.getMessage(), 
+        request.getRequestURI()
+        );
+    
+        return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<ValidationError> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        ValidationError error = new ValidationError(
+            LocalDateTime.now(), 
+            status.value(), 
+            "Validacao falhou", 
+            "Um ou mais campos estao invalidos", 
 
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validação falhou");
-        response.put("errors", errors);
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            request.getRequestURI()
+        );
+    
+        for(FieldError x : ex.getBindingResult().getFieldErrors()){
+            error.addError(x.getField(), x.getDefaultMessage());
+        
+        }
+
+        return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "Erro interno do servidor");
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    public ResponseEntity<StandardError> handleGenericException(Exception ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardError error = new StandardError(
+        LocalDateTime.now(), 
+        status.value(),
+        "Erro interno do servidor", 
+        ex.getMessage(), 
+        request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
     }
 }
 
