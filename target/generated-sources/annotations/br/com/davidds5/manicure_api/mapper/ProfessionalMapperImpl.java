@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-15T00:47:22-0300",
+    date = "2026-04-15T21:24:16-0300",
     comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
@@ -38,7 +38,7 @@ public class ProfessionalMapperImpl implements ProfessionalMapper {
 
         ProfessionalEntity.ProfessionalEntityBuilder professionalEntity = ProfessionalEntity.builder();
 
-        professionalEntity.name( dto.getNome() );
+        professionalEntity.name( dto.getName() );
         professionalEntity.specialty( dto.getSpecialty() );
         professionalEntity.active( dto.isActive() );
 

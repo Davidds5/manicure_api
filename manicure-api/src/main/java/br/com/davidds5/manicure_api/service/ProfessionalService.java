@@ -27,7 +27,7 @@ public class ProfessionalService {
 
     @Transactional
     public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
-        log.info("Criando novo profissional: {}", dto.getNome());
+        log.info("Criando novo profissional: {}", dto.getName());
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
         ProfessionalEntity saved = professionalRepository.save(entity);
         log.info("Profissional criado com ID: {}", saved.getId());
@@ -59,7 +59,7 @@ public class ProfessionalService {
         ProfessionalEntity existing = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
-        existing.setName(dto.getNome());
+        existing.setName(dto.getName());
         existing.setSpecialty(dto.getSpecialty());
         existing.setActive(dto.isActive());
 

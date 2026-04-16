@@ -38,7 +38,7 @@ class ProfessionalServiceTest {
     @BeforeEach
     void setUp() {
         createDTO = new ProfessionalCreatedDTO();
-        createDTO.setNome("Ana Lopes");
+        createDTO.setName("Ana Lopes");
         createDTO.setSpecialty("Nail Designer");
         createDTO.setActive(true);
 

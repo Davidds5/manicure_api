@@ -15,7 +15,7 @@ public class ProfessionalCreatedDTO {
 
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
-    private String nome;  // renomeado de 'nome' para 'name'
+    private String name;  
 
     @NotBlank(message = "Especialidade é obrigatória")
     @Size(min = 3, max = 50, message = "Especialidade deve ter entre 3 a 50 caracteres")
