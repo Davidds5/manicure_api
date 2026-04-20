@@ -42,7 +42,15 @@ public class ClientController {
 
     @GetMapping
     @Operation(summary = "Listar todos os clientes")
-    public ResponseEntity<Page<ClientDTO>> findAll(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Page<ClientDTO>> findAll(
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10) Pageable pageable) { 
+
+        if(name != null && !name.isEmpty()){
+            // dados com filtro
+            return ResponseEntity.ok(clientService.findByNameContaining(name, pageable));
+        }
+        // dados sem filtro
         return ResponseEntity.ok(clientService.findAll(pageable));
     }
 
@@ -68,12 +76,11 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
-    // ================= HATEOAS PADRÃO =================
 
     private EntityModel<ClientDTO> buildResource(ClientDTO client) {
         return EntityModel.of(client,
                 linkTo(methodOn(ClientController.class).findById(client.getId())).withSelfRel(),
-                linkTo(methodOn(ClientController.class).findAll(Pageable.unpaged())).withRel("all-clients")
+                linkTo(methodOn(ClientController.class).findAll("", Pageable.unpaged())).withRel("all-clients")
         );
     }
 }

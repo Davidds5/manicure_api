@@ -13,7 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -121,5 +126,26 @@ class ClientServiceTest {
         assertEquals("Cliente não encontrado com ID: 999", exception.getMessage());
 
         verify(clientRepository).findById(999L);
+    }
+ 
+    @Test
+    void shouldReturnClientsFilteredByName(){
+
+        String nomeFiltro = "Maria";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<ClientEntity> content = List.of(entity);
+        Page<ClientEntity> pageFake = new PageImpl<>(content, pageable, 1);
+
+        when(clientRepository.findByNameContaining(eq(nomeFiltro), 
+    any())).thenReturn(pageFake);
+    when(clientMapper.toDTO(entity)).thenReturn(dto);
+
+    Page<ClientDTO> result = clientService.findByNameContaining(nomeFiltro, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("Maria Silva", result.getContent().get(0).getName());
+        
     }
 }
