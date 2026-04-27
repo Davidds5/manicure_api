@@ -74,12 +74,15 @@ A arquitetura do projeto segue o padrão de camadas (Controller, Service, Reposi
 
 A API possui uma interface gráfica interativa do Swagger para facilitar testes e integração.
 
-Com a aplicação rodando, acesse no seu navegador:
+> **Importante:** Como a API utiliza segurança Stateless com **JWT**, para testar os endpoints protegidos:
+> 1. Realize o login no endpoint de autenticação (Professional/Login).
+> 2. Copie o `token` gerado na resposta.
+> 3. Clique no botão **Authorize** (ícone de cadeado) no topo da página do Swagger.
+> 4. Insira o token e clique em Authorize.
 
+Acesse no seu navegador:
 - **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - **OpenAPI JSON:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
-
-> **Nota:** Se os endpoints de documentação (`/v3/api-docs` e `/swagger-ui.html`) não estiverem abrindo, verifique o arquivo `application.yml` onde essas rotas podem estar setadas como `enabled: false` (o padrão no seu código atual) e altere para `true`.
 
 ---
 
