@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.net.URI;
 
@@ -41,6 +42,7 @@ public class ClientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar todos os clientes")
     public ResponseEntity<Page<ClientDTO>> findAll(
             @RequestParam(required = false, defaultValue = "") String name,
@@ -70,6 +72,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deletar cliente")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteClient(id);

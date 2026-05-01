@@ -3,6 +3,7 @@ package br.com.davidds5.manicure_api.controller;
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.service.ProfessionalService;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -66,6 +67,7 @@ public class ProfessionalController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deletar profissional")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         professionalService.deleteProfessional(id);

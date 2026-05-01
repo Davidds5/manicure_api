@@ -1,5 +1,6 @@
 package br.com.davidds5.manicure_api.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
@@ -24,11 +25,16 @@ public class ProfessionalService {
     private final ProfessionalRepository professionalRepository;
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalMapper professionalMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
         log.info("Criando novo profissional: {}", dto.getName());
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
+        
+        String senhaCriptografada = passwordEncoder.encode(dto.getPassword());
+        entity.setPassword(senhaCriptografada);
+
         ProfessionalEntity saved = professionalRepository.save(entity);
         log.info("Profissional criado com ID: {}", saved.getId());
         return professionalMapper.toDTO(saved);

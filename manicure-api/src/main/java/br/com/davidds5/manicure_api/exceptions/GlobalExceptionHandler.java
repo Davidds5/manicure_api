@@ -1,5 +1,6 @@
 package br.com.davidds5.manicure_api.exceptions;
 
+import org.springframework.security.access.AccessDeniedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +77,20 @@ public class GlobalExceptionHandler {
         request.getRequestURI()
         );
 
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<StandardError> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request){
+        HttpStatus status = HttpStatus.FORBIDDEN; // 403 
+
+        StandardError error = new StandardError(
+            LocalDateTime.now(),
+            status.value(),
+            "Acesso negado",
+            "Voce nao tem permissao para acessar este recurso.",
+            request.getRequestURI()
+        );
         return ResponseEntity.status(status).body(error);
     }
 }
