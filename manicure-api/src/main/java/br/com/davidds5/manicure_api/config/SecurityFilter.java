@@ -2,14 +2,14 @@ package br.com.davidds5.manicure_api.config;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
-import br.com.davidds5.manicure_api.repository.ClientRepository;
 import br.com.davidds5.manicure_api.service.TokenService;
+import br.com.davidds5.manicure_api.service.AutenticacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,36 +24,31 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private ProfessionalRepository professionalRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
+    private AutenticacaoService autenticacaoService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
                 var tokenJWT = recuperarToken(request);
-
                 if(tokenJWT != null){
                     var subject = tokenService.getSubject(tokenJWT);
 
-                    UserDetails usuario = professionalRepository.findByEmail(subject)
-                    .map(p -> (UserDetails) p)
-                    .orElseGet(() -> clientRepository.findByEmail(subject)
-                    .map(c -> (UserDetails) c)
-                    .orElse(null));
+                    try{
 
-                    if(usuario != null){
+                        UserDetails usuario = autenticacaoService.loadUserByUsername(subject);
                         var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-                        
+
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    }catch(UsernameNotFoundException exception){
+                        
                     }
+                    
                 }
 
                 filterChain.doFilter(request, response);
-    }
-
+                
+}
     private String recuperarToken(HttpServletRequest request){
         var authorizationHeader = request.getHeader("Authorization");
         if(authorizationHeader != null){

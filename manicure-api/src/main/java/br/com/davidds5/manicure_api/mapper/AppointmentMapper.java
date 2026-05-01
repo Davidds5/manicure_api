@@ -13,6 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AppointmentMapper {
 
+
     @Mapping(target = "client", ignore = true)
     @Mapping(target = "professional", ignore = true)
     @Mapping(target = "service", ignore = true)

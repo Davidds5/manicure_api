@@ -16,6 +16,8 @@ public interface ProfessionalMapper {
     ProfessionalDTO toDTO(ProfessionalEntity entity);
 
     // Mapeia de DTO -> entity
+    
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "name", source = "name")         // ProfessionalCreatedDTO.nome -> ProfessionalEntity.name
     @Mapping(target = "specialty", source = "specialty")
     @Mapping(target = "active", source = "active")
