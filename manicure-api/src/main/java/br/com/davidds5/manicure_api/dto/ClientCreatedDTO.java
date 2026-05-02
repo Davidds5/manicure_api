@@ -23,6 +23,10 @@ public class ClientCreatedDTO {
     private String phone;
 
     @NotBlank(message = "Email é obrigatório")
-    @Email(message = "Email inválido")
+    @Size(min = 3, max = 100, message = "Email deve ter entre 3 e 100 caracteres")
     private String email;
+
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, max = 20, message = "Senha deve ter entre 6 e 20 caracteres")
+    private String password;
 }

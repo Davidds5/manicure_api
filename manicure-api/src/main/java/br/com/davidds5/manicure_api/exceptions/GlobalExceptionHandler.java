@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.core.AuthenticationException;
 
 import java.time.LocalDateTime;
 
@@ -88,8 +89,22 @@ public class GlobalExceptionHandler {
             LocalDateTime.now(),
             status.value(),
             "Acesso negado",
-            "Voce nao tem permissao para acessar este recurso.",
+            "Voce nao tem permissao para acessar este recurso."
             request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<StandardError> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request){
+        HttpStatus status = HttpStatus.UNAUTHORIZED; // 401 
+
+        StandardError error = new StandardError(
+            LocalDateTime.now(),
+            status.value(), 
+            "Falha na autenticacao", 
+            "Email ou senha incorretos. Verifique suas credenciais."
+            request.getRquestsURI()
         );
         return ResponseEntity.status(status).body(error);
     }

@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ClientDTO createClient(ClientCreatedDTO dto) {
@@ -34,6 +36,8 @@ public class ClientService {
         }
 
         ClientEntity entity = clientMapper.toEntity(dto);
+        String senhaCriptografada = passwordEncoder.encode(dto.getPassword());
+        entity.setPassword(senhaCriptografada);
         ClientEntity saved = clientRepository.save(entity);
 
         log.info("Cliente criado com ID: {}", saved.getId());
