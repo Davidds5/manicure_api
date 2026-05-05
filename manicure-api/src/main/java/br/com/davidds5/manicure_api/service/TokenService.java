@@ -24,6 +24,7 @@ public class TokenService {
             return JWT.create()
             .withIssuer("manicure_api")
             .withSubject(usuario.getUsername())
+            .withClaim("role", usuario.getAuthorities().iterator().next().getAuthority())
             .withExpiresAt(dataExpiracao())
             .sign(algorithms);
         }catch(JWTCreationException exception){
@@ -33,6 +34,19 @@ public class TokenService {
     private Instant dataExpiracao(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
         
+    }
+
+    public String getRole(String tokenJWT){
+        try{
+            Algorithm algorithms = Algorithm.HMAC256(secret);
+            return JWT.require(algorithms)
+            .withIssuer("manicure_api")
+            .build()
+            .verify(tokenJWT)
+            .getClaim("role").asString();
+        }catch(JWTVerificationException exception){
+            throw new RuntimeException("Token JWT inválido ou expirado", exception);
+        }
     }
 
     public String getSubject(String tokenJWT){

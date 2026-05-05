@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 public class AppointmentController {
 
-    private final AppointmentService appointmentService; // ✅ Injetado pelo Lombok
+    private final AppointmentService appointmentService;
 
     public AppointmentController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
@@ -33,8 +33,11 @@ public class AppointmentController {
 
     @GetMapping
     @Operation(summary = "Listar agendamentos")
-    public ResponseEntity<Page<AppointmentDTO>> findAll(@PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(appointmentService.findAll(pageable));
+    public ResponseEntity<Page<AppointmentDTO>> findAll(@PageableDefault(size = 10) Pageable pageable, 
+    @RequestParam(required = false) AppointmentEntity.AppointmentStatus status,
+    @RequestParam(required = false) LocalDateTime startDate,
+    @RequestParam(required = false) LocalDateTime endDate) {
+        return ResponseEntity.ok(appointmentService.findAll(pageable, status, startDate, endDate));
     }
 
     @GetMapping("/{id}")

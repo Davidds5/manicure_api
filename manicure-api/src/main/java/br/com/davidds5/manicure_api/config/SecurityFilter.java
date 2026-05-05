@@ -9,13 +9,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import br.com.davidds5.manicure_api.service.TokenService;
-import br.com.davidds5.manicure_api.service.AutenticacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
@@ -23,8 +23,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
-    @Autowired
-    private AutenticacaoService autenticacaoService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,18 +30,14 @@ public class SecurityFilter extends OncePerRequestFilter {
                 var tokenJWT = recuperarToken(request);
                 if(tokenJWT != null){
                     var subject = tokenService.getSubject(tokenJWT);
+                    var role = tokenService.getRole(tokenJWT);
 
-                    try{
+                    var authority = new SimpleGrantedAuthority(role);
 
-                        UserDetails usuario = autenticacaoService.loadUserByUsername(subject);
-                        var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                    var authentication = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
 
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    }catch(UsernameNotFoundException exception){
-                        
-                    }
-                    
                 }
 
                 filterChain.doFilter(request, response);

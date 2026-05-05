@@ -189,8 +189,8 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AppointmentDTO> findAll(Pageable pageable) {
-        return appointmentRepository.findAll(pageable)
+    public Page<AppointmentDTO> findAll(Pageable pageable, AppointmentEntity.AppointmentStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+        return appointmentRepository.findWithFilters(status, startDate, endDate, pageable)
                 .map(this::toDTO);
     }
 
