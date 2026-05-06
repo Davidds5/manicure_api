@@ -1,0 +1,81 @@
+### Variáveis Globais
+@baseUrl = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODExMDYwOH0.SPasg1-WYTAPRoD48mH-UYv2ua50Or4N10QrTcxTwrc
+
+### Login (Gera o Token JWT)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "login": "admin@salao.com",
+  "password": "admin123456"
+}
+
+# ==========================================
+# 👤 CLIENTES
+# ==========================================
+
+### Criar novo cliente (Acesso Público)
+POST {{baseUrl}}/api/v1/clients
+Content-Type: application/json
+
+{
+  "name": "David Silva",
+  "email": "david@teste.com",
+  "password": "123456",
+  "phone": "11999999999"
+}
+
+### Listar todos os clientes (Requer ADMIN)
+GET {{baseUrl}}/api/v1/clients
+Authorization: Bearer {{token}}
+
+### Buscar cliente por ID
+GET {{baseUrl}}/api/v1/clients/1
+Authorization: Bearer {{token}}
+
+
+
+### Criar novo profissional
+POST {{baseUrl}}/api/v1/professionals
+Content-Type: application/json
+
+{
+  "name": "Manicure Master",
+  "email": "admin@salao.com",
+  "password": "admin123456",
+  "phone": "11888888888",
+  "specialty": "Unhas de Gel"
+}
+
+### Listar profissionais
+GET {{baseUrl}}/api/v1/professionals
+
+
+### Criar agendamento
+POST {{baseUrl}}/api/v1/appointments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "professionalId": 1,
+  "serviceId": 1,
+  "appointmentDate": "2026-05-10T14:30:00"
+}
+
+### Listar meus agendamentos (Cliente)
+GET {{baseUrl}}/api/v1/appointments/client/1
+Authorization: Bearer {{token}}
+
+
+### Simular Pagamento
+POST {{baseUrl}}/api/v1/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "appointmentId": 1,
+  "amount": 50.00,
+  "paymentMethod": "PIX"
+}

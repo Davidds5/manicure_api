@@ -3,6 +3,7 @@ package br.com.davidds5.manicure_api.controller;
 import br.com.davidds5.manicure_api.dto.AppointmentCreateDTO;
 import br.com.davidds5.manicure_api.dto.AppointmentDTO;
 import br.com.davidds5.manicure_api.dto.AppointmentUpdateDTO;
+import br.com.davidds5.manicure_api.entity.AppointmentEntity;
 import br.com.davidds5.manicure_api.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/appointments")

@@ -49,7 +49,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    // Gerencia a autenticação, responsável por verificar as credenciais do usuário
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }

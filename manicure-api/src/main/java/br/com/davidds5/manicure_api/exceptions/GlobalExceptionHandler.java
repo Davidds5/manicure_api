@@ -81,33 +81,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<StandardError> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request){
-        HttpStatus status = HttpStatus.FORBIDDEN; // 403 
+   @ExceptionHandler(AccessDeniedException.class)
+   public ResponseEntity<StandardError> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request){
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    StandardError error = new StandardError(
+        LocalDateTime.now(),
+        status.value(), 
+        "Acesso negado", 
+        "Voce nao tem permissao para acessar este recurso", 
+        request.getRequestURI()
+    );
+    return ResponseEntity.status(status).body(error);
+   }
 
-        StandardError error = new StandardError(
-            LocalDateTime.now(),
-            status.value(),
-            "Acesso negado",
-            "Voce nao tem permissao para acessar este recurso."
-            request.getRequestURI()
-        );
-        return ResponseEntity.status(status).body(error);
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<StandardError> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request){
-        HttpStatus status = HttpStatus.UNAUTHORIZED; // 401 
-
-        StandardError error = new StandardError(
-            LocalDateTime.now(),
-            status.value(), 
-            "Falha na autenticacao", 
-            "Email ou senha incorretos. Verifique suas credenciais."
-            request.getRquestsURI()
-        );
-        return ResponseEntity.status(status).body(error);
-    }
+   @ExceptionHandler(AuthenticationException.class)
+   public ResponseEntity<StandardError> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request){
+    HttpStatus status = HttpStatus.UNAUTHORIZED;
+    StandardError error = new StandardError(
+        LocalDateTime.now(),
+        status.value(),
+        "Falha na autenticacao",
+        "Email ou senha incorretos. Verifique suas credenciais.",
+        request.getRequestURI()
+    );
+    return ResponseEntity.status(status).body(error);
+   }
 }
 
 

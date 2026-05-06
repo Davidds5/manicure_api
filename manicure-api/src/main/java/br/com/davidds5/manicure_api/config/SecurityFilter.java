@@ -2,7 +2,7 @@ package br.com.davidds5.manicure_api.config;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
