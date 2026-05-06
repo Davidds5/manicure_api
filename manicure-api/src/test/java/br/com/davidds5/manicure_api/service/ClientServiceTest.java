@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,11 +138,12 @@ class ClientServiceTest {
         List<ClientEntity> content = List.of(entity);
         Page<ClientEntity> pageFake = new PageImpl<>(content, pageable, 1);
 
-        when(clientRepository.findByNameContaining(eq(nomeFiltro), 
-    any())).thenReturn(pageFake);
+      when(clientRepository.findAll(any(Specification.class),
+       eq(pageable))).thenReturn(pageFake);
+
     when(clientMapper.toDTO(entity)).thenReturn(dto);
 
-    Page<ClientDTO> result = clientService.findByNameContaining(nomeFiltro, pageable);
+    Page<ClientDTO> result = clientService.findAll(nomeFiltro, pageable);
 
     assertNotNull(result);
     assertEquals(1, result.getTotalElements());

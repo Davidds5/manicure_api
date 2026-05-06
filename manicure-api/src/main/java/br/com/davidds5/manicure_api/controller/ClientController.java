@@ -47,13 +47,8 @@ public class ClientController {
     public ResponseEntity<Page<ClientDTO>> findAll(
             @RequestParam(required = false, defaultValue = "") String name,
             @PageableDefault(size = 10) Pageable pageable) { 
-
-        if(name != null && !name.isEmpty()){
-            // dados com filtro
-            return ResponseEntity.ok(clientService.findByNameContaining(name, pageable));
-        }
-        // dados sem filtro
-        return ResponseEntity.ok(clientService.findAll(pageable));
+                
+        return ResponseEntity.ok(clientService.findAll(name, pageable));
     }
 
     @GetMapping("/{id}")

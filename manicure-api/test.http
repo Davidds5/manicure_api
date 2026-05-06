@@ -1,6 +1,6 @@
 ### Variáveis Globais
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODExMDYwOH0.SPasg1-WYTAPRoD48mH-UYv2ua50Or4N10QrTcxTwrc
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODExNjczN30.TyHcoQKhLYN3VxLmSSopsEHSifAiOeoPjqtQiO_m8KE
 
 ### Login (Gera o Token JWT)
 POST {{baseUrl}}/login
@@ -11,9 +11,6 @@ Content-Type: application/json
   "password": "admin123456"
 }
 
-# ==========================================
-# 👤 CLIENTES
-# ==========================================
 
 ### Criar novo cliente (Acesso Público)
 POST {{baseUrl}}/api/v1/clients
@@ -27,7 +24,7 @@ Content-Type: application/json
 }
 
 ### Listar todos os clientes (Requer ADMIN)
-GET {{baseUrl}}/api/v1/clients
+GET {{baseUrl}}/api/v1/clients?name=david
 Authorization: Bearer {{token}}
 
 ### Buscar cliente por ID

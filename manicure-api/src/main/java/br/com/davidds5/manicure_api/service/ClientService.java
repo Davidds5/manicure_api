@@ -8,12 +8,14 @@ import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ClientMapper;
 import br.com.davidds5.manicure_api.repository.ClientRepository;
+import br.com.davidds5.manicure_api.specification.ClientSpecification;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,20 +57,19 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ClientDTO> findAll(Pageable pageable) {
-        log.info("Listando clientes");
+    public Page<ClientDTO> findAll(String name, Pageable pageable){
+        log.info("Listando clientes com filtros dinamicos");
 
-        return clientRepository.findAll(pageable)
-                .map(clientMapper::toDTO);
+        Specification<ClientEntity> spec = Specification.where(null);
+
+        if(name != null && !name.isBlank()){
+            spec = spec.and(ClientSpecification.nameContains(name));
+        }
+        
+        return clientRepository.findAll(spec, pageable).map(clientMapper::toDTO);
     }
 
-    @Transactional(readOnly = true)
-    public Page<ClientDTO> findByNameContaining(String name, Pageable pageable) {
-        log.info("Buscando clientes por nome: {}", name);
 
-        return clientRepository.findByNameContaining(name, pageable)
-                .map(clientMapper::toDTO);
-    }
 
     @Transactional
     public ClientDTO updateClient(Long id, ClientUpdateDTO dto) {
