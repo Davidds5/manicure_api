@@ -76,3 +76,28 @@ Content-Type: application/json
   "amount": 50.00,
   "paymentMethod": "PIX"
 }
+
+# ==========================================
+# 🕵️‍♂️ TESTE DE SEGURANÇA (PROTEÇÃO IDOR)
+# ==========================================
+
+### 1. Fazer login como o Cliente David
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "login": "david@teste.com",
+  "password": "123456"
+}
+
+### Após rodar o login acima, copie o token dele e substitua o texto abaixo:
+@tokenCliente = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJkYXZpZEB0ZXN0ZS5jb20iLCJyb2xlIjoiUk9MRV9VU0VSIiwiZXhwIjoxNzc4MTI2NjMxfQ.AM44mlUG91k74rPDkoYAd79_hG-OXKR5qxRrg6QWLio
+
+### 2. David acessando a PRÓPRIA agenda (ID 1) -> DEVE RETORNAR 200 OK
+GET {{baseUrl}}/api/v1/appointments/client/1
+Authorization: Bearer {{tokenCliente}}
+
+### 3. David tentando invadir a agenda de OUTRA PESSOA (ID 2) -> DEVE RETORNAR 403 FORBIDDEN
+GET {{baseUrl}}/api/v1/appointments/client/2
+Authorization: Bearer {{tokenCliente}}
+

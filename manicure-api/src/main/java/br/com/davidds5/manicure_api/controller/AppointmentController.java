@@ -73,6 +73,7 @@ public class AppointmentController {
         @ApiResponse(responseCode = "200", description = "Agendamentos encontrados"),
         @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
+    @PreAuthorize("@securityValidator.isSelfOrAdmin(#clientId, authentication)")
     public ResponseEntity<Page<AppointmentDTO>> findByClient(
             @PathVariable("clientId") Long clientId,
             Pageable pageable) {
