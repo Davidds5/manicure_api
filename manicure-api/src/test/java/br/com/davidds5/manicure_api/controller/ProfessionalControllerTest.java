@@ -47,6 +47,8 @@ class ProfessionalControllerTest {
         ProfessionalCreatedDTO requestDto = new ProfessionalCreatedDTO();
         requestDto.setName("Antonio Cicero");
         requestDto.setSpecialty("Manicure");
+        requestDto.setEmail("antonio@email.com");
+        requestDto.setPassword("123456");
         requestDto.setActive(true);
 
         ProfessionalDTO responseDto = new ProfessionalDTO();

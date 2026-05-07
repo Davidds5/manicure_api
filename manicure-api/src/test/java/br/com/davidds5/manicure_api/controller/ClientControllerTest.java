@@ -51,6 +51,7 @@ class ClientControllerTest {
         requestDto.setName("João Testador");
         requestDto.setEmail("joao@email.com");
         requestDto.setPhone("11999998888");
+        requestDto.setPassword("123456");
 
         ClientDTO responseDto = new ClientDTO();
         responseDto.setId(10L);

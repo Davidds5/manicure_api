@@ -57,7 +57,7 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ClientDTO> findAll(String name, Pageable pageable){
+    public Page<ClientDTO> findAll(String name, String email, String phone, Pageable pageable){
         log.info("Listando clientes com filtros dinamicos");
 
         Specification<ClientEntity> spec = Specification.where(null);
@@ -65,7 +65,15 @@ public class ClientService {
         if(name != null && !name.isBlank()){
             spec = spec.and(ClientSpecification.nameContains(name));
         }
-        
+
+        if(email != null && !email.isBlank()){
+            spec = spec.and(ClientSpecification.emailContains(email));
+        }
+
+        if(phone != null && !phone.isBlank()){
+            spec = spec.and(ClientSpecification.phoneContains(phone));
+        }
+
         return clientRepository.findAll(spec, pageable).map(clientMapper::toDTO);
     }
 

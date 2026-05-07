@@ -56,9 +56,11 @@ public class ClientController {
     })
     public ResponseEntity<Page<ClientDTO>> findAll(
             @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false, defaultValue = "") String email,
+            @RequestParam(required = false, defaultValue = "") String phone,
             @PageableDefault(size = 10) Pageable pageable) { 
                 
-        return ResponseEntity.ok(clientService.findAll(name, pageable));
+        return ResponseEntity.ok(clientService.findAll(name,email,phone, pageable));
     }
 
     @GetMapping("/{id}")
