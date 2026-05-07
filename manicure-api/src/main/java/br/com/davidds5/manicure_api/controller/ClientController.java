@@ -104,7 +104,7 @@ public class ClientController {
     private EntityModel<ClientDTO> buildResource(ClientDTO client) {
         return EntityModel.of(client,
                 linkTo(methodOn(ClientController.class).findById(client.getId())).withSelfRel(),
-                linkTo(methodOn(ClientController.class).findAll("", Pageable.unpaged())).withRel("all-clients")
+                linkTo(methodOn(ClientController.class).findAll("","","", Pageable.unpaged())).withRel("all-clients")
         );
     }
 }

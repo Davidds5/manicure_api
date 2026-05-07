@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,9 @@ class ClientServiceTest {
 
     @Mock
     private ClientRepository clientRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private ClientMapper clientMapper;
@@ -143,7 +147,7 @@ class ClientServiceTest {
 
     when(clientMapper.toDTO(entity)).thenReturn(dto);
 
-    Page<ClientDTO> result = clientService.findAll(nomeFiltro, pageable);
+    Page<ClientDTO> result = clientService.findAll(nomeFiltro, null, null, pageable);
 
     assertNotNull(result);
     assertEquals(1, result.getTotalElements());
