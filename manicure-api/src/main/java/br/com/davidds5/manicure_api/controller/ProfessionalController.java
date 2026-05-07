@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
@@ -26,7 +27,14 @@ public class ProfessionalController {
     private final ProfessionalService professionalService;
 
     @PostMapping
-    @Operation(summary = "Criar novo profissional")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Criar novo profissional", description = "Cadastra um novo profissiona no sistema. Receberar permisao de ADMIN")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Profissional criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Erro de validação (ex: email já cadastrado)"),
+        @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
+        @ApiResponse(responseCode = "403", description = "Token inválido ou sem permissão de ADMIN")
+    })
     public ResponseEntity<EntityModel<ProfessionalDTO>> create(@Valid @RequestBody ProfessionalCreatedDTO dto) {
         ProfessionalDTO professional = professionalService.createProfessional(dto);
 
@@ -38,13 +46,20 @@ public class ProfessionalController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar profissionais ativos")
+    @Operation(summary = "Listar profissionais ativos", description = "Retorna apenas os profissionais ativos no sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Profissionais listados com sucesso")
+    })
     public ResponseEntity<List<ProfessionalDTO>> findAllActive() {
         return ResponseEntity.ok(professionalService.findAllActive());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar profissional por ID")
+    @Operation(summary = "Buscar profissional por ID", description = "Retorna os dados de um profissional pelo ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Profissional encontrado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+    })
     public ResponseEntity<EntityModel<ProfessionalDTO>> findById(@PathVariable Long id) {
         ProfessionalDTO professional = professionalService.findById(id);
 
@@ -55,7 +70,14 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar profissional")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Atualizar profissional", description = "Atualiza os dados de um profissional existente. Requer ADMIN")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Profissional atualizado com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Nao autorizado"),
+        @ApiResponse(responseCode = "403", description = "Proibido"),
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+    })
     public ResponseEntity<EntityModel<ProfessionalDTO>> update(@PathVariable Long id,
                                                                @Valid @RequestBody ProfessionalCreatedDTO dto) {
         ProfessionalDTO professional = professionalService.updateProfessional(id, dto);
@@ -68,7 +90,12 @@ public class ProfessionalController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Deletar profissional")
+    @Operation(summary = "Deletar profissional", description = "Demitir/Desativar um profissional existente. Requer ADMIN")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Profissional demitido/desativado com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Acesso negado - Requer permissão de ADMIN"),
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+    })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         professionalService.deleteProfessional(id);
         return ResponseEntity.noContent().build();

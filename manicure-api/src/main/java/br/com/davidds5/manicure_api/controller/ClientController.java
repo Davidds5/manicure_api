@@ -5,6 +5,8 @@ import br.com.davidds5.manicure_api.dto.ClientDTO;
 import br.com.davidds5.manicure_api.dto.ClientUpdateDTO;
 import br.com.davidds5.manicure_api.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,11 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping
-    @Operation(summary = "Criar novo cliente")
+    @Operation(summary = "Criar novo cliente", description = "Cadrasta um novo cliente no sistema. Acesso publico.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)")
+    })
     public ResponseEntity<EntityModel<ClientDTO>> create(@Valid @RequestBody ClientCreatedDTO dto) {
         ClientDTO client = clientService.createClient(dto);
 
@@ -43,7 +49,11 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar todos os clientes")
+    @Operation(summary = "Listar todos os clientes", description = "Retorna uma lista paginada. Permite filtro por nome. Requer permissão de ADMIN.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Clientes listados com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Acesso negado - Faltou token ou você nao e ADMIN")
+    })
     public ResponseEntity<Page<ClientDTO>> findAll(
             @RequestParam(required = false, defaultValue = "") String name,
             @PageableDefault(size = 10) Pageable pageable) { 
@@ -52,14 +62,23 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar cliente por ID")
+    @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+    })
     public ResponseEntity<EntityModel<ClientDTO>> findById(@PathVariable Long id) {
         ClientDTO client = clientService.findById(id);
         return ResponseEntity.ok(buildResource(client));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar cliente")
+    @Operation(summary = "Atualizar cliente", description = "Atualiza os dados de um cliente existente.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)"),
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+    })
     public ResponseEntity<EntityModel<ClientDTO>> update(@PathVariable Long id,
                                                          @Valid @RequestBody ClientUpdateDTO dto) {
         ClientDTO client = clientService.updateClient(id, dto);
@@ -68,7 +87,12 @@ public class ClientController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Deletar cliente")
+    @Operation(summary = "Deletar cliente", description = "Remove um cliente do sistema. Requer permissão de ADMIN.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Acesso negado - Faltou token ou você nao e ADMIN"),
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+    })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();
