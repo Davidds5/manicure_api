@@ -6,12 +6,15 @@ import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ProfessionalMapper;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +22,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
 @ExtendWith(MockitoExtension.class)
 class ProfessionalServiceTest {
 
     @Mock
     private ProfessionalRepository professionalRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private ProfessionalMapper professionalMapper;
@@ -57,6 +64,7 @@ class ProfessionalServiceTest {
 
     @Test
     void createProfessional_Success() {
+        when(passwordEncoder.encode(anyString())).thenReturn("senha_criptografada");
         when(professionalMapper.toEntity(createDTO)).thenReturn(entity);
         when(professionalRepository.save(entity)).thenReturn(entity);
         when(professionalMapper.toDTO(entity)).thenReturn(dto);
