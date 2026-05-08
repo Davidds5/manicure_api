@@ -48,6 +48,8 @@ class ProfessionalServiceTest {
         createDTO.setName("Ana Lopes");
         createDTO.setSpecialty("Nail Designer");
         createDTO.setActive(true);
+        createDTO.setEmail("ana@email");
+        createDTO.setPassword("123456789");
 
         entity = new ProfessionalEntity();
         entity.setId(1L);

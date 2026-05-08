@@ -30,5 +30,5 @@ public class ProfessionalCreatedDTO {
     @Size(min = 3, max = 100, message = "Email deve ter entre 3 e 100 caracteres")
     private String email;
 
-    private boolean active = true; // boolean primitivo gera isActive()
+    private boolean active = true; 
 }
