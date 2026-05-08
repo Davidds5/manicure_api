@@ -55,6 +55,9 @@ class AppointmentServiceTest {
         professional.setId(1L);
         professional.setName("Ana");
         professional.setActive(true);
+        professional.setEmail("[EMAIL_ADDRESS]");
+        professional.setPassword("123456789");
+        professional.setSpecialty("Nail Designer");
 
         serviceEntity = new ServiceEntity();
         serviceEntity.setId(1L);

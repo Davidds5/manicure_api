@@ -51,6 +51,7 @@ class ClientServiceTest {
                 .name("Maria Silva")
                 .phone("(11) 99999-9999")
                 .email("maria@email.com")
+                .password("123456789")
                 .build();
 
         entity = ClientEntity.builder()
@@ -58,6 +59,7 @@ class ClientServiceTest {
                 .name("Maria Silva")
                 .phone("(11) 99999-9999")
                 .email("maria@email.com")
+                .password("123456789")
                 .build();
 
         dto = ClientDTO.builder()
@@ -65,6 +67,7 @@ class ClientServiceTest {
                 .name("Maria Silva")
                 .phone("(11) 99999-9999")
                 .email("maria@email.com")
+
                 .build();
     }
 
@@ -72,6 +75,7 @@ class ClientServiceTest {
 
     @Test
     void createClient_Success() {
+        when(passwordEncoder.encode(anyString())).thenReturn("senha_criptografada");
         when(clientRepository.findByEmail(createDTO.getEmail())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(createDTO)).thenReturn(entity);
         when(clientRepository.save(entity)).thenReturn(entity);
