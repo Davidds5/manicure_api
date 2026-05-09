@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-26T10:33:02-0300",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-05-09T18:43:58-0300",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.11 (Microsoft)"
 )
 @Component
 public class ServiceMapperImpl implements ServiceMapper {
@@ -25,6 +25,7 @@ public class ServiceMapperImpl implements ServiceMapper {
         serviceDTO.id( entity.getId() );
         serviceDTO.name( entity.getName() );
         serviceDTO.price( entity.getPrice() );
+        serviceDTO.duration( entity.getDuration() );
 
         return serviceDTO.build();
     }
@@ -39,6 +40,7 @@ public class ServiceMapperImpl implements ServiceMapper {
 
         serviceEntity.name( dto.getName() );
         serviceEntity.price( dto.getPrice() );
+        serviceEntity.duration( dto.getDuration() );
 
         return serviceEntity.build();
     }

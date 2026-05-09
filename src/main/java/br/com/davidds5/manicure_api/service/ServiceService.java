@@ -76,7 +76,7 @@ public class ServiceService {
             throw new BusinessException("Preço deve ser maior que zero");
         }
 
-        if (dto.getDurationMinutes() != null && dto.getDurationMinutes() <= 0) {
+        if (dto.getDuration() != null && dto.getDuration() <= 0) {
             throw new BusinessException("Duração deve ser maior que zero");
         }
 
@@ -84,8 +84,8 @@ public class ServiceService {
             existing.setPrice(dto.getPrice());
         }
 
-        if (dto.getDurationMinutes() != null) {
-            existing.setDurationMinutes(dto.getDurationMinutes());
+        if (dto.getDuration() != null) {
+            existing.setDuration(dto.getDuration());
         }
 
         if (dto.getActive() != null) {

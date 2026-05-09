@@ -28,8 +28,8 @@ public class ServiceEntity {
     private Double price;
 
     @Column(nullable = false)
-    private Integer durationMinutes;
+    private Integer duration;
 
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = true;
 }

@@ -1,8 +1,7 @@
 ### Variáveis Globais
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODExNjczN30.TyHcoQKhLYN3VxLmSSopsEHSifAiOeoPjqtQiO_m8KE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODM2NjA4OH0.71JWMALi1uvEFLF5cBm-j2zLwP1guEOCzhaUe2jA4eg
 
-### Login (Gera o Token JWT)
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -17,37 +16,39 @@ POST {{baseUrl}}/api/v1/clients
 Content-Type: application/json
 
 {
-  "name": "David Silva",
-  "email": "david@teste.com",
-  "password": "123456",
+  "name": "Luis Gustavo",
+  "email": "silva@gmail.com",
+  "password": "654321",
   "phone": "11999999999"
 }
 
 ### Listar todos os clientes (Requer ADMIN)
-GET {{baseUrl}}/api/v1/clients?name=david
+GET {{baseUrl}}/api/v1/clients
 Authorization: Bearer {{token}}
 
 ### Buscar cliente por ID
-GET {{baseUrl}}/api/v1/clients/1
+GET {{baseUrl}}/api/v1/clients/34
 Authorization: Bearer {{token}}
+
 
 
 
 ### Criar novo profissional
 POST {{baseUrl}}/api/v1/professionals
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "Manicure Master",
-  "email": "admin@salao.com",
-  "password": "admin123456",
+  "name": "Luis Gonzaga",
+  "email": "json@gamil.com",
+  "password": "adm12456",
   "phone": "11888888888",
   "specialty": "Unhas de Gel"
 }
 
 ### Listar profissionais
 GET {{baseUrl}}/api/v1/professionals
-
+Authorization: Bearer {{token}}
 
 ### Criar agendamento
 POST {{baseUrl}}/api/v1/appointments
@@ -58,8 +59,32 @@ Content-Type: application/json
   "clientId": 1,
   "professionalId": 1,
   "serviceId": 1,
-  "appointmentDate": "2026-05-10T14:30:00"
+  "dateTime": "2026-10-10T14:30:00"
 }
+
+### Criar um serviço (Requer ADMIN)
+POST {{baseUrl}}/api/v1/services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Alongamento de Unha",
+  "description": "Corte, lixamento e esmaltação comum",
+  "price": 50.00,
+  "duration": 45
+}
+
+
+### Listar serviços
+GET {{baseUrl}}/api/v1/services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+
+### Buscar um serviço por ID
+GET  {{baseUrl}}/api/v1/services/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### Listar meus agendamentos (Cliente)
 GET {{baseUrl}}/api/v1/appointments/client/1
@@ -100,4 +125,3 @@ Authorization: Bearer {{tokenCliente}}
 ### 3. David tentando invadir a agenda de OUTRA PESSOA (ID 2) -> DEVE RETORNAR 403 FORBIDDEN
 GET {{baseUrl}}/api/v1/appointments/client/2
 Authorization: Bearer {{tokenCliente}}
-

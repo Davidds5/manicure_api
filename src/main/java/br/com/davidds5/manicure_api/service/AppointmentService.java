@@ -3,6 +3,7 @@ package br.com.davidds5.manicure_api.service;
 import br.com.davidds5.manicure_api.data.AppointmentData;
 import br.com.davidds5.manicure_api.dto.*;
 import br.com.davidds5.manicure_api.entity.*;
+import br.com.davidds5.manicure_api.event.AppointmentCreatedEvent;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 
@@ -11,6 +12,7 @@ import br.com.davidds5.manicure_api.util.Constants;
 import br.com.davidds5.manicure_api.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppointmentService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final AppointmentRepository appointmentRepository;
     private final ClientRepository clientRepository;
     private final ProfessionalRepository professionalRepository;
@@ -114,7 +117,15 @@ public class AppointmentService {
 
         AppointmentEntity saved = appointmentRepository.save(entity);
 
+        eventPublisher.publishEvent(new AppointmentCreatedEvent(
+            saved.getId(),
+            saved.getClient().getEmail(),
+            saved.getClient().getName(),
+            saved.getDateTime()
+        ));
         return toDTO(saved);
+
+   
     }
 
     // ================= UPDATE =================

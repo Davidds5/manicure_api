@@ -19,7 +19,7 @@ public class ServiceUpdateDTO {
     @Positive(message = "O preço deve ser maior que zero")
     private Double price;
 
-    private Integer durationMinutes;
+    private Integer duration;
 
     private Boolean active;
 }
