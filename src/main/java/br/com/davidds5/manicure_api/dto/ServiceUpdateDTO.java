@@ -13,9 +13,7 @@ import java.math.BigDecimal;
 public class ServiceUpdateDTO {
 
     private String name;
-
     private String description;
-
     @Positive(message = "O preço deve ser maior que zero")
     private Double price;
 
