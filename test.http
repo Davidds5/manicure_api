@@ -1,6 +1,6 @@
 ### Variáveis Globais
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODM2NjA4OH0.71JWMALi1uvEFLF5cBm-j2zLwP1guEOCzhaUe2jA4eg
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtYW5pY3VyZV9hcGkiLCJzdWIiOiJhZG1pbkBzYWxhby5jb20iLCJyb2xlIjoiUk9MRV9BRE1JTiIsImV4cCI6MTc3ODUzMTQ5Nn0.FsgqoOL0GVWbnY_ABz_ggqAtyUyrHTzbfFl26PgNZ9Q
 
 POST {{baseUrl}}/login
 Content-Type: application/json
@@ -125,3 +125,21 @@ Authorization: Bearer {{tokenCliente}}
 ### 3. David tentando invadir a agenda de OUTRA PESSOA (ID 2) -> DEVE RETORNAR 403 FORBIDDEN
 GET {{baseUrl}}/api/v1/appointments/client/2
 Authorization: Bearer {{tokenCliente}}
+
+
+
+### Health Check (Verificar se a API está saudável)
+GET {{baseUrl}}/actuator/health
+Authorization: Bearer {{token}}
+
+### Listar todas as métricas disponíveis
+GET {{baseUrl}}/actuator/metrics
+Authorization: Bearer {{token}}
+
+### Ver o tempo de criação de agendamentos (A métrica que você criou!)
+GET {{baseUrl}}/actuator/metrics/api_appointment_creation_time
+Authorization: Bearer {{token}}
+
+### Ver métricas no formato Prometheus
+GET {{baseUrl}}/actuator/prometheus
+Authorization: Bearer {{token}}

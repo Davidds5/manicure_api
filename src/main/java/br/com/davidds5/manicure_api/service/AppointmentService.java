@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +33,7 @@ public class AppointmentService {
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
     private final AppointmentData appointmentData;
+    private final MeterRegistry meterRegistry;
 
     // ================= PRIVATE HELPERS =================
 
@@ -98,6 +100,10 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentDTO createAppointment(AppointmentCreateDTO dto) {
+        
+        return meterRegistry.timer("api_appointment_creation_time").record(()-> {
+            
+        
         log.info("Criando agendamento");
 
         ClientEntity client = getClient(dto.getClientId());
@@ -123,8 +129,10 @@ public class AppointmentService {
             saved.getClient().getName(),
             saved.getDateTime()
         ));
-        return toDTO(saved);
 
+        meterRegistry.counter("api_appointment_created_total").increment();
+        return toDTO(saved);
+    });
    
     }
 
