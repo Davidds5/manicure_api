@@ -9,11 +9,15 @@ import br.com.davidds5.manicure_api.repository.AppointmentRepository;
 import br.com.davidds5.manicure_api.repository.ClientRepository;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
 import br.com.davidds5.manicure_api.repository.ServiceRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -23,8 +27,14 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 @ExtendWith(MockitoExtension.class)
 class AppointmentServiceTest {
+
+    @Spy
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
+ 
 
     @Mock
     private AppointmentRepository appointmentRepository;
@@ -45,8 +55,12 @@ class AppointmentServiceTest {
     private ServiceEntity serviceEntity;
     private AppointmentCreateDTO createDTO;
 
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @BeforeEach
     void setUp() {
+        
         client = new ClientEntity();
         client.setId(1L);
         client.setName("Maria");

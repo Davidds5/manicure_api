@@ -1903,3 +1903,6 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
     returning id
 2026-05-11 16:20:00.535 [task-1] INFO  b.c.d.m.l.AppointmentNotificationListener - Iniciando envio de e-mail assicrono para:david@teste.com
 2026-05-11 16:20:05.537 [task-1] INFO  b.c.d.m.l.AppointmentNotificationListener - E-mail enviado com sucesso para David Silva! Agendamento ID:1
+2026-05-11 16:33:45.364 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11 16:33:45.424 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-05-11 16:33:45.449 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
