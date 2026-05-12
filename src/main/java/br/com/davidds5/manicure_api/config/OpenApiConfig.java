@@ -60,6 +60,10 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                        .addServersItem(new Server()
+                        .url("https://manicure-api-vi63.onrender.com")
+                        .description("Produção - Render"))
+
                 .info(new Info()
                         .title("Manicure API")
                         .version("1.0")
