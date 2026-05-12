@@ -1,6 +1,5 @@
 package br.com.davidds5.manicure_api.config;
 
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -18,7 +17,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
-
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 @Configuration
 @EnableWebSecurity
@@ -64,12 +64,13 @@ public class OpenApiConfig {
                         .addServersItem(new Server()
                         .url("https://manicure-api-vi63.onrender.com")
                         .description("Produção - Render"))
-
+                .addSecurityItem(new SecurityRequirement()
+                    .addList("bearerAuth"))
                 .info(new Info()
                         .title("Manicure API")
                         .version("1.0")
                         .description("API para agendamento de serviços de manicure."))
-                        .components(new Components()
+                .components(new Components()
                     .addSecuritySchemes("bearerAuth", 
                         new SecurityScheme()
                             .type(SecurityScheme.Type.HTTP)
