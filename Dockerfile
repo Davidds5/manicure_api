@@ -10,4 +10,4 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
-ENTRYPOINT ["java", "-Xmx352m", "-Xms352m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx352m", "-Xms352m", "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-jar", "app.jar"]
