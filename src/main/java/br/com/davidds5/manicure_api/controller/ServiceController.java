@@ -6,6 +6,8 @@ import br.com.davidds5.manicure_api.dto.ServiceUpdateDTO;
 import br.com.davidds5.manicure_api.service.ServiceService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,7 +41,9 @@ public class ServiceController {
         @ApiResponse(responseCode = "201", description = "Serviço criado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
         @ApiResponse(responseCode = "403", description = "Token inválido ou sem permissão de ADMIN"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação (nome duplicado, valor negativo, etc)")
+        @ApiResponse(responseCode = "400", description = "Erro de validação (nome duplicado, valor negativo, etc)", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ServiceDTO>> create(@Valid @RequestBody ServiceCreateDTO dto) {
         ServiceDTO service = serviceService.createService(dto);
@@ -78,7 +83,9 @@ public class ServiceController {
     @Operation(summary = "Buscar serviço por ID", description = "Retorna os detalhes de um serviço específico pelo ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Serviço encontrado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ServiceDTO>> findById(@PathVariable Long id) {
         ServiceDTO service = serviceService.findById(id);
@@ -94,10 +101,14 @@ public class ServiceController {
     @PreAuthorize("hasRole('ADMIN')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Serviço atualizado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação"),
+        @ApiResponse(responseCode = "400", description = "Erro de validação", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        ),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
         @ApiResponse(responseCode = "403", description = "Token inválido ou sem permissão de ADMIN"),
-        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ServiceDTO>> update(
             @PathVariable Long id,
@@ -119,7 +130,9 @@ public class ServiceController {
         @ApiResponse(responseCode = "204", description = "Serviço deletado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
         @ApiResponse(responseCode = "403", description = "Token inválido ou sem permissão de ADMIN"),
-        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Serviço nao encontrado", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         serviceService.deleteService(id);

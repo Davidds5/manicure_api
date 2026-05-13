@@ -5,6 +5,8 @@ import br.com.davidds5.manicure_api.dto.ClientDTO;
 import br.com.davidds5.manicure_api.dto.ClientUpdateDTO;
 import br.com.davidds5.manicure_api.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -34,7 +37,9 @@ public class ClientController {
     @Operation(summary = "Criar novo cliente", description = "Cadrasta um novo cliente no sistema. Acesso publico.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)")
+        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ClientDTO>> create(@Valid @RequestBody ClientCreatedDTO dto) {
         ClientDTO client = clientService.createClient(dto);
@@ -67,7 +72,9 @@ public class ClientController {
     @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ClientDTO>> findById(@PathVariable Long id) {
         ClientDTO client = clientService.findById(id);
@@ -78,8 +85,12 @@ public class ClientController {
     @Operation(summary = "Atualizar cliente", description = "Atualiza os dados de um cliente existente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)"),
-        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+        @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<EntityModel<ClientDTO>> update(@PathVariable Long id,
                                                          @Valid @RequestBody ClientUpdateDTO dto) {
@@ -93,7 +104,9 @@ public class ClientController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso"),
         @ApiResponse(responseCode = "401", description = "Acesso negado - Faltou token ou você nao e ADMIN"),
-        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.")
+        @ApiResponse(responseCode = "404", description = "Cliente nao encontrado com o id informado.", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteClient(id);

@@ -8,7 +8,7 @@ import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ProfessionalMapper;
 import br.com.davidds5.manicure_api.repository.AppointmentRepository;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
-
+import org.springframework.cache.annotation.Cacheable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +48,7 @@ public class ProfessionalService {
         return professionalMapper.toDTO(entity);
     }
 
+    @Cacheable(value = "professionals")
     @Transactional(readOnly = true)
     public List<ProfessionalDTO> findAllActive() {
         log.info("Listando todos os profissionais ativos");
@@ -55,7 +56,8 @@ public class ProfessionalService {
                 .stream()
                 .map(professionalMapper::toDTO)
                 .collect(Collectors.toList());
-        return collect; // compatível com Java 8+
+                System.out.println("Fui no Banco de dados");
+        return collect; 
     }
 
     @Transactional

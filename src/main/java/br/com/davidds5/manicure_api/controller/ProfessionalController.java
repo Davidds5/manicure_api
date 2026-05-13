@@ -11,11 +11,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
-
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
@@ -28,10 +30,12 @@ public class ProfessionalController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Criar novo profissional", description = "Cadastra um novo profissiona no sistema. Receberar permisao de ADMIN")
+    @Operation(summary = "Criar novo profissional", description = "Cadastra um novo profissional no sistema. Requer permissão de ADMIN")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Profissional criado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erro de validação (ex: email já cadastrado)"),
+        @ApiResponse(responseCode = "400", description = "Erro de validação", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        ),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
         @ApiResponse(responseCode = "403", description = "Token inválido ou sem permissão de ADMIN")
     })
@@ -58,7 +62,8 @@ public class ProfessionalController {
     @Operation(summary = "Buscar profissional por ID", description = "Retorna os dados de um profissional pelo ID.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Profissional encontrado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class)))
     })
     public ResponseEntity<EntityModel<ProfessionalDTO>> findById(@PathVariable Long id) {
         ProfessionalDTO professional = professionalService.findById(id);
@@ -76,7 +81,8 @@ public class ProfessionalController {
         @ApiResponse(responseCode = "200", description = "Profissional atualizado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Nao autorizado"),
         @ApiResponse(responseCode = "403", description = "Proibido"),
-        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class)))
     })
     public ResponseEntity<EntityModel<ProfessionalDTO>> update(@PathVariable Long id,
                                                                @Valid @RequestBody ProfessionalCreatedDTO dto) {
@@ -94,7 +100,8 @@ public class ProfessionalController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Profissional demitido/desativado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Acesso negado - Requer permissão de ADMIN"),
-        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado")
+        @ApiResponse(responseCode = "404", description = "Profissional nao encontrado", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class)))
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         professionalService.deleteProfessional(id);
