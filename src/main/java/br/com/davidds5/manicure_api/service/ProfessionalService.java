@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.CacheEvict;
 
 @Slf4j
 @Service
@@ -27,6 +28,7 @@ public class ProfessionalService {
     private final ProfessionalMapper professionalMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
     public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
         log.info("Criando novo profissional: {}", dto.getName());
@@ -39,7 +41,8 @@ public class ProfessionalService {
         log.info("Profissional criado com ID: {}", saved.getId());
         return professionalMapper.toDTO(saved);
     }
-
+    
+    @Cacheable(value = "professionals", key = "#id")
     @Transactional(readOnly = true)
     public ProfessionalDTO findById(Long id) {
         log.info("Buscando profissional por ID: {}", id);
@@ -56,10 +59,11 @@ public class ProfessionalService {
                 .stream()
                 .map(professionalMapper::toDTO)
                 .collect(Collectors.toList());
-                System.out.println("Fui no Banco de dados");
+                log.debug("Fui no Banco de dados");
         return collect; 
     }
 
+    @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
     public ProfessionalDTO updateProfessional(Long id, ProfessionalCreatedDTO dto) {
         log.info("Atualizando profissional ID: {}", id);
@@ -75,7 +79,7 @@ public class ProfessionalService {
         log.info("Profissional atualizado com ID: {}", updated.getId());
         return professionalMapper.toDTO(updated);
     }
-
+    @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
     public void deleteProfessional(Long id) {
         log.info("Deletando profissional ID: {}", id);

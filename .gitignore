@@ -35,3 +35,6 @@ build/
 # Logs
 /logs/
 *.log
+
+# AI Assistant Rules (private config, should not be versioned)
+.agents/
