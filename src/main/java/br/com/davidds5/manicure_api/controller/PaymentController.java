@@ -13,6 +13,7 @@ import org.springframework.hateoas.EntityModel;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -28,6 +29,7 @@ public class PaymentController {
     }
 
     @PostMapping("/appointments/{appointmentId}")
+    @PreAuthorize("@securityValidator.isAppointmentOwnerOrAdmin(#appointmentId, authentication)")
     @Operation(summary = "Registrar pagamento de agendamento")
     public ResponseEntity<EntityModel<PaymentDTO>> registerPayment(@PathVariable Long appointmentId,
                                                                    @Valid @RequestBody PaymentCreateDTO dto) {

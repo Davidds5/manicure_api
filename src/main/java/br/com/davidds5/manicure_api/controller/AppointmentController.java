@@ -66,6 +66,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@securityValidator.isAppointmentOwnerOrAdmin(#id, authentication)")
     @Operation(summary = "Buscar agendamento", description = "Retorna os detalhes de um agendamento específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Agendamento encontrado"),
@@ -94,6 +95,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@securityValidator.isAppointmentOwnerOrAdmin(#id, authentication)")
     @Operation(summary = "Atualizar agendamento", description = "Alterar os dados de um agendamento (ex: data, hora, status, serviço)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Agendamento atualizado com sucesso"),
@@ -109,6 +111,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/cancel")
+    @PreAuthorize("@securityValidator.isAppointmentOwnerOrAdmin(#id, authentication)")
     @Operation(summary = "Cancelar agendamento", description = "Muda o status do agendamento para CANCELADO")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Agendamento cancelado com sucesso"),
@@ -125,6 +128,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/confirm")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Confirmar agendamento", description = "Muda o status do agendamento para CONFIRMADO")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Agendamento confirmado com sucesso"),

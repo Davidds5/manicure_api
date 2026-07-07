@@ -42,10 +42,10 @@ public class PaymentService {
                     + appointment.getService().getPrice());
         }
 
-        // ✅ Agora sim: MapStruct puro
+
         PaymentEntity payment = paymentMapper.toEntity(dto);
 
-        // ✅ REGRA DE NEGÓCIO fica no Service
+        
         payment.setAppointment(appointment);
         payment.setPaidAt(java.time.LocalDateTime.now());
 

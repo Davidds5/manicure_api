@@ -69,6 +69,7 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@securityValidator.isSelfOrAdmin(#id, authentication)")
     @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
@@ -82,6 +83,7 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@securityValidator.isSelfOrAdmin(#id, authentication)")
     @Operation(summary = "Atualizar cliente", description = "Atualiza os dados de um cliente existente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
