@@ -2,11 +2,15 @@ package br.com.davidds5.manicure_api.service;
 
 import br.com.davidds5.manicure_api.dto.TenantSignupDTO;
 import br.com.davidds5.manicure_api.dto.TenantResponseDTO;
+import br.com.davidds5.manicure_api.dto.TenantDetailsDTO;
+import br.com.davidds5.manicure_api.dto.TenantUpdateDTO;
+import br.com.davidds5.manicure_api.dto.PlatformMetricsDTO;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
 import br.com.davidds5.manicure_api.entity.TenantEntity;
 import br.com.davidds5.manicure_api.enums.TenantPlan;
 import br.com.davidds5.manicure_api.enums.TenantStatus;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
+import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.repository.ProfessionalRepository;
 import br.com.davidds5.manicure_api.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
