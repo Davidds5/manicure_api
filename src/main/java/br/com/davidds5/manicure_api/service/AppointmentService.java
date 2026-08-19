@@ -118,7 +118,6 @@ public class AppointmentService {
 
         AppointmentEntity entity = new AppointmentEntity();
 
-        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
         if (currentTenantId != null) {
             entity.setTenantId(currentTenantId);
         } else {
