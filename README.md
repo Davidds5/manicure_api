@@ -1,237 +1,108 @@
-# 💅 Manicure API
+# 💅 Manicure API (SaaS Multi-Tenant)
 
-> **API REST de Gestão de Salão de Beleza** desenvolvida em **Java 21** e **Spring Boot 3**, com foco total em padrões de produção corporativa.
->
-> O objetivo desta API é fornecer um backend robusto e seguro para o gerenciamento completo de um salão de beleza: clientes, profissionais, serviços, agendamentos e pagamentos.
-
----
-
-## 💡 O Problema Real que Este Projeto Resolve
-
-Salões de beleza e estúdios de manicure gerenciam sua agenda de forma manual — agendamentos anotados em cadernos, grupos de WhatsApp para confirmação de horários e planilhas de Excel para controle financeiro.
-
-Esse modelo gera problemas diários e concretos:
-
-- 📵 **Conflito de horários:** Sem um sistema centralizado, dois clientes podem ser agendados no mesmo horário para a mesma profissional.
-- 💸 **Perda de receita:** Sem histórico de pagamentos integrado ao agendamento, fica difícil identificar quais serviços foram pagos ou estão em aberto.
-- 👩‍💼 **Falta de controle de acesso:** Qualquer pessoa com acesso ao WhatsApp do salão pode ver ou alterar informações sensíveis de clientes e profissionais.
-- 📊 **Ausência de dados para decisão:** Sem um sistema, é impossível saber quais serviços são mais procurados, quais clientes retornam com mais frequência ou qual profissional gera mais receita.
-
-**A Manicure API resolve todos esses problemas** fornecendo uma camada de backend segura, escalável e pronta para produção, que pode alimentar qualquer aplicativo mobile ou web de agendamento para salões de beleza.
+> **Plataforma SaaS Multi-Tenant corporativa de Gestão de Salões de Beleza** desenvolvida em **Java 21** e **Spring Boot 3**, com arquitetura isolada de dados por salão (Tenant), controle de assinaturas/planos e conformidade com padrões de produção corporativa.
 
 ---
 
 ## 🌐 Ambiente de Produção (Live)
-
-A aplicação está publicada e rodando na nuvem. Acesse diretamente sem precisar instalar nada:
 
 | Recurso | Link |
 | :--- | :--- |
 | 📖 **Swagger UI (Documentação Interativa)** | [manicure-api-vi63.onrender.com/swagger-ui/index.html](https://manicure-api-vi63.onrender.com/swagger-ui/index.html) |
 | ⚙️ **API Base URL** | `https://manicure-api-vi63.onrender.com` |
 | 💻 **Repositório GitHub** | [github.com/Davidds5/manicure_api](https://github.com/Davidds5/manicure_api) |
-| 🗂️ **Portfólio do Desenvolvedor** | [davidds5.github.io/portfolio_clovin](https://davidds5.github.io/portfolio_clovin/) |
 
-> ⚠️ **Aviso:** O servidor do Render pode entrar em modo sleep após períodos de inatividade. A primeira requisição pode levar até 60 segundos para acordar a instância.
-
----
-
-## 🎯 Proposta de Valor
-
-Diferente de sistemas acadêmicos simples, esta API foi arquitetada para resolver problemas reais de produção:
-
-- **🔐 Segurança Robusta:** Autenticação Stateless com tokens JWT e autorização por roles (`CLIENTE` / `ADMIN`).
-- **🧠 Autorização Inteligente:** Login polimórfico que distingue dinamicamente Clientes de Profissionais (Admins).
-- **🔍 Consultas Otimizadas:** Filtros dinâmicos com *Spring Data JPA Specifications* e paginação com `Pageable`.
-- **🛡️ Resiliência:** Tratamento de exceções global com `@RestControllerAdvice` e validação rigorosa com Bean Validation.
-- **🐳 Containerização:** Imagem Docker otimizada com **Multi-stage Build**, separando as fases de compilação e execução.
-- **🗄️ Versionamento de Banco:** Controle de schema via **Flyway Migrations**, garantindo integridade total do banco de dados.
+> ⚠️ **Nota:** No plano gratuito do Render, a aplicação pode levar até ~50 segundos para inicializar na primeira requisição após período de inatividade.
 
 ---
 
-## 🚀 Tecnologias e Ferramentas
+## 🏢 Arquitetura Multi-Tenant & Funcionalidades
 
-| Categoria | Tecnologia |
+Diferente de APIs tradicionais de salão único, a **Manicure API** opera em arquitetura **Multi-Tenant (Shared Database, Pooled Schema)**:
+
+- **🏢 Auto-onboarding de Salões (`POST /tenants/signup`):** Permite que qualquer dono de salão crie sua conta e gere uma instância isolada instantaneamente.
+- **🛡️ Isolamento Estrito de Dados:** Cada requisição autenticada extrai o `tenant_id` do JWT para um `TenantContext` (`ThreadLocal`), aplicando filtros globais no Hibernate para blindagem total contra vazamento cross-tenant.
+- **💳 Gestão de Planos & Assinaturas (`FREE`, `PRO`, `ENTERPRISE`):** Bloqueio automático de novos cadastros de profissionais/serviços ao atingir limites do plano com retorno `HTTP 402 Payment Required`.
+- **👑 Painel SUPER_ADMIN (`/admin/tenants`):** Visão administrativa global com métricas de salões ativos, inadimplência e cálculo de MRR.
+- **📅 Gestão Completa de Salão:** Clientes, Profissionais, Catálogo de Serviços, Agendamentos e Histórico de Pagamentos.
+
+---
+
+## 🚀 Stack Tecnológica
+
+| Camada | Tecnologia |
 | :--- | :--- |
-| **Linguagem** | Java 21 |
-| **Framework** | Spring Boot 3.x |
-| **Segurança** | Spring Security + JWT (JJWT) |
-| **Persistência** | Spring Data JPA + Hibernate |
-| **Banco de Dados** | PostgreSQL (Produção) |
-| **Migrations** | Flyway |
-| **Documentação** | Springdoc OpenAPI 3 / Swagger UI |
-| **Containerização** | Docker (Multi-stage Build) |
-| **Deploy** | Render (Cloud PaaS) |
-| **Testes** | JUnit 5 + Mockito |
-| **Utilitários** | Lombok, MapStruct |
+| **Linguagem & Runtime** | Java 21 (LTS) |
+| **Framework** | Spring Boot 3.x (Web, Security, Data JPA, Validation, AOP) |
+| **Segurança & Auth** | Spring Security + JWT com Claims Customizados (`tenant_id`, `role`) + BCrypt |
+| **Banco de Dados & ORM** | PostgreSQL + Hibernate / Spring Data JPA |
+| **Database Migrations** | Flyway (Schema versionado V1 a V13) |
+| **Documentação Interativa** | Springdoc OpenAPI 3 / Swagger UI |
+| **Containerização & Deploy** | Docker (Multi-stage Build) + Render Cloud PaaS |
+| **Testes Automatizados** | JUnit 5 + Mockito + MockMvc |
 
 ---
 
-## 📁 Arquitetura e Domínios
-
-O projeto segue o padrão de camadas corporativo:
+## 📁 Estrutura de Pacotes
 
 ```
 src/main/java/br/com/davidds5/manicure_api/
-├── controller/      # Camada de entrada HTTP (endpoints REST)
-├── service/         # Regras de negócio
-├── repository/      # Acesso ao banco de dados (JPA)
-├── entity/          # Entidades JPA (tabelas do banco)
-├── dto/             # Objetos de transferência de dados (Request/Response)
-├── mapper/          # Conversão Entity <-> DTO (MapStruct)
-├── security/        # Configuração de Segurança e filtros JWT
-└── exception/       # Tratamento de exceções global
+├── config/           # Configurações de Segurança, Swagger, TenantContext e Interceptors
+├── controller/       # Endpoints REST (Tenants, Auth, Admin, Agendamentos, etc.)
+├── service/          # Lógica de negócio, validação de limites de planos e tenancy
+├── repository/       # Interfaces Spring Data JPA
+├── entity/           # Entidades JPA com tenant_id (Tenant, Client, Professional, Appointment...)
+├── dto/              # Records e DTOs de Request / Response
+├── exception/        # GlobalExceptionHandler e Exceptions customizadas de negócio
+└── aspect/           # AOP para aplicação automática do filtro de Tenant no Hibernate
 ```
-
-**Principais Domínios de Negócio:**
-
-| Domínio | Descrição |
-| :--- | :--- |
-| 👤 **Client** | Gerenciamento completo de clientes do salão |
-| 👩‍🎨 **Professional** | Gerenciamento de manicures e funcionários (Admins) |
-| 💅 **Service** | Catálogo de serviços oferecidos (mão, pé, alongamento, etc.) |
-| 📅 **Appointment** | Agendamentos conectando Cliente, Profissional e Serviços |
-| 💳 **Payment** | Controle financeiro dos agendamentos |
 
 ---
 
-## ⚙️ Como Rodar o Projeto Localmente
+## ⚙️ Como Rodar Localmente
 
 ### Pré-requisitos
+- **Java 21**
+- **Docker & Docker Compose** (ou PostgreSQL local)
 
-Antes de começar, certifique-se de ter instalado:
-- [Java 21 (JDK)](https://jdk.java.net/21/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) *(recomendado)*
-- [Git](https://git-scm.com/)
-
-### Opção 1: Rodando com Docker (Recomendado ✅)
-
-Esta é a forma mais fácil e rápida. Não precisa instalar PostgreSQL manualmente.
-
-**1. Clone o repositório:**
+### 1. Clonar o Repositório
 ```bash
 git clone https://github.com/Davidds5/manicure_api.git
 cd manicure_api
 ```
 
-**2. Suba os containers com Docker Compose:**
+### 2. Rodar via Docker Compose (Recomendado)
 ```bash
 docker-compose up --build
 ```
+A API inicializará em: `http://localhost:8080`
 
-A API estará disponível em: `http://localhost:8080`
-
-**3. Para derrubar os containers:**
+### 3. Rodar via Maven
+Configure as variáveis do PostgreSQL no `application.yml` ou exporte:
 ```bash
-docker-compose down
-```
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=manicure_db
+export DB_USER=postgres
+export DB_PASSWORD=sua_senha
+export JWT_SECRET=chave_secreta_jwt_minimo_256_bits
 
----
-
-### Opção 2: Rodando com Maven (Requer PostgreSQL instalado)
-
-**1. Clone o repositório:**
-```bash
-git clone https://github.com/Davidds5/manicure_api.git
-cd manicure_api
-```
-
-**2. Configure o banco de dados:**
-
-Crie um banco PostgreSQL com as seguintes credenciais (ou ajuste o `application.yml`):
-- **Database:** `manicure_db`
-- **Usuário:** `postgres`
-- **Senha:** `12345`
-- **Porta:** `5432`
-
-**3. Execute o projeto:**
-```bash
 ./mvnw spring-boot:run
 ```
 
-> O **Flyway** criará automaticamente todas as tabelas e o schema do banco na inicialização.
+---
 
-A API estará disponível em: `http://localhost:8080`
+## 🔐 Autenticação & Swagger
+
+1. Acesse o Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+2. Crie um salão em `POST /tenants/signup` ou autentique-se em `POST /login`.
+3. Copie o token JWT retornado.
+4. Clique no botão **`Authorize 🔒`** no Swagger, informe `Bearer SEU_TOKEN` e teste os endpoints protegidos por Tenant!
 
 ---
 
-## 📖 Como Usar a Documentação Swagger
+## 👨‍💻 Autor & Manutenção
 
-A API possui uma interface gráfica interativa do Swagger para facilitar testes e integração.
-
-**Acesse localmente:**
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
-- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
-
-**Acesse em produção:**
-- **Swagger UI:** `https://manicure-api-vi63.onrender.com/swagger-ui/index.html`
-
-### 🔐 Como testar endpoints protegidos por JWT:
-
-Como a API usa segurança Stateless com JWT, siga estes passos para acessar os endpoints protegidos:
-
-**Passo 1 – Faça o login:**
-
-No Swagger, localize o endpoint `POST /login` e faça uma requisição com as credenciais de um `Profissional` (que possui role de Admin):
-```json
-{
-  "email": "seu-email@exemplo.com",
-  "password": "sua-senha"
-}
-```
-
-**Passo 2 – Copie o token:**
-
-Copie o valor do token JWT que aparece na resposta da requisição.
-
-**Passo 3 – Autorize no Swagger:**
-
-1. Clique no botão **`Authorize 🔒`** no topo da página do Swagger.
-2. Cole o token JWT no campo e clique em **Authorize**.
-3. Feche o modal. Agora todos os endpoints protegidos estarão disponíveis para teste!
-
----
-
-## 🐳 Docker – Detalhes Técnicos
-
-O projeto utiliza um **Dockerfile com Multi-stage Build** para otimizar a imagem final:
-
-- **Stage 1 (Build):** Usa a imagem `maven:3.9-eclipse-temurin-21` para compilar e empacotar o `.jar` completo.
-- **Stage 2 (Runtime):** Usa apenas o `eclipse-temurin:21-jre-alpine` (ultra leve) para executar o `.jar` gerado.
-
-> **Resultado:** Imagem de produção enxuta, sem o Maven ou os arquivos de código-fonte, reduzindo vulnerabilidades e tamanho da imagem final.
-
----
-
-## 🛠️ Como Contribuir
-
-1. Faça um **Fork** do projeto
-2. Crie sua **Feature Branch:**
-   ```bash
-   git checkout -b feature/MinhaFeature
-   ```
-3. Faça **Commit** das suas mudanças:
-   ```bash
-   git commit -m 'feat: adicionando nova funcionalidade'
-   ```
-4. Faça **Push** para a Branch:
-   ```bash
-   git push origin feature/MinhaFeature
-   ```
-5. Abra um **Pull Request**
-
----
-
-## 👨‍💻 Desenvolvedor
-
-**David Silva** — Desenvolvedor Java Backend
-
-[![Portfolio](https://img.shields.io/badge/Portfólio-000000?style=for-the-badge&logo=github&logoColor=white)](https://davidds5.github.io/portfolio_clovin/)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Davidds5)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/david-silva-17b2882bb)
-
----
-
-## 📄 Licença
-
-Este projeto é de uso livre / educacional e faz parte do portfólio profissional do desenvolvedor.
+**David Silva** — Desenvolvedor Backend Java / Spring Boot  
+- GitHub: [@Davidds5](https://github.com/Davidds5)  
+- LinkedIn: [David Silva](https://www.linkedin.com/in/david-silva-17b2882bb)
