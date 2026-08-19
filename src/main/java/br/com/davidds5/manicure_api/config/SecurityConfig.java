@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers(HttpMethod.POST, "/login").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/tenants/signup").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/api/v1/clients").permitAll();
                     req.requestMatchers("/actuator/**").hasRole("ADMIN");
                     req.requestMatchers(HttpMethod.POST, "/api/v1/professionals/**").hasRole("ADMIN");

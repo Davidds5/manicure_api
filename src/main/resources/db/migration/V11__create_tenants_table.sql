@@ -1,0 +1,14 @@
+CREATE TABLE tenants (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    slug VARCHAR(120) NOT NULL UNIQUE,
+    plan VARCHAR(30) NOT NULL DEFAULT 'FREE',
+    status VARCHAR(30) NOT NULL DEFAULT 'TRIAL',
+    logo_url VARCHAR(255),
+    brand_color VARCHAR(10) DEFAULT '#000000',
+    owner_id BIGINT,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE INDEX idx_tenants_slug ON tenants(slug);
