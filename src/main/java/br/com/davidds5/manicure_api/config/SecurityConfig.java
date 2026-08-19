@@ -27,20 +27,27 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-     @Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000", "http://localhost:3001", "https://*.vercel.app"));
+                    corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(java.util.List.of("*"));
+                    corsConfig.setAllowCredentials(true);
+                    return corsConfig;
+                }))
                 .csrf(csrf -> csrf.disable())
-                // Desativa a proteção contra ataques que não fazem sentido para uma API
-            
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/login").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/login", "/auth/login").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/tenants/signup").permitAll();
-                    req.requestMatchers(HttpMethod.POST, "/api/v1/clients").permitAll();
-                    req.requestMatchers("/actuator/**").hasRole("ADMIN");
-                    req.requestMatchers(HttpMethod.POST, "/api/v1/professionals/**").hasRole("ADMIN");
+                    req.requestMatchers(HttpMethod.GET, "/services", "/services/**").permitAll();
+                    req.requestMatchers(HttpMethod.GET, "/professionals", "/professionals/**").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/clients", "/api/v1/clients").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/appointments", "/appointments/**").permitAll();
+                    req.requestMatchers("/actuator/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
                     req.anyRequest().authenticated();
                 })
