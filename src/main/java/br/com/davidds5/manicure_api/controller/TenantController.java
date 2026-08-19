@@ -28,4 +28,16 @@ public class TenantController {
         TenantResponseDTO response = tenantService.signup(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping("/me")
+    @Operation(summary = "Obtém os dados, branding e limites do salão autenticado")
+    public ResponseEntity<br.com.davidds5.manicure_api.dto.TenantDetailsDTO> getMyTenant() {
+        return ResponseEntity.ok(tenantService.getMyTenant());
+    }
+
+    @PatchMapping("/me")
+    @Operation(summary = "Atualiza nome, logo e cor de marca do salão autenticado")
+    public ResponseEntity<TenantResponseDTO> updateMyTenant(@RequestBody @Valid br.com.davidds5.manicure_api.dto.TenantUpdateDTO dto) {
+        return ResponseEntity.ok(tenantService.updateMyTenant(dto));
+    }
 }
