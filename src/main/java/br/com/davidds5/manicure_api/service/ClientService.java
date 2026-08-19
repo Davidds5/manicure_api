@@ -38,6 +38,10 @@ public class ClientService {
         }
 
         ClientEntity entity = clientMapper.toEntity(dto);
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null) {
+            entity.setTenantId(currentTenantId);
+        }
         String senhaCriptografada = passwordEncoder.encode(dto.getPassword());
         entity.setPassword(senhaCriptografada);
         ClientEntity saved = clientRepository.save(entity);

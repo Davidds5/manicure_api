@@ -27,12 +27,20 @@ public class ProfessionalService {
     private final AppointmentRepository appointmentRepository;
     private final ProfessionalMapper professionalMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SubscriptionService subscriptionService;
 
     @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
     public ProfessionalDTO createProfessional(ProfessionalCreatedDTO dto) {
         log.info("Criando novo profissional: {}", dto.getName());
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        subscriptionService.validateProfessionalLimit(currentTenantId);
+
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
+        if (currentTenantId != null) {
+            entity.setTenantId(currentTenantId);
+        }
         
         String senhaCriptografada = passwordEncoder.encode(dto.getPassword());
         entity.setPassword(senhaCriptografada);

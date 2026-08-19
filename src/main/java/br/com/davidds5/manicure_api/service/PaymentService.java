@@ -44,7 +44,9 @@ public class PaymentService {
 
 
         PaymentEntity payment = paymentMapper.toEntity(dto);
-
+        
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        payment.setTenantId(currentTenantId != null ? currentTenantId : appointment.getTenantId());
         
         payment.setAppointment(appointment);
         payment.setPaidAt(java.time.LocalDateTime.now());

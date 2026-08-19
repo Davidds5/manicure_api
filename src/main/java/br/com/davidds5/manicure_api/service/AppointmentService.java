@@ -32,6 +32,7 @@ public class AppointmentService {
     private final ClientRepository clientRepository;
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
+    private final SubscriptionService subscriptionService;
     private final AppointmentData appointmentData;
     private final MeterRegistry meterRegistry;
 
@@ -103,8 +104,10 @@ public class AppointmentService {
         
         return meterRegistry.timer("api_appointment_creation_time").record(()-> {
             
-        
         log.info("Criando agendamento");
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        subscriptionService.validateAppointmentLimit(currentTenantId);
 
         ClientEntity client = getClient(dto.getClientId());
         ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
@@ -114,6 +117,13 @@ public class AppointmentService {
         validateTimeConflict(professional.getId(), dto.getDateTime(), null);
 
         AppointmentEntity entity = new AppointmentEntity();
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null) {
+            entity.setTenantId(currentTenantId);
+        } else {
+            entity.setTenantId(professional.getTenantId());
+        }
 
         entity.setClient(client);
         entity.setProfessional(professional);
