@@ -48,6 +48,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(PlanLimitExceededException.class)
+    public ResponseEntity<StandardError> handlePlanLimitExceededException(PlanLimitExceededException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.PAYMENT_REQUIRED;
+
+        StandardError error = new StandardError(
+            LocalDateTime.now(), 
+            status.value(),
+            "Limite do plano atingido (Payment Required)", 
+            ex.getMessage(), 
+            request.getRequestURI()
+        );
+    
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationError> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
