@@ -27,6 +27,11 @@ public class SubscriptionService {
 
     @Transactional
     public SubscriptionEntity createDefaultSubscription(Long tenantId, TenantPlan plan) {
+        var existing = subscriptionRepository.findByTenantId(tenantId);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
         int maxProf = plan == TenantPlan.FREE ? 1 : (plan == TenantPlan.PRO ? 10 : 999);
         int maxApp = plan == TenantPlan.FREE ? 50 : (plan == TenantPlan.PRO ? 1000 : 99999);
 

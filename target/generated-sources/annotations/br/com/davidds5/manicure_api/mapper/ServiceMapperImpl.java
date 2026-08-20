@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-07T11:21:32-0300",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.11 (Eclipse Adoptium)"
+    date = "2026-08-20T12:03:21-0300",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class ServiceMapperImpl implements ServiceMapper {
@@ -22,14 +22,14 @@ public class ServiceMapperImpl implements ServiceMapper {
 
         ServiceDTO.ServiceDTOBuilder serviceDTO = ServiceDTO.builder();
 
-        serviceDTO.id( entity.getId() );
-        serviceDTO.description( entity.getDescription() );
-        serviceDTO.name( entity.getName() );
-        serviceDTO.price( entity.getPrice() );
-        serviceDTO.duration( entity.getDuration() );
         if ( entity.getActive() != null ) {
             serviceDTO.active( entity.getActive() );
         }
+        serviceDTO.description( entity.getDescription() );
+        serviceDTO.duration( entity.getDuration() );
+        serviceDTO.id( entity.getId() );
+        serviceDTO.name( entity.getName() );
+        serviceDTO.price( entity.getPrice() );
 
         return serviceDTO.build();
     }
@@ -42,11 +42,11 @@ public class ServiceMapperImpl implements ServiceMapper {
 
         ServiceEntity.ServiceEntityBuilder serviceEntity = ServiceEntity.builder();
 
-        serviceEntity.name( dto.getName() );
-        serviceEntity.description( dto.getDescription() );
-        serviceEntity.price( dto.getPrice() );
-        serviceEntity.duration( dto.getDuration() );
         serviceEntity.active( dto.getActive() );
+        serviceEntity.description( dto.getDescription() );
+        serviceEntity.duration( dto.getDuration() );
+        serviceEntity.name( dto.getName() );
+        serviceEntity.price( dto.getPrice() );
 
         return serviceEntity.build();
     }

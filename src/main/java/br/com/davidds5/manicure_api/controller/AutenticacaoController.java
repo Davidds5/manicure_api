@@ -16,7 +16,7 @@ import br.com.davidds5.manicure_api.dto.TokenDTO;
 
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping({"/login", "/auth/login"})
 public class AutenticacaoController {
     
     @Autowired

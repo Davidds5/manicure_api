@@ -47,6 +47,7 @@ public class SecurityConfig {
                     req.requestMatchers(HttpMethod.GET, "/professionals", "/professionals/**").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/clients", "/api/v1/clients").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/appointments", "/appointments/**").permitAll();
+                    req.requestMatchers("/seed-test", "/test-log").permitAll();
                     req.requestMatchers("/actuator/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
                     req.anyRequest().authenticated();
