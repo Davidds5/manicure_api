@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/", "/index.html", "/error", "/health").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/login", "/auth/login").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/tenants/signup").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/services", "/services/**").permitAll();

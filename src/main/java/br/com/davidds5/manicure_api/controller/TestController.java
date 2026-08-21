@@ -23,6 +23,22 @@ public class TestController {
     @org.springframework.beans.factory.annotation.Autowired
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
+    @GetMapping("/")
+    public java.util.Map<String, Object> root() {
+        return java.util.Map.of(
+                "status", "ONLINE",
+                "service", "BelasUnhas SaaS API",
+                "version", "1.0.0",
+                "swagger", "/swagger-ui/index.html",
+                "endpoints", java.util.List.of("/services", "/professionals", "/login", "/tenants/signup")
+        );
+    }
+
+    @GetMapping("/health")
+    public java.util.Map<String, String> health() {
+        return java.util.Map.of("status", "UP");
+    }
+
     @GetMapping("/seed-test")
     public String seedTest() {
         String testEmail = "teste@salao.com";

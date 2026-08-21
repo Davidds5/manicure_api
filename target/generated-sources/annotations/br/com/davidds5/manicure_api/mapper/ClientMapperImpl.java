@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-20T12:03:22-0300",
-    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
+    date = "2026-08-20T23:18:22-0300",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.12 (Eclipse Adoptium)"
 )
 @Component
 public class ClientMapperImpl implements ClientMapper {
@@ -22,10 +22,10 @@ public class ClientMapperImpl implements ClientMapper {
 
         ClientDTO.ClientDTOBuilder clientDTO = ClientDTO.builder();
 
-        clientDTO.email( entity.getEmail() );
         clientDTO.id( entity.getId() );
         clientDTO.name( entity.getName() );
         clientDTO.phone( entity.getPhone() );
+        clientDTO.email( entity.getEmail() );
 
         return clientDTO.build();
     }
@@ -38,9 +38,9 @@ public class ClientMapperImpl implements ClientMapper {
 
         ClientEntity.ClientEntityBuilder clientEntity = ClientEntity.builder();
 
-        clientEntity.email( dto.getEmail() );
         clientEntity.name( dto.getName() );
         clientEntity.phone( dto.getPhone() );
+        clientEntity.email( dto.getEmail() );
 
         return clientEntity.build();
     }
@@ -51,9 +51,9 @@ public class ClientMapperImpl implements ClientMapper {
             return;
         }
 
-        entity.setEmail( dto.getEmail() );
         entity.setName( dto.getName() );
-        entity.setPassword( dto.getPassword() );
         entity.setPhone( dto.getPhone() );
+        entity.setEmail( dto.getEmail() );
+        entity.setPassword( dto.getPassword() );
     }
 }
