@@ -42,10 +42,19 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (err: any) {
+    throw new ApiError(
+      0,
+      'Não foi possível conectar ao servidor. Verifique se a API está online ou tente novamente em instantes.',
+      err
+    );
+  }
 
   if (!res.ok) {
     let errorData = null;
@@ -55,7 +64,18 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
       // Body not JSON
     }
 
-    const message = errorData?.message || errorData?.error || `Erro HTTP ${res.status}: ${res.statusText}`;
+    let message = errorData?.message || errorData?.error;
+    if (!message) {
+      if (res.status === 403 || res.status === 401) {
+        message = 'E-mail ou senha incorretos, ou acesso não autorizado.';
+      } else if (res.status === 404) {
+        message = 'Recurso não encontrado no servidor.';
+      } else if (res.status >= 500) {
+        message = 'Erro interno no servidor da API. Tente novamente em alguns segundos.';
+      } else {
+        message = `Erro na requisição (${res.status}).`;
+      }
+    }
     throw new ApiError(res.status, message, errorData);
   }
 

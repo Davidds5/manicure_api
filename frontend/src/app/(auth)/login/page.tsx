@@ -35,7 +35,11 @@ function LoginForm() {
         throw new Error('Token JWT não retornado pelo servidor.');
       }
     } catch (err: any) {
-      setError(err.message || 'E-mail ou senha incorretos.');
+      if (err.message && err.message.includes('fetch')) {
+        setError('Não foi possível conectar ao servidor. A API pode estar iniciando, aguarde alguns segundos.');
+      } else {
+        setError(err.message || 'E-mail ou senha incorretos.');
+      }
     } finally {
       setLoading(false);
     }
