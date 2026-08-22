@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-20T23:18:22-0300",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.12 (Eclipse Adoptium)"
+    date = "2026-08-22T09:42:49-0300",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class AppointmentMapperImpl implements AppointmentMapper {
@@ -48,8 +48,8 @@ public class AppointmentMapperImpl implements AppointmentMapper {
         appointmentDTO.serviceId( entityServiceId( entity ) );
         appointmentDTO.serviceName( entityServiceName( entity ) );
         appointmentDTO.servicePrice( entityServicePrice( entity ) );
-        appointmentDTO.id( entity.getId() );
         appointmentDTO.dateTime( entity.getDateTime() );
+        appointmentDTO.id( entity.getId() );
         appointmentDTO.status( entity.getStatus() );
 
         return appointmentDTO.build();
