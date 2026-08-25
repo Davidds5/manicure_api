@@ -51,6 +51,7 @@ export interface Appointment {
   id: number;
   clientId: number;
   clientName: string;
+  clientPhone?: string;
   professionalId: number;
   professionalName: string;
   serviceId: number;
@@ -58,6 +59,7 @@ export interface Appointment {
   servicePrice: number;
   dateTime: string;
   status: AppointmentStatus;
+  notes?: string;
 }
 
 export interface AuthSession {
