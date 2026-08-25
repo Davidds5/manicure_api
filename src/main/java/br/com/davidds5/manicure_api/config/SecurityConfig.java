@@ -23,6 +23,9 @@ public class SecurityConfig {
     @Autowired
     private SecurityFilter securityFilter;
 
+    @org.springframework.beans.factory.annotation.Value("${api.security.cors.allowed-origins}")
+    private java.util.List<String> allowedOrigins;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -32,9 +35,9 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOriginPatterns(java.util.List.of("*"));
+                    corsConfig.setAllowedOrigins(allowedOrigins);
                     corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
-                    corsConfig.setAllowedHeaders(java.util.List.of("*"));
+                    corsConfig.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
                     corsConfig.setExposedHeaders(java.util.List.of("Authorization", "Content-Type"));
                     corsConfig.setAllowCredentials(true);
                     corsConfig.setMaxAge(3600L);
@@ -50,7 +53,6 @@ public class SecurityConfig {
                     req.requestMatchers(HttpMethod.GET, "/professionals", "/professionals/**").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/clients", "/api/v1/clients").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/appointments", "/appointments/**").permitAll();
-                    req.requestMatchers("/seed-test", "/test-log").permitAll();
                     req.requestMatchers("/actuator/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
                     req.anyRequest().authenticated();

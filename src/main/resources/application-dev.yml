@@ -13,3 +13,8 @@ spring:
   h2:
     console:
       enabled: true
+
+api:
+  security:
+    token:
+      secret: "dev-secret-key-only-for-local-testing-1234567890"

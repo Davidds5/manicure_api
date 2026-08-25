@@ -17,3 +17,4 @@ services:
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASSWORD=12345
+      - JWT_SECRET=local_docker_compose_secret_key_1234567890

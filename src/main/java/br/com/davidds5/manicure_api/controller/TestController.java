@@ -1,11 +1,13 @@
 package br.com.davidds5.manicure_api.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
+@Profile("dev")
 public class TestController {
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -22,22 +24,6 @@ public class TestController {
 
     @org.springframework.beans.factory.annotation.Autowired
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
-
-    @GetMapping("/")
-    public java.util.Map<String, Object> root() {
-        return java.util.Map.of(
-                "status", "ONLINE",
-                "service", "BelasUnhas SaaS API",
-                "version", "1.0.0",
-                "swagger", "/swagger-ui/index.html",
-                "endpoints", java.util.List.of("/services", "/professionals", "/login", "/tenants/signup")
-        );
-    }
-
-    @GetMapping("/health")
-    public java.util.Map<String, String> health() {
-        return java.util.Map.of("status", "UP");
-    }
 
     @GetMapping("/seed-test")
     public String seedTest() {
@@ -112,4 +98,5 @@ public class TestController {
         return "Logs funcionando!";
     }
 }
+
 
