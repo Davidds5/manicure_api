@@ -124,12 +124,12 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-200 mb-1.5">URL da Logo (Opcional)</label>
+              <label className="block text-xs font-bold text-stone-200 mb-1.5">Chave Pix do Salão (Para Receber Pagamentos)</label>
               <input
-                type="url"
-                placeholder="https://meusalao.com/logo.png"
-                value={formData.logoUrl}
-                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                type="text"
+                placeholder="Ex: seu-email@pix.com, CPF ou Celular"
+                value={(formData as any).pixKey || ''}
+                onChange={(e) => setFormData({ ...formData, pixKey: e.target.value } as any)}
                 className="w-full bg-[#12100e] border border-stone-700 focus:border-pink-500 rounded-xl px-4 py-3 text-sm text-white placeholder-stone-500 focus:outline-none transition shadow-inner font-medium"
               />
             </div>

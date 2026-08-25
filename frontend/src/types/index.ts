@@ -6,6 +6,8 @@ export interface Tenant {
   status: 'ACTIVE' | 'TRIAL' | 'SUSPENDED';
   logoUrl?: string;
   brandColor?: string;
+  pixKey?: string;
+  pixKeyType?: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'EVP';
   ownerId?: number;
   createdAt: string;
 }
