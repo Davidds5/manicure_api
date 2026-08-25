@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.math.BigDecimal;
 
 @Configuration
-@Profile("dev")
 @RequiredArgsConstructor
 @Slf4j
 public class DevDataSeeder implements CommandLineRunner {
