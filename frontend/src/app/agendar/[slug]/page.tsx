@@ -79,6 +79,19 @@ export default function ClientBookingPortalPage() {
     loadPortalData();
   }, [API_BASE_URL, slug]);
 
+  // Payment state
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'DINHEIRO' | 'CARTAO'>('PIX');
+  const [copiedPix, setCopiedPix] = useState(false);
+
+  const pixKey = "pix.salao@belasunhas.com.br";
+  const pixCode = `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${selectedService ? Number(selectedService.price).toFixed(2) : '0.00'}5802BR5918Studio Bella Nails6009Sao Paulo62070503***6304E8A1`;
+
+  const copyPixCode = () => {
+    navigator.clipboard.writeText(pixCode);
+    setCopiedPix(true);
+    setTimeout(() => setCopiedPix(false), 3000);
+  };
+
   const availableHours = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 
   const handleBooking = async (e: React.FormEvent) => {
@@ -129,7 +142,7 @@ export default function ClientBookingPortalPage() {
             serviceId: selectedService.id,
             appointmentDateTime,
             status: 'SCHEDULED',
-            notes: 'Agendamento online realizado pelo cliente.',
+            notes: `Forma de Pagamento: ${paymentMethod === 'PIX' ? 'Pix Antecipado' : paymentMethod === 'DINHEIRO' ? 'Dinheiro no Salão' : 'Cartão no Salão'}.`,
           }),
         });
       } catch (appErr) {
@@ -147,25 +160,69 @@ export default function ClientBookingPortalPage() {
   if (completed) {
     return (
       <div className="min-h-screen bg-[#faf7f2] text-stone-900 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white max-w-md w-full p-8 sm:p-10 rounded-3xl border border-stone-200/90 text-center relative overflow-hidden shadow-soft">
+        <div className="bg-white max-w-lg w-full p-7 sm:p-9 rounded-3xl border border-stone-200/90 text-center relative overflow-hidden shadow-soft">
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">Agendamento Confirmado! 🎉</h2>
+          <h2 className="text-2xl font-serif font-bold text-stone-900 mb-1">Agendamento Confirmado! 🎉</h2>
           <p className="text-xs text-stone-600 mb-6 leading-relaxed">
-            Seu horário foi reservado com sucesso no salão. Enviamos a confirmação para o seu e-mail e WhatsApp!
+            Seu horário foi reservado com sucesso no salão. Enviamos a confirmação para o seu WhatsApp!
           </p>
 
           <div className="bg-[#fcfaf7] border border-stone-200/80 rounded-2xl p-5 text-left space-y-2.5 mb-6 text-xs text-stone-700">
             <div><span className="text-stone-500 font-medium">Procedimento:</span> <strong className="text-stone-900 block text-sm">{selectedService?.name}</strong></div>
             <div><span className="text-stone-500 font-medium">Profissional:</span> <strong className="text-stone-900">{selectedProf?.name}</strong></div>
             <div><span className="text-stone-500 font-medium">Data e Hora:</span> <strong className="text-pink-600">{selectedDate} às {selectedTime}</strong></div>
-            <div><span className="text-stone-500 font-medium">Valor:</span> <strong className="text-emerald-700 font-bold text-sm">R$ {selectedService?.price.toFixed(2).replace('.', ',')}</strong></div>
+            <div><span className="text-stone-500 font-medium">Forma de Pagamento:</span> <strong className="text-stone-900">{paymentMethod === 'PIX' ? '💠 Pix Instantâneo' : paymentMethod === 'DINHEIRO' ? '💵 Dinheiro no Salão' : '💳 Cartão no Salão'}</strong></div>
+            <div className="border-t border-stone-200/80 pt-2 flex justify-between items-center"><span className="text-stone-500 font-medium">Valor Total:</span> <strong className="text-emerald-700 font-bold text-base">R$ {Number(selectedService?.price).toFixed(2).replace('.', ',')}</strong></div>
           </div>
+
+          {/* Se escolheu Pix, exibe o QR Code dinâmico e código Pix Copia e Cola */}
+          {paymentMethod === 'PIX' ? (
+            <div className="mb-6 p-5 rounded-2xl bg-pink-50/50 border border-pink-200/80 text-center space-y-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-700">
+                💠 Pague via Pix para garantir seu horário
+              </span>
+              <div className="bg-white p-3 rounded-2xl inline-block border border-stone-200 shadow-sm">
+                {/* QR Code gerado dinamicamente via API pública de QR */}
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`}
+                  alt="QR Code Pix"
+                  className="w-40 h-40 mx-auto rounded-lg"
+                />
+              </div>
+              <p className="text-[11px] text-stone-500">
+                Abra o app do seu banco, escolha <strong>Pix QR Code</strong> ou use a chave abaixo:
+              </p>
+              <button
+                type="button"
+                onClick={copyPixCode}
+                className="w-full py-2.5 px-4 rounded-xl bg-white border border-pink-300 text-pink-700 text-xs font-bold hover:bg-pink-100/50 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                {copiedPix ? '✅ Código Pix Copiado!' : '📋 Copiar Código Pix Copia e Cola'}
+              </button>
+            </div>
+          ) : paymentMethod === 'DINHEIRO' ? (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 flex items-start gap-3">
+              <span className="text-xl">💵</span>
+              <div>
+                <strong className="block text-amber-950 font-bold mb-0.5">Pagamento em Dinheiro no Salão</strong>
+                <span>Você poderá realizar o pagamento de <strong>R$ {Number(selectedService?.price).toFixed(2).replace('.', ',')}</strong> diretamente na recepção do salão no dia do atendimento.</span>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-left text-xs text-blue-900 flex items-start gap-3">
+              <span className="text-xl">💳</span>
+              <div>
+                <strong className="block text-blue-950 font-bold mb-0.5">Pagamento em Cartão no Salão</strong>
+                <span>Aceitamos cartões de Débito e Crédito (todas as bandeiras) no momento do seu atendimento.</span>
+              </div>
+            </div>
+          )}
 
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-4 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs transition shadow-card"
+            className="w-full py-4 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs transition shadow-card cursor-pointer"
           >
             Fazer Novo Agendamento
           </button>
@@ -250,7 +307,7 @@ export default function ClientBookingPortalPage() {
                       <span className="text-[11px] text-pink-700 font-semibold mt-2 block">⏱️ {svc.duration} minutos</span>
                     </div>
                     <span className="text-base font-extrabold text-pink-600 shrink-0 font-serif">
-                      R$ {svc.price.toFixed(2).replace('.', ',')}
+                      R$ {Number(svc.price).toFixed(2).replace('.', ',')}
                     </span>
                   </button>
                 ))}
@@ -354,14 +411,14 @@ export default function ClientBookingPortalPage() {
                 onClick={() => setStep(4)}
                 className="w-full mt-4 py-4 rounded-xl bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-card cursor-pointer"
               >
-                Avançar para Confirmação
+                Avançar para Pagamento & Confirmação
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
           </div>
         )}
 
-        {/* STEP 4: Dados da Cliente & Confirmar */}
+        {/* STEP 4: Dados da Cliente & Escolha de Pagamento */}
         {step === 4 && (
           <form onSubmit={handleBooking} className="space-y-4">
             <button
@@ -374,7 +431,7 @@ export default function ClientBookingPortalPage() {
 
             <h2 className="text-base font-bold text-stone-900 flex items-center gap-2 font-serif">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              Passo 4: Seus Dados de Contato
+              Passo 4: Seus Dados e Forma de Pagamento
             </h2>
 
             {/* Resumo */}
@@ -393,7 +450,33 @@ export default function ClientBookingPortalPage() {
               </div>
               <div className="flex justify-between border-t border-stone-200 pt-2.5 mt-1">
                 <span className="text-stone-600 font-bold">Total a Pagar:</span>
-                <span className="font-serif font-extrabold text-stone-900 text-sm">R$ {selectedService?.price.toFixed(2).replace('.', ',')}</span>
+                <span className="font-serif font-extrabold text-stone-900 text-sm">R$ {Number(selectedService?.price).toFixed(2).replace('.', ',')}</span>
+              </div>
+            </div>
+
+            {/* Escolha da Forma de Pagamento */}
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-2">Como deseja pagar?</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'PIX', label: '💠 Pix', desc: 'Gera QR Code' },
+                  { id: 'DINHEIRO', label: '💵 Dinheiro', desc: 'No salão' },
+                  { id: 'CARTAO', label: '💳 Cartão', desc: 'No salão' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(item.id as any)}
+                    className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
+                      paymentMethod === item.id
+                        ? 'border-pink-600 bg-pink-50 text-pink-900 font-bold shadow-xs'
+                        : 'border-stone-200 bg-stone-50/70 text-stone-600 hover:border-stone-300'
+                    }`}
+                  >
+                    <span className="block text-xs font-bold">{item.label}</span>
+                    <span className="block text-[10px] text-stone-500 mt-0.5">{item.desc}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -409,28 +492,30 @@ export default function ClientBookingPortalPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">WhatsApp / Telefone</label>
-              <input
-                type="tel"
-                required
-                placeholder="(11) 98888-7777"
-                value={clientPhone}
-                onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-pink-500 focus:bg-white"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">WhatsApp / Telefone</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="(11) 98888-7777"
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-pink-500 focus:bg-white"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">E-mail</label>
-              <input
-                type="email"
-                required
-                placeholder="mariana@email.com"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-pink-500 focus:bg-white"
-              />
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">E-mail</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="mariana@email.com"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-pink-500 focus:bg-white"
+                />
+              </div>
             </div>
 
             <button
@@ -438,7 +523,7 @@ export default function ClientBookingPortalPage() {
               disabled={submitting}
               className="w-full mt-4 py-4 rounded-xl bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold transition shadow-card flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              {submitting ? 'Confirmando Horário...' : 'Confirmar Agendamento ✨'}
+              {submitting ? 'Confirmando Horário...' : 'Confirmar e Finalizar Agendamento ✨'}
             </button>
           </form>
         )}
