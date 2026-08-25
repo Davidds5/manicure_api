@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Building2, User, Mail, Lock, Phone, ArrowRight, AlertCircle } from 'lucide-react';
+import { Building2, User, Mail, Lock, Phone, ArrowRight, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
 import { fetchApi, setAuthToken } from '@/lib/api';
 
 function SignupForm() {
@@ -14,6 +14,10 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -23,6 +27,12 @@ function SignupForm() {
     password: '',
     plan: initialPlan,
   });
+
+  // Requisitos de força de senha
+  const hasMinLength = formData.password.length >= 6;
+  const hasUpper = /[A-Z]/.test(formData.password);
+  const hasNumber = /[0-9]/.test(formData.password);
+  const passwordsMatch = formData.password !== '' && formData.password === confirmPassword;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -43,8 +53,19 @@ function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    if (!hasMinLength) {
+      setError('A senha deve conter no mínimo 6 caracteres.');
+      return;
+    }
+
+    if (formData.password !== confirmPassword) {
+      setError('As senhas digitadas não coincidem. Verifique e tente novamente.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       await fetchApi<any>('/tenants/signup', {
@@ -160,37 +181,101 @@ function SignupForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-stone-300 mb-1">E-mail de Acesso</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-amber-400 absolute left-3.5 top-3.5" />
-              <input
-                type="email"
-                required
-                placeholder="admin@studiobella.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-10 pr-4 py-3 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-400 transition"
-              />
-            </div>
+        <div>
+          <label className="block text-xs font-bold text-stone-300 mb-1">E-mail de Acesso</label>
+          <div className="relative">
+            <Mail className="w-4 h-4 text-amber-400 absolute left-3.5 top-3.5" />
+            <input
+              type="email"
+              required
+              placeholder="admin@studiobella.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-10 pr-4 py-3 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-400 transition"
+            />
           </div>
+        </div>
 
+        {/* Senha e Confirmação de Senha */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-stone-300 mb-1">Senha Segura</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-amber-400 absolute left-3.5 top-3.5" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-10 pr-4 py-3 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-400 transition"
+                className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-10 pr-10 py-3 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-400 transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-stone-500 hover:text-stone-300 transition cursor-pointer"
+                title={showPassword ? 'Ocultar senha' : 'Ver senha'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-stone-300 mb-1">Confirmar Senha</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-amber-400 absolute left-3.5 top-3.5" />
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`w-full bg-stone-900 border rounded-xl pl-10 pr-10 py-3 text-sm text-stone-100 placeholder-stone-600 focus:outline-none transition ${
+                  confirmPassword && !passwordsMatch
+                    ? 'border-rose-500 focus:border-rose-500'
+                    : confirmPassword && passwordsMatch
+                    ? 'border-emerald-500 focus:border-emerald-500'
+                    : 'border-stone-800 focus:border-amber-400'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-3 text-stone-500 hover:text-stone-300 transition cursor-pointer"
+                title={showConfirmPassword ? 'Ocultar confirmação' : 'Ver confirmação'}
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Indicador visual de requisitos da senha */}
+        {formData.password.length > 0 && (
+          <div className="p-3 bg-stone-900/60 rounded-xl border border-stone-800 space-y-1.5 text-[11px]">
+            <div className="flex items-center gap-2">
+              {hasMinLength ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <X className="w-3.5 h-3.5 text-rose-400" />}
+              <span className={hasMinLength ? 'text-emerald-400 font-medium' : 'text-stone-400'}>Mínimo de 6 caracteres</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasUpper ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <X className="w-3.5 h-3.5 text-stone-500" />}
+              <span className={hasUpper ? 'text-emerald-400 font-medium' : 'text-stone-400'}>Pelo menos 1 letra maiúscula (A-Z) (Recomendado)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasNumber ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <X className="w-3.5 h-3.5 text-stone-500" />}
+              <span className={hasNumber ? 'text-emerald-400 font-medium' : 'text-stone-400'}>Pelo menos 1 número (0-9) (Recomendado)</span>
+            </div>
+            {confirmPassword.length > 0 && (
+              <div className="flex items-center gap-2 pt-1 border-t border-stone-800">
+                {passwordsMatch ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <X className="w-3.5 h-3.5 text-rose-400" />}
+                <span className={passwordsMatch ? 'text-emerald-400 font-bold' : 'text-rose-400 font-medium'}>
+                  {passwordsMatch ? 'Senhas conferem!' : 'As senhas não coincidem'}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-bold text-stone-300 mb-1.5">Plano Inicial Selecionado</label>
@@ -200,7 +285,7 @@ function SignupForm() {
                 key={p}
                 type="button"
                 onClick={() => setFormData({ ...formData, plan: p })}
-                className={`py-2.5 rounded-xl text-xs font-bold border transition ${
+                className={`py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
                   formData.plan === p
                     ? 'border-amber-400 bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
                     : 'border-stone-800 bg-stone-900 text-stone-400 hover:border-amber-500/30'
@@ -214,8 +299,8 @@ function SignupForm() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full mt-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-stone-950 font-black py-4 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          disabled={loading || (formData.password !== '' && !passwordsMatch)}
+          className="w-full mt-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-stone-950 font-black py-4 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-stone-950/30 border-t-stone-950 rounded-full animate-spin" />
