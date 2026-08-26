@@ -36,10 +36,14 @@ function LoginForm() {
         throw new Error('Token JWT não retornado pelo servidor.');
       }
     } catch (err: any) {
-      if (err.message && err.message.includes('fetch')) {
-        setError('Não foi possível conectar ao servidor. A API pode estar iniciando, aguarde alguns segundos.');
+      if (err.message && (err.message.includes('fetch') || err.message.includes('servidor'))) {
+        setError('Não foi possível conectar ao servidor. O backend no Render pode estar acordando, tente novamente em 15 segundos.');
+      } else if (err.status === 401 || err.status === 403) {
+        setError('E-mail ou senha incorretos. Verifique suas credenciais.');
+      } else if (err.status >= 500) {
+        setError('A conta de teste ainda não foi inicializada ou o banco está sincronizando. Tente cadastrar seu salão em "Cadastrar Grátis".');
       } else {
-        setError(err.message || 'E-mail ou senha incorretos.');
+        setError(err.message || 'Erro ao efetuar login.');
       }
     } finally {
       setLoading(false);
