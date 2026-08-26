@@ -26,13 +26,17 @@ public class AutenticacaoController {
     private TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<TokenDTO> efetuarLogin(@RequestBody @Valid AutenticacaoDTO data){
-    var token = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-    var autenticacao = manager.authenticate(token);
+    public ResponseEntity<?> efetuarLogin(@RequestBody @Valid AutenticacaoDTO data){
+        try {
+            var token = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+            var autenticacao = manager.authenticate(token);
 
-    var tokenJWT = tokenService.gerarToken((UserDetails) autenticacao.getPrincipal());
-    return ResponseEntity.ok(new TokenDTO(tokenJWT));
-
+            var tokenJWT = tokenService.gerarToken((UserDetails) autenticacao.getPrincipal());
+            return ResponseEntity.ok(new TokenDTO(tokenJWT));
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("message", "E-mail ou senha incorretos. Verifique suas credenciais."));
+        }
     }
 
 }
