@@ -169,4 +169,37 @@ public class MultiTenantIsolationTest {
         Long extractedTenantId = tokenService.getTenantId(token);
         assertEquals(tenantA.getId(), extractedTenantId, "O tenant_id no JWT deve ser igual ao do profissional");
     }
+
+    @Test
+    @DisplayName("Garante que dois tenants diferentes podem cadastrar clientes com o mesmo e-mail")
+    void testTwoTenantsCanHaveClientWithSameEmail() {
+        String sharedEmail = "cliente.comum@gmail.com";
+
+        // 1. Cadastra no Tenant A
+        TenantContext.setTenantId(tenantA.getId());
+        ClientEntity clientA = clientRepository.save(ClientEntity.builder()
+                .name("Maria - Salão A")
+                .email(sharedEmail)
+                .phone("11999991111")
+                .password("senhaA")
+                .tenantId(tenantA.getId())
+                .build());
+        entityManager.flush();
+
+        // 2. Cadastra no Tenant B com o MESMO e-mail
+        TenantContext.setTenantId(tenantB.getId());
+        ClientEntity clientB = clientRepository.save(ClientEntity.builder()
+                .name("Maria - Salão B")
+                .email(sharedEmail)
+                .phone("11999992222")
+                .password("senhaB")
+                .tenantId(tenantB.getId())
+                .build());
+        entityManager.flush();
+
+        assertNotNull(clientA.getId());
+        assertNotNull(clientB.getId());
+        assertNotEquals(clientA.getId(), clientB.getId());
+        assertEquals(clientA.getEmail(), clientB.getEmail());
+    }
 }

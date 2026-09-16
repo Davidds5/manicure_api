@@ -13,7 +13,9 @@ import java.util.List;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "clients")
+@Table(name = "clients", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_clients_tenant_email", columnNames = {"tenant_id", "email"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,7 +40,7 @@ public class ClientEntity implements UserDetails {
     @Column(nullable = false, length = 20)
     private String phone;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String email;
 
     @Column(name = "created_at", nullable = false)

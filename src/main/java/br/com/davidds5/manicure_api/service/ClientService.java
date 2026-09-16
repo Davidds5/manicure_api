@@ -33,12 +33,16 @@ public class ClientService {
     public ClientDTO createClient(ClientCreatedDTO dto) {
         log.info("Criando novo cliente: {}", dto.getEmail());
 
-        if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null) {
+            if (clientRepository.findByEmailAndTenantId(dto.getEmail(), currentTenantId).isPresent()) {
+                throw new BusinessException("Email já cadastrado: " + dto.getEmail());
+            }
+        } else if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BusinessException("Email já cadastrado: " + dto.getEmail());
         }
 
         ClientEntity entity = clientMapper.toEntity(dto);
-        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
         if (currentTenantId != null) {
             entity.setTenantId(currentTenantId);
         }
@@ -92,7 +96,13 @@ public class ClientService {
 
         // Atualiza email se vier e for diferente
         if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
-            if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
+            Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+            Long tenantToCheck = currentTenantId != null ? currentTenantId : existing.getTenantId();
+            if (tenantToCheck != null) {
+                if (clientRepository.findByEmailAndTenantId(dto.getEmail(), tenantToCheck).isPresent()) {
+                    throw new BusinessException("Email já cadastrado: " + dto.getEmail());
+                }
+            } else if (clientRepository.findByEmail(dto.getEmail()).isPresent()) {
                 throw new BusinessException("Email já cadastrado: " + dto.getEmail());
             }
             existing.setEmail(dto.getEmail());
