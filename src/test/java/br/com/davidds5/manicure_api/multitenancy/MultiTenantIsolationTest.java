@@ -57,6 +57,9 @@ public class MultiTenantIsolationTest {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private jakarta.persistence.EntityManager entityManager;
+
     private TenantEntity tenantA;
     private TenantEntity tenantB;
 
@@ -97,16 +100,19 @@ public class MultiTenantIsolationTest {
                 .tenantId(tenantA.getId())
                 .build());
 
+        entityManager.flush();
+
         // 2. Consulta estando logado no Tenant A
         TenantContext.setTenantId(tenantA.getId());
         var clientFoundA = clientRepository.findById(clientA.getId());
         assertTrue(clientFoundA.isPresent(), "Tenant A deve conseguir encontrar seu próprio cliente");
 
-        // 3. Muda contexto para Tenant B
+        // 3. Muda contexto para Tenant B e limpa L1 cache
         TenantContext.setTenantId(tenantB.getId());
+        entityManager.clear();
 
         // 4. Tenant B tenta buscar o cliente criado no Tenant A
-        // Com o Hibernate Filter ativado, a query retorna vazio (isolamento garantido)
+        // Com o Hibernate Filter ativado e L1 limpa, a query retorna vazio (isolamento garantido)
         var clientFoundB = clientRepository.findById(clientA.getId());
         assertTrue(clientFoundB.isEmpty(), "Tenant B NÃO pode ter acesso aos dados do cliente do Tenant A");
     }

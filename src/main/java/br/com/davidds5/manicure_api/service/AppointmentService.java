@@ -97,6 +97,31 @@ public class AppointmentService {
         }
     }
 
+    private void validateTenantScope(Long currentTenantId, ClientEntity client, ProfessionalEntity professional, ServiceEntity service) {
+        if (currentTenantId != null) {
+            if (client.getTenantId() != null && !currentTenantId.equals(client.getTenantId())) {
+                throw new ResourceNotFoundException("Cliente não encontrado: " + client.getId());
+            }
+            if (professional.getTenantId() != null && !currentTenantId.equals(professional.getTenantId())) {
+                throw new ResourceNotFoundException("Profissional não encontrado: " + professional.getId());
+            }
+            if (service.getTenantId() != null && !currentTenantId.equals(service.getTenantId())) {
+                throw new ResourceNotFoundException("Serviço não encontrado: " + service.getId());
+            }
+        } else {
+            Long clientTenant = client.getTenantId();
+            Long profTenant = professional.getTenantId();
+            Long servTenant = service.getTenantId();
+
+            if (clientTenant != null && profTenant != null && !clientTenant.equals(profTenant)) {
+                throw new BusinessException("Cruzamento de dados: cliente e profissional pertencem a salões distintos.");
+            }
+            if (profTenant != null && servTenant != null && !profTenant.equals(servTenant)) {
+                throw new BusinessException("Cruzamento de dados: profissional e serviço pertencem a salões distintos.");
+            }
+        }
+    }
+
     // ================= CREATE =================
 
     @Transactional
@@ -112,6 +137,8 @@ public class AppointmentService {
         ClientEntity client = getClient(dto.getClientId());
         ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
         ServiceEntity service = getService(dto.getServiceId());
+
+        validateTenantScope(currentTenantId, client, professional, service);
 
         validateFutureDate(dto.getDateTime());
         validateTimeConflict(professional.getId(), dto.getDateTime(), null);

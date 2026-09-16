@@ -10,6 +10,9 @@ import java.util.Optional;
 
 public interface ClientRepository extends JpaRepository<ClientEntity, Long>, JpaSpecificationExecutor<ClientEntity> {
 
+    @org.springframework.data.jpa.repository.Query("select c from ClientEntity c where c.id = :id")
+    Optional<ClientEntity> findById(@org.springframework.data.repository.query.Param("id") Long id);
+
     Optional<ClientEntity> findByEmail(String email);
 
     Page<ClientEntity> findByNameContaining(String name, Pageable pageable);

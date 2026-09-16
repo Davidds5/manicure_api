@@ -35,6 +35,9 @@ class ProfessionalServiceTest {
     @Mock
     private ProfessionalMapper professionalMapper;
 
+    @Mock
+    private SubscriptionService subscriptionService;
+
     @InjectMocks
     private ProfessionalService professionalService;
 

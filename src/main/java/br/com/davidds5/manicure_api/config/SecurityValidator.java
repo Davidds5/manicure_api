@@ -22,35 +22,53 @@ public class SecurityValidator {
         this.appointmentRepository = appointmentRepository;
     }
 
-    public boolean isSelfOrAdmin(Long requestedClientId, Authentication authentication){
+    public boolean isSelfOrAdmin(Long requestedClientId, Authentication authentication) {
+        if (requestedClientId == null || authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
 
-        if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
+        Optional<ClientEntity> requestedClient = clientRepository.findById(requestedClientId);
+        if (requestedClient.isEmpty()) {
+            return false;
+        }
+
+        ClientEntity client = requestedClient.get();
+        Long currentTenantId = TenantContext.getTenantId();
+        if (currentTenantId != null && !currentTenantId.equals(client.getTenantId())) {
+            return false;
+        }
+
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             return true;
         }
-        
-        String loggerEmail = authentication.getName();
-        
-        Optional<ClientEntity> requestedClient = clientRepository.findById(requestedClientId);
-        
-        return requestedClient.isPresent() && requestedClient.get()
-            .getEmail()
-            .equals(loggerEmail);
+
+        String loggedEmail = authentication.getName();
+        return client.getEmail() != null && client.getEmail().equals(loggedEmail);
     }
 
     public boolean isAppointmentOwnerOrAdmin(Long appointmentId, Authentication authentication) {
-        if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
-            return true;
+        if (appointmentId == null || authentication == null || !authentication.isAuthenticated()) {
+            return false;
         }
-        
-        String loggedEmail = authentication.getName();
-        
+
         Optional<AppointmentEntity> appointmentOpt = appointmentRepository.findById(appointmentId);
         if (appointmentOpt.isEmpty()) {
-            return true; 
+            return false;
         }
-        
+
         AppointmentEntity appointment = appointmentOpt.get();
-        return appointment.getClient() != null && appointment.getClient().getEmail().equals(loggedEmail);
+        Long currentTenantId = TenantContext.getTenantId();
+        if (currentTenantId != null && !currentTenantId.equals(appointment.getTenantId())) {
+            return false;
+        }
+
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            return true;
+        }
+
+        String loggedEmail = authentication.getName();
+        return appointment.getClient() != null 
+                && appointment.getClient().getEmail() != null 
+                && appointment.getClient().getEmail().equals(loggedEmail);
     }
-            
 }
