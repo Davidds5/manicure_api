@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manicure-api-vi63.onrender.com';
+const API_BASE_URL = rawUrl.trim().replace(/[\r\n\s]+$/, '').replace(/\/+$/, '');
 
 export class ApiError extends Error {
   status: number;
@@ -40,7 +41,8 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const cleanEndpoint = endpoint.trim().replace(/^\/+/, '');
+  const url = cleanEndpoint.startsWith('http') ? cleanEndpoint : `${API_BASE_URL}/${cleanEndpoint}`;
 
   let res: Response;
   try {
@@ -65,6 +67,9 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     }
 
     let message = errorData?.message || errorData?.error;
+    if (!message && Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
+      message = errorData.errors.map((e: any) => e.message || e.defaultMessage).filter(Boolean).join(', ');
+    }
     if (!message) {
       if (res.status === 403 || res.status === 401) {
         message = 'E-mail ou senha incorretos, ou acesso não autorizado.';

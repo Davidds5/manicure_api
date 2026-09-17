@@ -41,7 +41,7 @@ function LoginForm() {
       } else if (err.status === 401 || err.status === 403) {
         setError('E-mail ou senha incorretos. Verifique suas credenciais.');
       } else if (err.status >= 500) {
-        setError('A conta de teste ainda não foi inicializada ou o banco está sincronizando. Tente cadastrar seu salão em "Cadastrar Grátis".');
+        setError(err.message || 'Servidor temporariamente indisponível. Tente novamente em instantes.');
       } else {
         setError(err.message || 'Erro ao efetuar login.');
       }
