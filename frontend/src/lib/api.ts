@@ -41,7 +41,10 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const cleanEndpoint = endpoint.trim().replace(/^\/+/, '');
+  let cleanEndpoint = endpoint.trim().replace(/^\/+/, '');
+  if (/^(services|professionals|appointments|clients|payments)(\/|\?|$)/.test(cleanEndpoint)) {
+    cleanEndpoint = `api/v1/${cleanEndpoint}`;
+  }
   const url = cleanEndpoint.startsWith('http') ? cleanEndpoint : `${API_BASE_URL}/${cleanEndpoint}`;
 
   let res: Response;
