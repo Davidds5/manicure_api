@@ -18,6 +18,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { ServiceItem, Professional } from '@/types';
+import { fetchApi } from '@/lib/api';
 
 export default function ClientBookingPortalPage() {
   const params = useParams();
@@ -42,19 +43,17 @@ export default function ClientBookingPortalPage() {
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   useEffect(() => {
     async function loadPortalData() {
       try {
         setLoading(true);
-        // Carrega serviços e profissionais disponíveis
-        const [servRes, profRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/services`).then((r) => r.ok ? r.json() : []).catch(() => []),
-          fetch(`${API_BASE_URL}/professionals`).then((r) => r.ok ? r.json() : []).catch(() => []),
+        // Carrega serviços e profissionais disponíveis com fallback
+        const [servRes, profRes] = await Promise.allSettled([
+          fetchApi<ServiceItem[]>('/services'),
+          fetchApi<Professional[]>('/professionals'),
         ]);
 
-        const fetchedServices = Array.isArray(servRes) && servRes.length > 0 ? servRes : [
+        const fetchedServices = servRes.status === 'fulfilled' && Array.isArray(servRes.value) && servRes.value.length > 0 ? servRes.value : [
           { id: 1, name: 'Alongamento em Fibra de Vidro', description: 'Alongamento completo com fibra de vidro premium e acabamento natural', price: 140.00, duration: 60, active: true },
           { id: 2, name: 'Esmaltação em Gel', description: 'Esmaltação de alta durabilidade com secagem imediata em cabine LED/UV', price: 75.00, duration: 45, active: true },
           { id: 3, name: 'Manicure & Pedicure Tradicional', description: 'Cutilagem completa, esfoliação, hidratação e esmaltação', price: 65.00, duration: 50, active: true },
@@ -77,7 +76,7 @@ export default function ClientBookingPortalPage() {
     }
 
     loadPortalData();
-  }, [API_BASE_URL, slug]);
+  }, [slug]);
 
   // Payment state
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'DINHEIRO' | 'CARTAO'>('PIX');
@@ -113,19 +112,15 @@ export default function ClientBookingPortalPage() {
       // 1. Cadastra ou obtém o cliente
       let clientId = 1;
       try {
-        const clientRes = await fetch(`${API_BASE_URL}/clients`, {
+        const clientData = await fetchApi<any>('/clients', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: clientName,
             email: clientEmail,
             phone: clientPhone,
           }),
         });
-        if (clientRes.ok) {
-          const clientData = await clientRes.json();
-          if (clientData?.id) clientId = clientData.id;
-        }
+        if (clientData?.id) clientId = clientData.id;
       } catch (clientErr) {
         console.warn('Fallback client registration:', clientErr);
       }
@@ -133,9 +128,8 @@ export default function ClientBookingPortalPage() {
       // 2. Cria o agendamento
       const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
       try {
-        await fetch(`${API_BASE_URL}/appointments`, {
+        await fetchApi('/appointments', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             clientId,
             professionalId: selectedProf.id,
