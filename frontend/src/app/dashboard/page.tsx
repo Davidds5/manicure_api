@@ -43,7 +43,9 @@ export default function DashboardOverviewPage() {
           setProfessionals(Array.isArray(profsData.value) ? profsData.value : []);
         }
         if (servsData.status === 'fulfilled') {
-          setServices(Array.isArray(servsData.value) ? servsData.value : []);
+          const res: any = servsData.value;
+          const list = Array.isArray(res) ? res : res?._embedded?.serviceDTOList || res?.content || [];
+          setServices(list);
         }
       } catch (err) {
         console.error('Erro ao carregar dados do dashboard:', err);

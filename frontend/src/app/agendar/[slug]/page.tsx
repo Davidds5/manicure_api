@@ -53,14 +53,26 @@ export default function ClientBookingPortalPage() {
           fetchApi<Professional[]>('/professionals'),
         ]);
 
-        const fetchedServices = servRes.status === 'fulfilled' && Array.isArray(servRes.value) && servRes.value.length > 0 ? servRes.value : [
+        let realServices: ServiceItem[] = [];
+        if (servRes.status === 'fulfilled') {
+          const res: any = servRes.value;
+          realServices = Array.isArray(res) ? res : res?._embedded?.serviceDTOList || res?.content || [];
+        }
+
+        const fetchedServices = realServices.length > 0 ? realServices : [
           { id: 1, name: 'Alongamento em Fibra de Vidro', description: 'Alongamento completo com fibra de vidro premium e acabamento natural', price: 140.00, duration: 60, active: true },
           { id: 2, name: 'Esmaltação em Gel', description: 'Esmaltação de alta durabilidade com secagem imediata em cabine LED/UV', price: 75.00, duration: 45, active: true },
           { id: 3, name: 'Manicure & Pedicure Tradicional', description: 'Cutilagem completa, esfoliação, hidratação e esmaltação', price: 65.00, duration: 50, active: true },
           { id: 4, name: 'Blindagem de Unhas Naturais', description: 'Camada protetora em gel para unhas fracas e quebradiças', price: 80.00, duration: 40, active: true },
         ];
 
-        const fetchedProfs = Array.isArray(profRes) && profRes.length > 0 ? profRes : [
+        let realProfs: Professional[] = [];
+        if (profRes.status === 'fulfilled') {
+          const res: any = profRes.value;
+          realProfs = Array.isArray(res) ? res : res?._embedded?.professionalDTOList || res?.content || [];
+        }
+
+        const fetchedProfs = realProfs.length > 0 ? realProfs : [
           { id: 1, name: 'Mariana Silva', specialty: 'Nail Designer & Proprietária', active: true, email: 'mariana@salao.com' },
           { id: 2, name: 'Beatriz Costa', specialty: 'Especialista em Fibra de Vidro', active: true, email: 'beatriz@salao.com' },
           { id: 3, name: 'Carol Andrade', specialty: 'Manicure & Esmaltação em Gel', active: true, email: 'carol@salao.com' },

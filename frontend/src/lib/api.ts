@@ -71,9 +71,18 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
       // Body not JSON
     }
 
-    let message = errorData?.message || errorData?.error;
-    if (!message && Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
-      message = errorData.errors.map((e: any) => e.message || e.defaultMessage).filter(Boolean).join(', ');
+    let message = '';
+    if (Array.isArray(errorData?.errors) && errorData.errors.length > 0) {
+      message = errorData.errors
+        .map((e: any) => {
+          const field = e.fieldName ? `${e.fieldName}: ` : '';
+          return `${field}${e.message || e.defaultMessage || 'Inválido'}`;
+        })
+        .filter(Boolean)
+        .join('; ');
+    }
+    if (!message) {
+      message = errorData?.message || errorData?.error;
     }
     if (!message) {
       if (res.status === 403 || res.status === 401) {

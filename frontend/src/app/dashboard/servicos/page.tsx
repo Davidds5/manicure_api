@@ -22,8 +22,11 @@ export default function ServicesPage() {
   const loadServices = async () => {
     try {
       setLoading(true);
-      const data = await fetchApi<ServiceItem[]>('/services');
-      setServices(Array.isArray(data) ? data : []);
+      const data = await fetchApi<any>('/services');
+      const list: ServiceItem[] = Array.isArray(data)
+        ? data
+        : data?._embedded?.serviceDTOList || data?.content || [];
+      setServices(list);
     } catch (err) {
       console.error('Erro ao listar serviços:', err);
     } finally {
@@ -39,12 +42,18 @@ export default function ServicesPage() {
     e.preventDefault();
     setError(null);
 
+    const trimmedDesc = formData.description.trim();
+    if (trimmedDesc.length < 20 || trimmedDesc.length > 100) {
+      setError(`A descrição deve ter entre 20 e 100 caracteres (atualmente tem ${trimmedDesc.length} caracteres).`);
+      return;
+    }
+
     try {
       await fetchApi('/services', {
         method: 'POST',
         body: JSON.stringify({
-          name: formData.name,
-          description: formData.description,
+          name: formData.name.trim(),
+          description: trimmedDesc,
           price: parseFloat(formData.price),
           duration: parseInt(formData.duration, 10),
           active: formData.active,
@@ -215,14 +224,29 @@ export default function ServicesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-200 mb-1.5">Descrição do que está incluso</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-stone-200">Descrição do que está incluso *</label>
+                  <span className={`text-[11px] font-semibold ${
+                    formData.description.trim().length >= 20 && formData.description.trim().length <= 100
+                      ? 'text-emerald-400'
+                      : 'text-amber-400'
+                  }`}>
+                    {formData.description.trim().length}/100 (mín. 20)
+                  </span>
+                </div>
                 <textarea
                   rows={2}
-                  placeholder="Ex: Cutilagem funda, hidratação, esmaltação e massagem relaxante..."
+                  required
+                  minLength={20}
+                  maxLength={100}
+                  placeholder="Ex: Cutilagem profunda, hidratação, esmaltação e massagem relaxante..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full bg-[#12100e] border border-stone-700 focus:border-pink-500 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-500 focus:outline-none transition resize-none shadow-inner"
                 />
+                <p className="text-[11px] text-stone-400 mt-1">
+                  Mínimo de 20 caracteres para informar claramente às clientes o que está incluso.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
