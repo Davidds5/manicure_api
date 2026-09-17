@@ -30,5 +30,6 @@ public class ProfessionalCreatedDTO {
     @Size(min = 3, max = 100, message = "Email deve ter entre 3 e 100 caracteres")
     private String email;
 
+    @Builder.Default
     private boolean active = true; 
 }

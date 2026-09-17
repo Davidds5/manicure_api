@@ -44,6 +44,12 @@ public class SecurityConfig {
                     return corsConfig;
                 }))
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                    .contentTypeOptions(org.springframework.security.config.Customizer.withDefaults())
+                    .frameOptions(frame -> frame.deny())
+                    .xssProtection(org.springframework.security.config.Customizer.withDefaults())
+                    .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/", "/index.html", "/error", "/health").permitAll();

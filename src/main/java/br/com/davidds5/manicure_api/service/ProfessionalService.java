@@ -50,24 +50,38 @@ public class ProfessionalService {
         return professionalMapper.toDTO(saved);
     }
     
-    @Cacheable(value = "professionals", key = "#id")
+    @Cacheable(value = "professionals", key = "(T(br.com.davidds5.manicure_api.config.TenantContext).getTenantId() != null ? T(br.com.davidds5.manicure_api.config.TenantContext).getTenantId().toString() : 'global') + ':' + #id")
     @Transactional(readOnly = true)
     public ProfessionalDTO findById(Long id) {
         log.info("Buscando profissional por ID: {}", id);
         ProfessionalEntity entity = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+            throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
+        }
+
         return professionalMapper.toDTO(entity);
     }
 
-    @Cacheable(value = "professionals")
+    @Cacheable(value = "professionals", key = "(T(br.com.davidds5.manicure_api.config.TenantContext).getTenantId() != null ? T(br.com.davidds5.manicure_api.config.TenantContext).getTenantId().toString() : 'global') + ':active'")
     @Transactional(readOnly = true)
     public List<ProfessionalDTO> findAllActive() {
         log.info("Listando todos os profissionais ativos");
-        List<ProfessionalDTO> collect = professionalRepository.findByActiveTrue()
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        List<ProfessionalEntity> professionals;
+        if (currentTenantId != null) {
+            professionals = professionalRepository.findByTenantIdAndActiveTrue(currentTenantId);
+        } else {
+            professionals = professionalRepository.findByActiveTrue();
+        }
+
+        List<ProfessionalDTO> collect = professionals
                 .stream()
                 .map(professionalMapper::toDTO)
                 .collect(Collectors.toList());
-                log.debug("Fui no Banco de dados");
+        log.debug("Fui no Banco de dados");
         return collect; 
     }
 
@@ -79,6 +93,11 @@ public class ProfessionalService {
         ProfessionalEntity existing = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+            throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
+        }
+
         existing.setName(dto.getName());
         existing.setSpecialty(dto.getSpecialty());
         existing.setActive(dto.isActive());
@@ -87,6 +106,7 @@ public class ProfessionalService {
         log.info("Profissional atualizado com ID: {}", updated.getId());
         return professionalMapper.toDTO(updated);
     }
+
     @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
     public void deleteProfessional(Long id) {
@@ -94,6 +114,11 @@ public class ProfessionalService {
 
         ProfessionalEntity existing = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+            throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
+        }
 
         professionalRepository.delete(existing);
         log.info("Profissional deletado com ID: {}", id);

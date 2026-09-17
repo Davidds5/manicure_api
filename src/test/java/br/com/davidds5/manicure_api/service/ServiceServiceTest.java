@@ -38,8 +38,14 @@ class ServiceServiceTest{
     private ServiceEntity entity;  
     private ServiceDTO dto;
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        br.com.davidds5.manicure_api.config.TenantContext.clear();
+    }
+
     @BeforeEach
     void setUp() {
+        br.com.davidds5.manicure_api.config.TenantContext.setTenantId(1L);
 
         createDTO = new ServiceCreateDTO();
         createDTO.setName("Manicure");
@@ -50,6 +56,7 @@ class ServiceServiceTest{
 
         entity = new ServiceEntity();
         entity.setId(1L);
+        entity.setTenantId(1L);
         entity.setName("Manicure");
         entity.setDescription("Manicure completa");
         entity.setPrice(50.0);
@@ -63,9 +70,6 @@ class ServiceServiceTest{
         dto.setPrice(50.0);
         dto.setDuration(60);
         dto.setActive(true);
-
-
-        
     }
 
     @Test

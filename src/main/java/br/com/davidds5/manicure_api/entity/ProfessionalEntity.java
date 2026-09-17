@@ -12,7 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Entity
-@Table(name = "professionals")
+@Table(name = "professionals", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_professionals_tenant_email", columnNames = {"tenant_id", "email"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -130,8 +130,6 @@ class AppointmentServiceTest {
     void createAppointment_CrossTenantClient_ThrowsResourceNotFoundException() {
         client.setTenantId(2L); // Pertence a outro tenant
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-        when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
-        when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
 
         assertThrows(br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException.class, 
                 () -> appointmentService.createAppointment(createDTO));
@@ -144,7 +142,6 @@ class AppointmentServiceTest {
         professional.setTenantId(2L); // Pertence a outro tenant
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
         when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
-        when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
 
         assertThrows(br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException.class, 
                 () -> appointmentService.createAppointment(createDTO));

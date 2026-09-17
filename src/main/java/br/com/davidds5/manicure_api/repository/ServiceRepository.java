@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface ServiceRepository extends JpaRepository<ServiceEntity, Long>,
         JpaSpecificationExecutor<ServiceEntity> {
 
+    java.util.List<ServiceEntity> findByTenantId(Long tenantId);
 }

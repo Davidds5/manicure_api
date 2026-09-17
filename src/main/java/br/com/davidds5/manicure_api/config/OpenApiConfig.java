@@ -18,21 +18,23 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                        .addServersItem(new Server()
+                .addServersItem(new Server()
+                        .url("http://localhost:8080")
+                        .description("Ambiente Local (Desenvolvimento)"))
+                .addServersItem(new Server()
                         .url("https://manicure-api-vi63.onrender.com")
-                        .description("Produção - Render"))
+                        .description("Produção (Render)"))
                 .addSecurityItem(new SecurityRequirement()
-                    .addList("bearerAuth"))
+                        .addList("bearerAuth"))
                 .info(new Info()
-                        .title("Manicure API")
-                        .version("1.0")
-                        .description("API para agendamento de serviços de manicure."))
+                        .title("BelasUnhas SaaS API")
+                        .version("1.0.0")
+                        .description("Backend RESTful Multi-Tenant para Agendamento e Gestão de Salões de Beleza e Esmalterias."))
                 .components(new Components()
-                    .addSecuritySchemes("bearerAuth", 
-                        new SecurityScheme()
-                            .type(SecurityScheme.Type.HTTP)
-                            .scheme("bearer")
-                            .bearerFormat("JWT")));
+                        .addSecuritySchemes("bearerAuth", 
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
-
 }

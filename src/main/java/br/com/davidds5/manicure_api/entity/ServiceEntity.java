@@ -34,6 +34,7 @@ public class ServiceEntity {
     @Column(nullable = false)
     private Integer duration;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 }

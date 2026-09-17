@@ -51,12 +51,25 @@ public class ServiceService {
         ServiceEntity entity = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com ID: " + id));
 
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+            throw new ResourceNotFoundException("Serviço não encontrado com ID: " + id);
+        }
+
         return serviceMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)
     public List<ServiceDTO> findAll() {
-        return serviceRepository.findAll()
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        List<ServiceEntity> services;
+        if (currentTenantId != null) {
+            services = serviceRepository.findByTenantId(currentTenantId);
+        } else {
+            services = serviceRepository.findAll();
+        }
+
+        return services
                 .stream()
                 .map(serviceMapper::toDTO)
                 .toList();
@@ -67,6 +80,11 @@ public class ServiceService {
 
         ServiceEntity existing = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+            throw new ResourceNotFoundException("Serviço não encontrado");
+        }
 
         if (dto.getName() != null) {
             existing.setName(dto.getName());
@@ -105,6 +123,11 @@ public class ServiceService {
     public void deleteService(Long id) {
         ServiceEntity entity = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+            throw new ResourceNotFoundException("Serviço não encontrado");
+        }
 
         serviceRepository.delete(entity);
     }

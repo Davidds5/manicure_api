@@ -39,18 +39,32 @@ public class AppointmentService {
     // ================= PRIVATE HELPERS =================
 
     private AppointmentEntity getAppointment(Long id) {
-        return appointmentRepository.findById(id)
+        AppointmentEntity appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado: " + id));
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (appointment.getTenantId() == null || !currentTenantId.equals(appointment.getTenantId()))) {
+            throw new ResourceNotFoundException("Agendamento não encontrado: " + id);
+        }
+        return appointment;
     }
 
     private ClientEntity getClient(Long id) {
-        return clientRepository.findById(id)
+        ClientEntity client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado: " + id));
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (client.getTenantId() == null || !currentTenantId.equals(client.getTenantId()))) {
+            throw new ResourceNotFoundException("Cliente não encontrado: " + id);
+        }
+        return client;
     }
 
     private ProfessionalEntity getProfessional(Long id) {
         ProfessionalEntity professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + id));
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (professional.getTenantId() == null || !currentTenantId.equals(professional.getTenantId()))) {
+            throw new ResourceNotFoundException("Profissional não encontrado: " + id);
+        }
 
         if (!professional.getActive()) {
             throw new BusinessException("Profissional inativo");
@@ -60,8 +74,13 @@ public class AppointmentService {
     }
 
     private ServiceEntity getService(Long id) {
-        return serviceRepository.findById(id)
+        ServiceEntity service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + id));
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (service.getTenantId() == null || !currentTenantId.equals(service.getTenantId()))) {
+            throw new ResourceNotFoundException("Serviço não encontrado: " + id);
+        }
+        return service;
     }
 
     private void validateFutureDate(LocalDateTime dateTime) {
@@ -99,13 +118,13 @@ public class AppointmentService {
 
     private void validateTenantScope(Long currentTenantId, ClientEntity client, ProfessionalEntity professional, ServiceEntity service) {
         if (currentTenantId != null) {
-            if (client.getTenantId() != null && !currentTenantId.equals(client.getTenantId())) {
+            if (client.getTenantId() == null || !currentTenantId.equals(client.getTenantId())) {
                 throw new ResourceNotFoundException("Cliente não encontrado: " + client.getId());
             }
-            if (professional.getTenantId() != null && !currentTenantId.equals(professional.getTenantId())) {
+            if (professional.getTenantId() == null || !currentTenantId.equals(professional.getTenantId())) {
                 throw new ResourceNotFoundException("Profissional não encontrado: " + professional.getId());
             }
-            if (service.getTenantId() != null && !currentTenantId.equals(service.getTenantId())) {
+            if (service.getTenantId() == null || !currentTenantId.equals(service.getTenantId())) {
                 throw new ResourceNotFoundException("Serviço não encontrado: " + service.getId());
             }
         } else {
@@ -113,10 +132,10 @@ public class AppointmentService {
             Long profTenant = professional.getTenantId();
             Long servTenant = service.getTenantId();
 
-            if (clientTenant != null && profTenant != null && !clientTenant.equals(profTenant)) {
+            if (clientTenant == null || profTenant == null || !clientTenant.equals(profTenant)) {
                 throw new BusinessException("Cruzamento de dados: cliente e profissional pertencem a salões distintos.");
             }
-            if (profTenant != null && servTenant != null && !profTenant.equals(servTenant)) {
+            if (servTenant == null || !profTenant.equals(servTenant)) {
                 throw new BusinessException("Cruzamento de dados: profissional e serviço pertencem a salões distintos.");
             }
         }

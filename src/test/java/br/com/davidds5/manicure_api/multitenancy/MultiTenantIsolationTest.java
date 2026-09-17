@@ -202,4 +202,40 @@ public class MultiTenantIsolationTest {
         assertNotEquals(clientA.getId(), clientB.getId());
         assertEquals(clientA.getEmail(), clientB.getEmail());
     }
+
+    @Test
+    @DisplayName("Garante que ClientService, ProfessionalService e ServiceService bloqueiam acessos cross-tenant por ID")
+    void testServiceLayerCrossTenantAccessRejection() {
+        // Cria registros no Tenant A
+        TenantContext.setTenantId(tenantA.getId());
+        ClientEntity clientA = clientRepository.save(ClientEntity.builder()
+                .name("Cliente A")
+                .email("clia@teste.com")
+                .phone("11988887777")
+                .password("123456")
+                .tenantId(tenantA.getId())
+                .build());
+
+        ServiceEntity serviceA = serviceRepository.save(ServiceEntity.builder()
+                .name("Serviço A")
+                .description("Desc")
+                .price(30.0)
+                .duration(30)
+                .active(true)
+                .tenantId(tenantA.getId())
+                .build());
+
+        entityManager.flush();
+
+        // Muda para o Tenant B
+        TenantContext.setTenantId(tenantB.getId());
+        entityManager.clear();
+
+        // Tenant B não consegue buscar por ID via Service
+        assertThrows(br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException.class, 
+                () -> clientService.findById(clientA.getId()));
+
+        assertThrows(br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException.class, 
+                () -> serviceService.findById(serviceA.getId()));
+    }
 }

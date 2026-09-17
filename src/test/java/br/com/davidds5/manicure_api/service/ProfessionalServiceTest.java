@@ -45,17 +45,25 @@ class ProfessionalServiceTest {
     private ProfessionalEntity entity;
     private ProfessionalDTO dto;
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        br.com.davidds5.manicure_api.config.TenantContext.clear();
+    }
+
     @BeforeEach
     void setUp() {
+        br.com.davidds5.manicure_api.config.TenantContext.setTenantId(1L);
+
         createDTO = new ProfessionalCreatedDTO();
         createDTO.setName("Ana Lopes");
         createDTO.setSpecialty("Nail Designer");
         createDTO.setActive(true);
-        createDTO.setEmail("ana@email");
+        createDTO.setEmail("ana@email.com");
         createDTO.setPassword("123456789");
 
         entity = new ProfessionalEntity();
         entity.setId(1L);
+        entity.setTenantId(1L);
         entity.setName("Ana Lopes");
         entity.setSpecialty("Nail Designer");
         entity.setActive(true);
@@ -108,7 +116,7 @@ class ProfessionalServiceTest {
 
     @Test
     void findAllActive_Success() {
-        when(professionalRepository.findByActiveTrue()).thenReturn(List.of(entity));
+        when(professionalRepository.findByTenantIdAndActiveTrue(1L)).thenReturn(List.of(entity));
         when(professionalMapper.toDTO(entity)).thenReturn(dto);
 
         List<ProfessionalDTO> results = professionalService.findAllActive();
@@ -117,6 +125,6 @@ class ProfessionalServiceTest {
         assertEquals(1, results.size());
         assertEquals("Ana Lopes", results.get(0).getName());
 
-        verify(professionalRepository).findByActiveTrue();
+        verify(professionalRepository).findByTenantIdAndActiveTrue(1L);
     }
 }

@@ -61,6 +61,11 @@ public class ClientService {
         ClientEntity entity = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
 
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+            throw new ResourceNotFoundException("Cliente não encontrado com ID: " + id);
+        }
+
         return clientMapper.toDTO(entity);
     }
 
@@ -94,9 +99,13 @@ public class ClientService {
         ClientEntity existing = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
 
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+            throw new ResourceNotFoundException("Cliente não encontrado com ID: " + id);
+        }
+
         // Atualiza email se vier e for diferente
         if (dto.getEmail() != null && !dto.getEmail().equals(existing.getEmail())) {
-            Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
             Long tenantToCheck = currentTenantId != null ? currentTenantId : existing.getTenantId();
             if (tenantToCheck != null) {
                 if (clientRepository.findByEmailAndTenantId(dto.getEmail(), tenantToCheck).isPresent()) {
@@ -129,6 +138,11 @@ public class ClientService {
 
         ClientEntity existing = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com ID: " + id));
+
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+            throw new ResourceNotFoundException("Cliente não encontrado com ID: " + id);
+        }
 
         clientRepository.delete(existing);
         log.info("Cliente deletado com ID: {}", id);

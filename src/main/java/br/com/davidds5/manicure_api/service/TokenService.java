@@ -45,8 +45,7 @@ public class TokenService {
         }
     }
     private Instant dataExpiracao(){
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
-        
+        return Instant.now().plus(2, java.time.temporal.ChronoUnit.HOURS);
     }
 
     public String getRole(String tokenJWT){

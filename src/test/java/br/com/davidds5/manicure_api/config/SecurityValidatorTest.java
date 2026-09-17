@@ -47,12 +47,22 @@ class SecurityValidatorTest {
     @Test
     @DisplayName("Deve negar acesso (fail-closed) quando agendamento não for encontrado")
     void shouldDenyAccessWhenAppointmentNotFound() {
+        TenantContext.setTenantId(1L);
         when(appointmentRepository.findById(99L)).thenReturn(Optional.empty());
         Authentication auth = new UsernamePasswordAuthenticationToken("user@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
         boolean allowed = securityValidator.isAppointmentOwnerOrAdmin(99L, auth);
 
         assertFalse(allowed, "Deve retornar false se o agendamento não existir no banco/tenant");
+    }
+
+    @Test
+    @DisplayName("Deve negar acesso (fail-closed) quando TenantContext for nulo")
+    void shouldDenyAccessWhenTenantContextIsNull() {
+        Authentication auth = new UsernamePasswordAuthenticationToken("admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+        assertFalse(securityValidator.isAppointmentOwnerOrAdmin(10L, auth));
+        assertFalse(securityValidator.isSelfOrAdmin(5L, auth));
     }
 
     @Test
@@ -138,6 +148,7 @@ class SecurityValidatorTest {
     @Test
     @DisplayName("Deve negar isSelfOrAdmin quando cliente não for encontrado")
     void shouldDenySelfWhenClientNotFound() {
+        TenantContext.setTenantId(1L);
         when(clientRepository.findById(99L)).thenReturn(Optional.empty());
         Authentication auth = new UsernamePasswordAuthenticationToken("user@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
 

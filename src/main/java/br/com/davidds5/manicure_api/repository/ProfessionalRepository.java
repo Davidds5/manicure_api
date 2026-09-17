@@ -11,5 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ProfessionalRepository extends JpaRepository<ProfessionalEntity, Long> {
     List<ProfessionalEntity> findByActiveTrue();
+    List<ProfessionalEntity> findByTenantIdAndActiveTrue(Long tenantId);
+    List<ProfessionalEntity> findByTenantId(Long tenantId);
     Optional<ProfessionalEntity> findByEmail(String email);
+    Optional<ProfessionalEntity> findByEmailAndTenantId(String email, Long tenantId);
 }

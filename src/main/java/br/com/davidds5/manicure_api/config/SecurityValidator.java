@@ -27,14 +27,18 @@ public class SecurityValidator {
             return false;
         }
 
+        Long currentTenantId = TenantContext.getTenantId();
+        if (currentTenantId == null) {
+            return false;
+        }
+
         Optional<ClientEntity> requestedClient = clientRepository.findById(requestedClientId);
         if (requestedClient.isEmpty()) {
             return false;
         }
 
         ClientEntity client = requestedClient.get();
-        Long currentTenantId = TenantContext.getTenantId();
-        if (currentTenantId != null && !currentTenantId.equals(client.getTenantId())) {
+        if (!currentTenantId.equals(client.getTenantId())) {
             return false;
         }
 
@@ -51,14 +55,18 @@ public class SecurityValidator {
             return false;
         }
 
+        Long currentTenantId = TenantContext.getTenantId();
+        if (currentTenantId == null) {
+            return false;
+        }
+
         Optional<AppointmentEntity> appointmentOpt = appointmentRepository.findById(appointmentId);
         if (appointmentOpt.isEmpty()) {
             return false;
         }
 
         AppointmentEntity appointment = appointmentOpt.get();
-        Long currentTenantId = TenantContext.getTenantId();
-        if (currentTenantId != null && !currentTenantId.equals(appointment.getTenantId())) {
+        if (!currentTenantId.equals(appointment.getTenantId())) {
             return false;
         }
 

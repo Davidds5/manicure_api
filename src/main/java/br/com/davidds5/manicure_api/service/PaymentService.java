@@ -33,6 +33,11 @@ public class PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Agendamento não encontrado com ID: " + appointmentId));
 
+        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId != null && (appointment.getTenantId() == null || !currentTenantId.equals(appointment.getTenantId()))) {
+            throw new ResourceNotFoundException("Agendamento não encontrado com ID: " + appointmentId);
+        }
+
         if (appointment.getPayment() != null) {
             throw new BusinessException("Pagamento já registrado para este agendamento");
         }
@@ -44,10 +49,7 @@ public class PaymentService {
 
 
         PaymentEntity payment = paymentMapper.toEntity(dto);
-        
-        Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
         payment.setTenantId(currentTenantId != null ? currentTenantId : appointment.getTenantId());
-        
         payment.setAppointment(appointment);
         payment.setPaidAt(java.time.LocalDateTime.now());
 
