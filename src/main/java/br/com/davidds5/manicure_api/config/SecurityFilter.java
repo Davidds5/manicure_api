@@ -30,17 +30,22 @@ public class SecurityFilter extends OncePerRequestFilter {
         try {
             var tokenJWT = recuperarToken(request);
             if (tokenJWT != null) {
-                var subject = tokenService.getSubject(tokenJWT);
-                var role = tokenService.getRole(tokenJWT);
-                var tenantId = tokenService.getTenantId(tokenJWT);
+                try {
+                    var subject = tokenService.getSubject(tokenJWT);
+                    var role = tokenService.getRole(tokenJWT);
+                    var tenantId = tokenService.getTenantId(tokenJWT);
 
-                if (tenantId != null) {
-                    TenantContext.setTenantId(tenantId);
+                    if (tenantId != null) {
+                        TenantContext.setTenantId(tenantId);
+                    }
+
+                    var authority = new SimpleGrantedAuthority(role);
+                    var authentication = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (Exception ex) {
+                    SecurityContextHolder.clearContext();
+                    TenantContext.clear();
                 }
-
-                var authority = new SimpleGrantedAuthority(role);
-                var authentication = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
             filterChain.doFilter(request, response);

@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Sparkles, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-import { fetchApi, setAuthToken } from '@/lib/api';
+import { fetchApi, setAuthToken, removeAuthToken } from '@/lib/api';
 
 function LoginForm() {
   const router = useRouter();
@@ -22,6 +22,7 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    removeAuthToken();
 
     try {
       const res = await fetchApi<{ token: string }>('/login', {
