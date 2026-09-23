@@ -61,6 +61,9 @@ class AppointmentServiceTest {
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @org.junit.jupiter.api.AfterEach
     void tearDown() {
         br.com.davidds5.manicure_api.config.TenantContext.clear();
@@ -184,5 +187,40 @@ class AppointmentServiceTest {
         assertThrows(BusinessException.class, () -> appointmentService.createAppointment(createDTO));
 
         verify(appointmentRepository, never()).save(any());
+    }
+
+    @Test
+    void createPublicAppointment_Success() {
+        var publicDTO = br.com.davidds5.manicure_api.dto.PublicAppointmentCreateDTO.builder()
+                .clientName("Carla Souza")
+                .clientEmail("carla@email.com")
+                .clientPhone("(11) 98888-7777")
+                .professionalId(1L)
+                .serviceId(1L)
+                .dateTime(LocalDateTime.now().plusDays(2))
+                .build();
+
+        when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
+        when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
+        when(clientRepository.findByEmailAndTenantId("carla@email.com", 1L)).thenReturn(Optional.empty());
+        when(clientRepository.findByPhoneAndTenantId("(11) 98888-7777", 1L)).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any())).thenReturn("hashed_password");
+        when(clientRepository.save(any())).thenAnswer(invocation -> {
+            ClientEntity c = invocation.getArgument(0);
+            c.setId(10L);
+            return c;
+        });
+        when(appointmentRepository.save(any())).thenAnswer(invocation -> {
+            AppointmentEntity a = invocation.getArgument(0);
+            a.setId(99L);
+            return a;
+        });
+
+        AppointmentDTO result = appointmentService.createPublicAppointment(publicDTO);
+
+        assertNotNull(result);
+        assertEquals(99L, result.getId());
+        assertEquals("Carla Souza", result.getClientName());
+        verify(appointmentRepository, times(1)).save(any());
     }
 }

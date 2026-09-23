@@ -46,6 +46,18 @@ public class AppointmentController {
         return ResponseEntity.status(201).body(appointmentService.createAppointment(dto));
     }
 
+    @PostMapping("/public")
+    @Operation(summary = "Criar agendamento público (Portal da Cliente)", description = "Permite que clientes agendem online sem necessidade de login prévio.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Agendamento criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Erro de validação ou conflito de horário", 
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
+        )
+    })
+    public ResponseEntity<AppointmentDTO> createPublic(@Valid @RequestBody br.com.davidds5.manicure_api.dto.PublicAppointmentCreateDTO dto) {
+        return ResponseEntity.status(201).body(appointmentService.createPublicAppointment(dto));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar agendamentos", description = "Retorna todos os agendamentos, podendo ser filtrados por status, data inicial e data final")

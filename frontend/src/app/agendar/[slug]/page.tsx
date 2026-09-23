@@ -121,43 +121,30 @@ export default function ClientBookingPortalPage() {
     setError(null);
 
     try {
-      // 1. Cadastra ou obtém o cliente
-      let clientId = 1;
-      try {
-        const clientData = await fetchApi<any>('/clients', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: clientName,
-            email: clientEmail,
-            phone: clientPhone,
-          }),
-        });
-        if (clientData?.id) clientId = clientData.id;
-      } catch (clientErr) {
-        console.warn('Fallback client registration:', clientErr);
-      }
+      const dateTime = `${selectedDate}T${selectedTime}:00`;
+      
+      const res = await fetchApi<any>('/appointments/public', {
+        method: 'POST',
+        body: JSON.stringify({
+          clientName: clientName.trim(),
+          clientEmail: clientEmail.trim(),
+          clientPhone: clientPhone.trim(),
+          professionalId: selectedProf.id,
+          serviceId: selectedService.id,
+          dateTime,
+          tenantSlug: slug,
+          notes: `Forma de Pagamento: ${paymentMethod === 'PIX' ? 'Pix Antecipado' : paymentMethod === 'DINHEIRO' ? 'Dinheiro no Salão' : 'Cartão no Salão'}.`,
+        }),
+      });
 
-      // 2. Cria o agendamento
-      const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
-      try {
-        await fetchApi('/appointments', {
-          method: 'POST',
-          body: JSON.stringify({
-            clientId,
-            professionalId: selectedProf.id,
-            serviceId: selectedService.id,
-            appointmentDateTime,
-            status: 'SCHEDULED',
-            notes: `Forma de Pagamento: ${paymentMethod === 'PIX' ? 'Pix Antecipado' : paymentMethod === 'DINHEIRO' ? 'Dinheiro no Salão' : 'Cartão no Salão'}.`,
-          }),
-        });
-      } catch (appErr) {
-        console.warn('Fallback appointment creation:', appErr);
+      if (!res || !res.id) {
+        throw new Error('Não foi possível confirmar o agendamento no sistema. Tente novamente.');
       }
 
       setCompleted(true);
     } catch (err: any) {
-      setError(err.message || 'Erro ao processar agendamento.');
+      setError(err.message || 'Erro ao processar agendamento. Verifique seus dados ou tente outro horário.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setSubmitting(false);
     }

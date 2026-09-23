@@ -17,5 +17,7 @@ public interface ClientRepository extends JpaRepository<ClientEntity, Long>, Jpa
 
     Optional<ClientEntity> findByEmailAndTenantId(String email, Long tenantId);
 
+    Optional<ClientEntity> findByPhoneAndTenantId(String phone, Long tenantId);
+
     Page<ClientEntity> findByNameContaining(String name, Pageable pageable);
 }

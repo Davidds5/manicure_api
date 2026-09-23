@@ -35,6 +35,7 @@ public class AppointmentService {
     private final SubscriptionService subscriptionService;
     private final AppointmentData appointmentData;
     private final MeterRegistry meterRegistry;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     // ================= PRIVATE HELPERS =================
 
@@ -189,6 +190,74 @@ public class AppointmentService {
         return toDTO(saved);
     });
    
+    }
+
+    // ================= CREATE PUBLIC (PORTAL DA CLIENTE) =================
+
+    @Transactional
+    public AppointmentDTO createPublicAppointment(PublicAppointmentCreateDTO dto) {
+        log.info("Criando agendamento público para: {}", dto.getClientName());
+
+        ProfessionalEntity professional = professionalRepository.findById(dto.getProfessionalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + dto.getProfessionalId()));
+
+        if (!professional.getActive()) {
+            throw new BusinessException("Profissional inativo");
+        }
+
+        Long tenantId = professional.getTenantId();
+        if (tenantId == null) {
+            throw new BusinessException("Profissional sem salão vinculado.");
+        }
+
+        ServiceEntity service = serviceRepository.findById(dto.getServiceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + dto.getServiceId()));
+
+        if (!tenantId.equals(service.getTenantId())) {
+            throw new BusinessException("Serviço não pertence ao mesmo salão do profissional.");
+        }
+
+        subscriptionService.validateAppointmentLimit(tenantId);
+        validateFutureDate(dto.getDateTime());
+        validateTimeConflict(professional.getId(), dto.getDateTime(), null);
+
+        // Busca cliente existente por email ou telefone dentro do mesmo salão, ou cadastra automaticamente
+        ClientEntity client = clientRepository.findByEmailAndTenantId(dto.getClientEmail(), tenantId)
+                .or(() -> clientRepository.findByPhoneAndTenantId(dto.getClientPhone(), tenantId))
+                .orElseGet(() -> {
+                    ClientEntity newClient = ClientEntity.builder()
+                            .tenantId(tenantId)
+                            .name(dto.getClientName())
+                            .phone(dto.getClientPhone())
+                            .email(dto.getClientEmail())
+                            .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                            .build();
+                    return clientRepository.save(newClient);
+                });
+
+        client.setName(dto.getClientName());
+        client.setPhone(dto.getClientPhone());
+        clientRepository.save(client);
+
+        AppointmentEntity entity = new AppointmentEntity();
+        entity.setTenantId(tenantId);
+        entity.setClient(client);
+        entity.setProfessional(professional);
+        entity.setService(service);
+        entity.setDateTime(dto.getDateTime());
+        entity.setStatus(AppointmentEntity.AppointmentStatus.SCHEDULED);
+
+        AppointmentEntity saved = appointmentRepository.save(entity);
+
+        eventPublisher.publishEvent(new AppointmentCreatedEvent(
+            saved.getId(),
+            saved.getClient().getEmail(),
+            saved.getClient().getName(),
+            saved.getDateTime()
+        ));
+
+        meterRegistry.counter("api_appointment_created_total").increment();
+        return toDTO(saved);
     }
 
     // ================= UPDATE =================
