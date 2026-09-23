@@ -13,5 +13,6 @@ public record TenantResponseDTO(
     String logoUrl,
     String brandColor,
     Long ownerId,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    String pixKey
 ) {}

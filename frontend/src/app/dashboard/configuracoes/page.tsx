@@ -16,6 +16,7 @@ export default function SettingsPage() {
     name: '',
     logoUrl: '',
     brandColor: '#f43f5e',
+    pixKey: '',
   });
 
   const loadTenant = async () => {
@@ -27,6 +28,7 @@ export default function SettingsPage() {
         name: data.name || '',
         logoUrl: data.logoUrl || '',
         brandColor: data.brandColor || '#f43f5e',
+        pixKey: data.pixKey || '',
       });
     } catch (err: any) {
       setError(err.message || 'Erro ao carregar dados do salão.');
@@ -128,8 +130,8 @@ export default function SettingsPage() {
               <input
                 type="text"
                 placeholder="Ex: seu-email@pix.com, CPF ou Celular"
-                value={(formData as any).pixKey || ''}
-                onChange={(e) => setFormData({ ...formData, pixKey: e.target.value } as any)}
+                value={formData.pixKey}
+                onChange={(e) => setFormData({ ...formData, pixKey: e.target.value })}
                 className="w-full bg-[#12100e] border border-stone-700 focus:border-pink-500 rounded-xl px-4 py-3 text-sm text-white placeholder-stone-500 focus:outline-none transition shadow-inner font-medium"
               />
             </div>

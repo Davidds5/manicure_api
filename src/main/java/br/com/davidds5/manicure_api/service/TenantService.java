@@ -80,7 +80,8 @@ public class TenantService {
                 tenant.getLogoUrl(),
                 tenant.getBrandColor(),
                 tenant.getOwnerId(),
-                tenant.getCreatedAt()
+                tenant.getCreatedAt(),
+                tenant.getPixKey()
         );
     }
 
@@ -109,7 +110,8 @@ public class TenantService {
                 subscription.getStatus(),
                 subscription.getMaxProfessionals(),
                 subscription.getMaxAppointmentsPerMonth(),
-                subscription.getNextBillingAt()
+                subscription.getNextBillingAt(),
+                tenant.getPixKey()
         );
     }
 
@@ -132,6 +134,9 @@ public class TenantService {
         if (dto.brandColor() != null && !dto.brandColor().isBlank()) {
             tenant.setBrandColor(dto.brandColor().trim());
         }
+        if (dto.pixKey() != null) {
+            tenant.setPixKey(dto.pixKey().trim());
+        }
 
         TenantEntity updated = tenantRepository.save(tenant);
 
@@ -144,7 +149,8 @@ public class TenantService {
                 updated.getLogoUrl(),
                 updated.getBrandColor(),
                 updated.getOwnerId(),
-                updated.getCreatedAt()
+                updated.getCreatedAt(),
+                updated.getPixKey()
         );
     }
 
@@ -160,7 +166,8 @@ public class TenantService {
                         t.getLogoUrl(),
                         t.getBrandColor(),
                         t.getOwnerId(),
-                        t.getCreatedAt()
+                        t.getCreatedAt(),
+                        t.getPixKey()
                 ));
     }
 
@@ -181,7 +188,27 @@ public class TenantService {
                 updated.getLogoUrl(),
                 updated.getBrandColor(),
                 updated.getOwnerId(),
-                updated.getCreatedAt()
+                updated.getCreatedAt(),
+                updated.getPixKey()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public TenantResponseDTO getPublicTenantBySlug(String slug) {
+        TenantEntity tenant = tenantRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado: " + slug));
+
+        return new TenantResponseDTO(
+                tenant.getId(),
+                tenant.getName(),
+                tenant.getSlug(),
+                tenant.getPlan(),
+                tenant.getStatus(),
+                tenant.getLogoUrl(),
+                tenant.getBrandColor(),
+                tenant.getOwnerId(),
+                tenant.getCreatedAt(),
+                tenant.getPixKey()
         );
     }
 

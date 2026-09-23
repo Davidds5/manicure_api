@@ -20,5 +20,6 @@ public record TenantDetailsDTO(
     SubscriptionStatus subscriptionStatus,
     Integer maxProfessionals,
     Integer maxAppointmentsPerMonth,
-    LocalDateTime nextBillingAt
+    LocalDateTime nextBillingAt,
+    String pixKey
 ) {}

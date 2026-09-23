@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -106,7 +107,7 @@ class AppointmentServiceTest {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
         when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
         when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
-        when(appointmentData.findByProfessionalIdAndDateTime(anyLong(), any())).thenReturn(Collections.emptyList());
+        when(appointmentRepository.findActiveByProfessionalAndDateRange(anyLong(), any(), any(), any())).thenReturn(Collections.emptyList());
 
         AppointmentEntity savedEntity = new AppointmentEntity();
         savedEntity.setId(100L);
@@ -223,4 +224,106 @@ class AppointmentServiceTest {
         assertEquals("Carla Souza", result.getClientName());
         verify(appointmentRepository, times(1)).save(any());
     }
+
+    @Test
+    void createAppointment_TimeConflictOverlap_ThrowsBusinessException() {
+        LocalDateTime appointmentTime = LocalDateTime.now().plusDays(2).withHour(10).withMinute(30).withSecond(0).withNano(0);
+        createDTO.setDateTime(appointmentTime);
+        serviceEntity.setDuration(45); // 10:30 - 11:15
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
+        when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
+
+        // Existing appointment: 10:00 to 11:00 (duration 60 min)
+        ServiceEntity existingService = new ServiceEntity();
+        existingService.setDuration(60);
+        AppointmentEntity existing = AppointmentEntity.builder()
+                .id(50L)
+                .dateTime(appointmentTime.minusMinutes(30)) // 10:00
+                .service(existingService)
+                .status(AppointmentEntity.AppointmentStatus.SCHEDULED)
+                .build();
+
+        when(appointmentRepository.findActiveByProfessionalAndDateRange(anyLong(), any(), any(), any()))
+                .thenReturn(List.of(existing));
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> appointmentService.createAppointment(createDTO));
+        assertEquals(br.com.davidds5.manicure_api.util.Constants.TIME_CONFLICT, ex.getMessage());
+        verify(appointmentRepository, never()).save(any());
+    }
+
+    @Test
+    void createAppointment_CancelledAppointmentIgnored_Success() {
+        LocalDateTime appointmentTime = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        createDTO.setDateTime(appointmentTime);
+        serviceEntity.setDuration(60);
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(professionalRepository.findById(1L)).thenReturn(Optional.of(professional));
+        when(serviceRepository.findById(1L)).thenReturn(Optional.of(serviceEntity));
+
+        // Existing appointment at exact same time, but CANCELLED
+        AppointmentEntity cancelledAppointment = AppointmentEntity.builder()
+                .id(50L)
+                .dateTime(appointmentTime)
+                .service(serviceEntity)
+                .status(AppointmentEntity.AppointmentStatus.CANCELLED)
+                .build();
+
+        when(appointmentRepository.findActiveByProfessionalAndDateRange(anyLong(), any(), any(), any()))
+                .thenReturn(List.of(cancelledAppointment));
+
+        AppointmentEntity savedEntity = AppointmentEntity.builder()
+                .id(101L)
+                .tenantId(1L)
+                .client(client)
+                .professional(professional)
+                .service(serviceEntity)
+                .dateTime(appointmentTime)
+                .status(AppointmentEntity.AppointmentStatus.SCHEDULED)
+                .build();
+
+        when(appointmentRepository.save(any(AppointmentEntity.class))).thenReturn(savedEntity);
+
+        AppointmentDTO result = appointmentService.createAppointment(createDTO);
+        assertNotNull(result);
+        assertEquals(101L, result.getId());
+        verify(appointmentRepository).save(any());
+    }
+
+    @Test
+    void getOccupiedSlots_ReturnsActiveSlotsOnly() {
+        java.time.LocalDate date = java.time.LocalDate.now().plusDays(2);
+        LocalDateTime start1 = date.atTime(14, 0);
+        LocalDateTime start2 = date.atTime(16, 0);
+
+        ServiceEntity s1 = new ServiceEntity();
+        s1.setDuration(60);
+
+        AppointmentEntity a1 = AppointmentEntity.builder()
+                .id(1L)
+                .dateTime(start1)
+                .service(s1)
+                .status(AppointmentEntity.AppointmentStatus.SCHEDULED)
+                .build();
+
+        AppointmentEntity a2Cancelled = AppointmentEntity.builder()
+                .id(2L)
+                .dateTime(start2)
+                .service(s1)
+                .status(AppointmentEntity.AppointmentStatus.CANCELLED)
+                .build();
+
+        when(appointmentRepository.findActiveByProfessionalAndDateRange(eq(1L), any(), any(), any()))
+                .thenReturn(List.of(a1, a2Cancelled));
+
+        var slots = appointmentService.getOccupiedSlots(1L, date);
+
+        assertEquals(1, slots.size());
+        assertEquals("14:00", slots.get(0).getTime());
+        assertEquals("15:00", slots.get(0).getEndTime());
+        assertEquals(60, slots.get(0).getDurationMinutes());
+    }
 }
+

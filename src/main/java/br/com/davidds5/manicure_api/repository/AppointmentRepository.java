@@ -25,6 +25,16 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
     @Query("SELECT a FROM AppointmentEntity a WHERE a.professional.id = :professionalId AND a.dateTime = :dateTime AND a.status != 'CANCELLED'")
     List<AppointmentEntity> findByProfessionalAndDateTime(@Param("professionalId") Long professionalId,
                                                           @Param("dateTime") LocalDateTime dateTime);
+
+    @Query("SELECT a FROM AppointmentEntity a WHERE a.professional.id = :professionalId " +
+           "AND a.dateTime >= :startDate AND a.dateTime <= :endDate " +
+           "AND a.status != :cancelledStatus")
+    List<AppointmentEntity> findActiveByProfessionalAndDateRange(
+            @Param("professionalId") Long professionalId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("cancelledStatus") AppointmentEntity.AppointmentStatus cancelledStatus);
+
     @Query("SELECT a FROM AppointmentEntity a WHERE " +
            "(:status IS NULL OR a.status = :status) AND " +
            "(cast(:startDate as timestamp) IS NULL OR a.dateTime >= :startDate) AND " +

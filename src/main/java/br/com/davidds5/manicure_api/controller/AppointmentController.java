@@ -21,6 +21,7 @@ import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/appointments")
@@ -56,6 +57,18 @@ public class AppointmentController {
     })
     public ResponseEntity<AppointmentDTO> createPublic(@Valid @RequestBody br.com.davidds5.manicure_api.dto.PublicAppointmentCreateDTO dto) {
         return ResponseEntity.status(201).body(appointmentService.createPublicAppointment(dto));
+    }
+
+    @GetMapping("/occupied-slots")
+    @Operation(summary = "Consultar horários ocupados", description = "Retorna os intervalos de horários já ocupados de um profissional em uma data específica.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de horários ocupados retornada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
+    })
+    public ResponseEntity<List<br.com.davidds5.manicure_api.dto.OccupiedSlotDTO>> getOccupiedSlots(
+            @RequestParam("professionalId") Long professionalId,
+            @RequestParam("date") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
+        return ResponseEntity.ok(appointmentService.getOccupiedSlots(professionalId, date));
     }
 
     @GetMapping

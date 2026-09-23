@@ -9,5 +9,8 @@ public record TenantUpdateDTO(
     String logoUrl,
 
     @Size(max = 10, message = "A cor deve ser um código hex válido (ex: #FF0000)")
-    String brandColor
+    String brandColor,
+
+    @Size(max = 150, message = "A chave Pix deve ter até 150 caracteres")
+    String pixKey
 ) {}

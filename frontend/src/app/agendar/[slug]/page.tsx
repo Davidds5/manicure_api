@@ -43,15 +43,22 @@ export default function ClientBookingPortalPage() {
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
 
+  const [tenantInfo, setTenantInfo] = useState<{ id?: number; name?: string; slug?: string; pixKey?: string; brandColor?: string; logoUrl?: string } | null>(null);
+
   useEffect(() => {
     async function loadPortalData() {
       try {
         setLoading(true);
-        // Carrega serviços e profissionais disponíveis com fallback
-        const [servRes, profRes] = await Promise.allSettled([
+        // Carrega serviços, profissionais e dados públicos do salão
+        const [servRes, profRes, tenantRes] = await Promise.allSettled([
           fetchApi<ServiceItem[]>('/services'),
           fetchApi<Professional[]>('/professionals'),
+          fetchApi<any>(`/tenants/public/${slug}`),
         ]);
+
+        if (tenantRes.status === 'fulfilled' && tenantRes.value) {
+          setTenantInfo(tenantRes.value);
+        }
 
         let realServices: ServiceItem[] = [];
         if (servRes.status === 'fulfilled') {
@@ -94,16 +101,82 @@ export default function ClientBookingPortalPage() {
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'DINHEIRO' | 'CARTAO'>('PIX');
   const [copiedPix, setCopiedPix] = useState(false);
 
-  const pixKey = "pix.salao@belasunhas.com.br";
-  const pixCode = `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${selectedService ? Number(selectedService.price).toFixed(2) : '0.00'}5802BR5918Studio Bella Nails6009Sao Paulo62070503***6304E8A1`;
+  const pixKey = tenantInfo?.pixKey || '';
+  const salonName = tenantInfo?.name || 'Studio Bella Nails';
+  const priceFormatted = selectedService ? Number(selectedService.price).toFixed(2) : '0.00';
+  const pixCode = pixKey
+    ? `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${priceFormatted}5802BR5918${salonName.substring(0, 20)}6009Sao Paulo62070503***6304E8A1`
+    : '';
 
   const copyPixCode = () => {
+    if (!pixCode) return;
     navigator.clipboard.writeText(pixCode);
     setCopiedPix(true);
     setTimeout(() => setCopiedPix(false), 3000);
   };
 
-  const availableHours = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+  const [occupiedSlots, setOccupiedSlots] = useState<{ time: string; endTime: string; startDateTime: string; endDateTime: string }[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  const ALL_SLOTS = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+    '17:00', '17:30', '18:00', '18:30'
+  ];
+
+  useEffect(() => {
+    if (!selectedProf?.id || !selectedDate) {
+      setOccupiedSlots([]);
+      return;
+    }
+
+    let active = true;
+    async function fetchOccupied() {
+      try {
+        setLoadingSlots(true);
+        const data = await fetchApi<any[]>(`/appointments/occupied-slots?professionalId=${selectedProf?.id}&date=${selectedDate}`);
+        if (active) {
+          setOccupiedSlots(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.warn('Não foi possível carregar horários ocupados:', err);
+        if (active) setOccupiedSlots([]);
+      } finally {
+        if (active) setLoadingSlots(false);
+      }
+    }
+
+    fetchOccupied();
+    return () => { active = false; };
+  }, [selectedProf?.id, selectedDate]);
+
+  const isSlotUnavailable = (timeStr: string) => {
+    if (!selectedDate) return false;
+
+    // Checa se o horário já passou caso a data seja hoje
+    const now = new Date();
+    const slotDate = new Date(`${selectedDate}T${timeStr}:00`);
+    if (slotDate.getTime() <= now.getTime()) {
+      return true;
+    }
+
+    // Checa sobreposição de intervalo com agendamentos ocupados no backend
+    const duration = selectedService?.duration || 30;
+    const slotStart = slotDate.getTime();
+    const slotEnd = slotStart + duration * 60 * 1000;
+
+    return occupiedSlots.some((occ) => {
+      const occStart = new Date(occ.startDateTime).getTime();
+      const occEnd = new Date(occ.endDateTime).getTime();
+      return slotStart < occEnd && slotEnd > occStart;
+    });
+  };
+
+  useEffect(() => {
+    if (selectedTime && isSlotUnavailable(selectedTime)) {
+      setSelectedTime('');
+    }
+  }, [occupiedSlots, selectedDate]);
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,29 +245,42 @@ export default function ClientBookingPortalPage() {
 
           {/* Se escolheu Pix, exibe o QR Code dinâmico e código Pix Copia e Cola */}
           {paymentMethod === 'PIX' ? (
-            <div className="mb-6 p-5 rounded-2xl bg-pink-50/50 border border-pink-200/80 text-center space-y-3">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-700">
-                💠 Pague via Pix para garantir seu horário
-              </span>
-              <div className="bg-white p-3 rounded-2xl inline-block border border-stone-200 shadow-sm">
-                {/* QR Code gerado dinamicamente via API pública de QR */}
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`}
-                  alt="QR Code Pix"
-                  className="w-40 h-40 mx-auto rounded-lg"
-                />
+            pixKey ? (
+              <div className="mb-6 p-5 rounded-2xl bg-pink-50/50 border border-pink-200/80 text-center space-y-3">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-700">
+                  💠 Pague via Pix para garantir seu horário
+                </span>
+                <div className="bg-white p-3 rounded-2xl inline-block border border-stone-200 shadow-sm">
+                  {/* QR Code gerado dinamicamente com a chave Pix real do salão */}
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`}
+                    alt={`QR Code Pix ${salonName}`}
+                    className="w-40 h-40 mx-auto rounded-lg"
+                  />
+                </div>
+                <div className="text-[11px] text-stone-600 space-y-1">
+                  <p>Abra o app do seu banco e escaneie o QR Code ou use a chave Pix:</p>
+                  <p className="font-mono bg-pink-100/70 text-pink-900 px-2.5 py-1 rounded-lg font-bold inline-block text-xs border border-pink-200/60 select-all">
+                    {pixKey}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyPixCode}
+                  className="w-full py-2.5 px-4 rounded-xl bg-white border border-pink-300 text-pink-700 text-xs font-bold hover:bg-pink-100/50 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  {copiedPix ? '✅ Código Pix Copiado!' : '📋 Copiar Código Pix Copia e Cola'}
+                </button>
               </div>
-              <p className="text-[11px] text-stone-500">
-                Abra o app do seu banco, escolha <strong>Pix QR Code</strong> ou use a chave abaixo:
-              </p>
-              <button
-                type="button"
-                onClick={copyPixCode}
-                className="w-full py-2.5 px-4 rounded-xl bg-white border border-pink-300 text-pink-700 text-xs font-bold hover:bg-pink-100/50 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-              >
-                {copiedPix ? '✅ Código Pix Copiado!' : '📋 Copiar Código Pix Copia e Cola'}
-              </button>
-            </div>
+            ) : (
+              <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <strong className="block text-amber-950 font-bold mb-0.5">Chave Pix não configurada pelo salão</strong>
+                  <span>O salão ainda não cadastrou uma chave Pix online. O valor de <strong>R$ {Number(selectedService?.price).toFixed(2).replace('.', ',')}</strong> poderá ser pago diretamente na recepção no momento do atendimento.</span>
+                </div>
+              </div>
+            )
           ) : paymentMethod === 'DINHEIRO' ? (
             <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 flex items-start gap-3">
               <span className="text-xl">💵</span>
@@ -379,22 +465,38 @@ export default function ClientBookingPortalPage() {
 
             {selectedDate && (
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-2">Horários Disponíveis</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {availableHours.map((hr) => (
-                    <button
-                      key={hr}
-                      type="button"
-                      onClick={() => setSelectedTime(hr)}
-                      className={`py-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                        selectedTime === hr
-                          ? 'border-pink-600 bg-pink-600 text-white shadow-xs'
-                          : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-pink-300 hover:bg-white'
-                      }`}
-                    >
-                      {hr}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold text-stone-700">Horários Disponíveis</label>
+                  {loadingSlots && (
+                    <span className="text-[11px] text-pink-600 animate-pulse font-medium">Verificando agenda...</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                  {ALL_SLOTS.map((hr) => {
+                    const unavailable = isSlotUnavailable(hr);
+                    const isSelected = selectedTime === hr;
+
+                    return (
+                      <button
+                        key={hr}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => setSelectedTime(hr)}
+                        className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                          unavailable
+                            ? 'border-stone-200 bg-stone-100 text-stone-400 line-through cursor-not-allowed opacity-60'
+                            : isSelected
+                            ? 'border-pink-600 bg-pink-600 text-white shadow-xs'
+                            : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-pink-300 hover:bg-white cursor-pointer'
+                        }`}
+                      >
+                        <span>{hr}</span>
+                        {unavailable && (
+                          <span className="text-[9px] no-underline font-normal text-stone-400">Ocupado</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

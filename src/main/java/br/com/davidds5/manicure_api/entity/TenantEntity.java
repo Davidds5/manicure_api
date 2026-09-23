@@ -44,6 +44,9 @@ public class TenantEntity {
     @Builder.Default
     private String brandColor = "#000000";
 
+    @Column(name = "pix_key", length = 150)
+    private String pixKey;
+
     @Column(name = "owner_id")
     private Long ownerId;
 

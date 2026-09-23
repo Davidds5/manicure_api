@@ -96,12 +96,29 @@ public class AppointmentService {
         }
     }
 
-    private void validateTimeConflict(Long professionalId, LocalDateTime dateTime, Long excludeId) {
-        List<AppointmentEntity> conflicts = appointmentData
-                .findByProfessionalIdAndDateTime(professionalId, dateTime);
+    private void validateTimeConflict(Long professionalId, LocalDateTime dateTime, Integer durationMinutes, Long excludeId) {
+        int duration = (durationMinutes != null && durationMinutes > 0) ? durationMinutes : 30;
+        LocalDateTime newStart = dateTime;
+        LocalDateTime newEnd = newStart.plusMinutes(duration);
 
-        boolean hasConflict = conflicts.stream()
-                .anyMatch(a -> excludeId == null || !a.getId().equals(excludeId));
+        LocalDateTime searchStart = dateTime.toLocalDate().minusDays(1).atStartOfDay();
+        LocalDateTime searchEnd = dateTime.toLocalDate().plusDays(1).atTime(23, 59, 59);
+
+        List<AppointmentEntity> appointments = appointmentRepository
+                .findActiveByProfessionalAndDateRange(professionalId, searchStart, searchEnd, AppointmentEntity.AppointmentStatus.CANCELLED);
+
+        boolean hasConflict = appointments.stream()
+                .filter(a -> excludeId == null || !a.getId().equals(excludeId))
+                .filter(a -> a.getStatus() != AppointmentEntity.AppointmentStatus.CANCELLED)
+                .anyMatch(a -> {
+                    LocalDateTime existingStart = a.getDateTime();
+                    int existingDuration = (a.getService() != null && a.getService().getDuration() != null && a.getService().getDuration() > 0)
+                            ? a.getService().getDuration()
+                            : 30;
+                    LocalDateTime existingEnd = existingStart.plusMinutes(existingDuration);
+
+                    return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+                });
 
         if (hasConflict) {
             throw new BusinessException(Constants.TIME_CONFLICT);
@@ -161,7 +178,7 @@ public class AppointmentService {
         validateTenantScope(currentTenantId, client, professional, service);
 
         validateFutureDate(dto.getDateTime());
-        validateTimeConflict(professional.getId(), dto.getDateTime(), null);
+        validateTimeConflict(professional.getId(), dto.getDateTime(), service.getDuration(), null);
 
         AppointmentEntity entity = new AppointmentEntity();
 
@@ -219,7 +236,7 @@ public class AppointmentService {
 
         subscriptionService.validateAppointmentLimit(tenantId);
         validateFutureDate(dto.getDateTime());
-        validateTimeConflict(professional.getId(), dto.getDateTime(), null);
+        validateTimeConflict(professional.getId(), dto.getDateTime(), service.getDuration(), null);
 
         // Busca cliente existente por email ou telefone dentro do mesmo salão, ou cadastra automaticamente
         ClientEntity client = clientRepository.findByEmailAndTenantId(dto.getClientEmail(), tenantId)
@@ -271,7 +288,8 @@ public class AppointmentService {
 
         if (dto.getDateTime() != null) {
             validateFutureDate(dto.getDateTime());
-            validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), id);
+            Integer dur = existing.getService() != null ? existing.getService().getDuration() : 30;
+            validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), dur, id);
             existing.setDateTime(dto.getDateTime());
         }
 
@@ -283,6 +301,41 @@ public class AppointmentService {
         AppointmentEntity updated = appointmentRepository.save(existing);
 
         return toDTO(updated);
+    }
+
+    // ================= OCCUPIED SLOTS =================
+
+    @Transactional(readOnly = true)
+    public List<OccupiedSlotDTO> getOccupiedSlots(Long professionalId, java.time.LocalDate date) {
+        log.info("Buscando horários ocupados para o profissional {} na data {}", professionalId, date);
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+        List<AppointmentEntity> appointments = appointmentRepository
+                .findActiveByProfessionalAndDateRange(professionalId, startOfDay, endOfDay, AppointmentEntity.AppointmentStatus.CANCELLED);
+
+        return appointments.stream()
+                .filter(a -> a.getStatus() != AppointmentEntity.AppointmentStatus.CANCELLED)
+                .map(a -> {
+                    int duration = (a.getService() != null && a.getService().getDuration() != null && a.getService().getDuration() > 0)
+                            ? a.getService().getDuration()
+                            : 30;
+                    LocalDateTime start = a.getDateTime();
+                    LocalDateTime end = start.plusMinutes(duration);
+                    String startTimeStr = String.format("%02d:%02d", start.getHour(), start.getMinute());
+                    String endTimeStr = String.format("%02d:%02d", end.getHour(), end.getMinute());
+
+                    return OccupiedSlotDTO.builder()
+                            .time(startTimeStr)
+                            .endTime(endTimeStr)
+                            .startDateTime(start)
+                            .endDateTime(end)
+                            .durationMinutes(duration)
+                            .build();
+                })
+                .sorted(java.util.Comparator.comparing(OccupiedSlotDTO::getStartDateTime))
+                .toList();
     }
 
     // ================= CANCEL =================

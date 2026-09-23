@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,5 +42,11 @@ public class TenantController {
     @Operation(summary = "Atualiza nome, logo e cor de marca do salão autenticado")
     public ResponseEntity<TenantResponseDTO> updateMyTenant(@RequestBody @Valid br.com.davidds5.manicure_api.dto.TenantUpdateDTO dto) {
         return ResponseEntity.ok(tenantService.updateMyTenant(dto));
+    }
+
+    @GetMapping("/public/{slug}")
+    @Operation(summary = "Obtém dados públicos e chave Pix do salão pelo slug")
+    public ResponseEntity<TenantResponseDTO> getPublicTenant(@PathVariable String slug) {
+        return ResponseEntity.ok(tenantService.getPublicTenantBySlug(slug));
     }
 }

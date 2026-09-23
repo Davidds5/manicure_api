@@ -25,40 +25,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [tenant, setTenant] = useState<TenantDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
-  useEffect(() => {
+  const fetchTenantWithRetry = async (attempt = 1): Promise<void> => {
     const token = getAuthToken();
     if (!token) {
       router.push('/login');
       return;
     }
 
-    fetchApi<TenantDetails>('/tenants/me')
-      .then((data) => {
-        setTenant(data);
-      })
-      .catch((err) => {
-        console.error('Erro ao carregar tenant:', err);
-        if (err?.status === 403 || err?.status === 401) {
-          removeAuthToken();
-          router.push('/login?expired=true');
-        } else {
-          // Fallback gracioso para dados locais
-          setTenant({
-            id: 1,
-            name: 'Studio Bella Nails',
-            slug: 'studio-bella',
-            plan: 'PRO',
-            status: 'ACTIVE',
-            brandColor: '#ec4899',
-            maxProfessionals: 10,
-            maxAppointmentsPerMonth: 1000,
-          } as any);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      if (attempt === 1) setLoading(true);
+      setError(null);
+      const data = await fetchApi<TenantDetails>('/tenants/me');
+      setTenant(data);
+      setError(null);
+    } catch (err: any) {
+      console.warn(`Tentativa ${attempt}/3 falhou ao carregar /tenants/me:`, err);
+      if (err?.status === 403 || err?.status === 401) {
+        removeAuthToken();
+        router.push('/login?expired=true');
+        return;
+      }
+
+      if (attempt < 3) {
+        setRetrying(true);
+        await new Promise((r) => setTimeout(r, 1500));
+        return fetchTenantWithRetry(attempt + 1);
+      } else {
+        // NUNCA fazer fallback para dados de outro tenant!
+        setError(err.message || 'Não foi possível sincronizar os dados do seu salão com o servidor.');
+      }
+    } finally {
+      setLoading(false);
+      setRetrying(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTenantWithRetry(1);
   }, [router]);
 
   const handleLogout = () => {
@@ -73,6 +79,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: 'Serviços', href: '/dashboard/servicos', icon: Scissors },
     { label: 'Configurações', href: '/dashboard/configuracoes', icon: Settings },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#161311] text-stone-200 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin mb-4" />
+        <h2 className="text-sm font-bold text-white mb-1">
+          {retrying ? 'Reconectando ao servidor...' : 'Carregando painel do salão...'}
+        </h2>
+        <p className="text-xs text-stone-400">Sincronizando configurações e permissões</p>
+      </div>
+    );
+  }
+
+  if (error && !tenant) {
+    return (
+      <div className="min-h-screen bg-[#161311] text-stone-200 flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-[#1c1815] max-w-md w-full p-8 rounded-3xl border border-stone-800 shadow-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h2 className="text-lg font-bold text-white mb-2">Erro ao carregar salão</h2>
+          <p className="text-xs text-stone-400 mb-6 leading-relaxed">
+            {error}
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <button
+              onClick={() => fetchTenantWithRetry(1)}
+              className="w-full py-3 px-4 rounded-xl bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold transition cursor-pointer"
+            >
+              Tentar novamente 🔄
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full py-2.5 px-4 rounded-xl bg-stone-900 border border-stone-700 hover:bg-stone-800 text-stone-300 text-xs font-semibold transition cursor-pointer"
+            >
+              Sair da conta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-stone-100 flex bg-[#161311]">

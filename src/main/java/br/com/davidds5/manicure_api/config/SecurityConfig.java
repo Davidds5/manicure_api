@@ -60,8 +60,10 @@ public class SecurityConfig {
                     req.requestMatchers("/", "/index.html", "/error", "/health").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/login", "/auth/login").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/tenants/signup").permitAll();
+                    req.requestMatchers(HttpMethod.GET, "/tenants/public/**").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/services", "/services/**", "/api/v1/services", "/api/v1/services/**").permitAll();
                     req.requestMatchers(HttpMethod.GET, "/professionals", "/professionals/**", "/api/v1/professionals", "/api/v1/professionals/**").permitAll();
+                    req.requestMatchers(HttpMethod.GET, "/appointments/occupied-slots", "/api/v1/appointments/occupied-slots").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/clients", "/api/v1/clients").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/appointments", "/appointments/**", "/api/v1/appointments", "/api/v1/appointments/**").permitAll();
                     req.requestMatchers("/actuator/**").permitAll();
