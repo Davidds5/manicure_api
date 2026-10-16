@@ -10,7 +10,11 @@ import {
   MessageCircle,
   TrendingUp,
   Sparkles,
-  Scissors
+  Scissors,
+  Smartphone,
+  CreditCard,
+  CalendarCheck,
+  Zap
 } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
 
@@ -37,7 +41,7 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-stone-700">
             <a href="#como-funciona" className="hover:text-pink-600 transition">Como funciona</a>
-            <a href="#depoimentos" className="hover:text-pink-600 transition">Depoimentos</a>
+            <a href="#diferenciais" className="hover:text-pink-600 transition">Diferenciais</a>
             <a href="#planos" className="hover:text-pink-600 transition">Planos</a>
           </nav>
 
@@ -155,27 +159,26 @@ export default function LandingPage() {
               </div>
             </ScrollReveal>
 
-            {/* Prova Social Orgânica & Verificável */}
+            {/* Diferenciais Reais e Diretos do Sistema */}
             <ScrollReveal delay={240} offset={14}>
               <div className="pt-6 border-t border-stone-200/90 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2.5 overflow-hidden">
-                    <img className="inline-block h-11 w-11 rounded-full ring-2 ring-[#faf7f2] object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80" alt="Renata Nails" />
-                    <img className="inline-block h-11 w-11 rounded-full ring-2 ring-[#faf7f2] object-cover" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80" alt="Camila Studio" />
-                    <img className="inline-block h-11 w-11 rounded-full ring-2 ring-[#faf7f2] object-cover" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80" alt="Juliana Manicure" />
+                <div className="bg-white/95 backdrop-blur-sm border border-stone-200 px-4 py-3 rounded-2xl flex items-center gap-3 shadow-xs interactive-item">
+                  <div className="w-9 h-9 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center shrink-0">
+                    <Clock className="w-5 h-5 text-pink-600" />
                   </div>
                   <div className="text-xs">
-                    <span className="font-bold text-stone-900 block">+1.840 manicures</span>
-                    <span className="text-stone-600 font-normal">ativas em todo o Brasil</span>
+                    <span className="font-bold text-stone-900 block">Autoatendimento 24 horas</span>
+                    <span className="text-stone-600 font-normal">Sua cliente agenda a qualquer hora</span>
                   </div>
                 </div>
 
-                {/* Indicador de agendamentos reais */}
-                <div className="bg-white/95 backdrop-blur-sm border border-stone-200 px-3.5 py-2 rounded-xl flex items-center gap-2.5 shadow-xs interactive-item">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <div className="bg-white/95 backdrop-blur-sm border border-stone-200 px-4 py-3 rounded-2xl flex items-center gap-3 shadow-xs interactive-item">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-5 h-5 text-emerald-600" />
+                  </div>
                   <div className="text-xs">
-                    <span className="font-extrabold text-stone-900">4.820 horários</span>{' '}
-                    <span className="text-stone-600">agendados esta semana</span>
+                    <span className="font-bold text-stone-900 block">Link direto no WhatsApp</span>
+                    <span className="text-stone-600 font-normal">Sem aplicativo para a cliente baixar</span>
                   </div>
                 </div>
               </div>
@@ -365,9 +368,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Depoimentos com Fotos Reais e Atmosfera Aconchegante */}
-      <section id="depoimentos" className="py-24 px-6 max-w-6xl mx-auto relative overflow-hidden">
-        {/* Folhagem Suave no Fundo de Depoimentos */}
+      {/* Diferenciais Reais do Sistema */}
+      <section id="diferenciais" className="py-24 px-6 max-w-6xl mx-auto relative overflow-hidden">
+        {/* Folhagem Suave no Fundo */}
         <div className="absolute top-1/2 -right-16 w-80 h-80 opacity-25 pointer-events-none hidden lg:block -translate-y-1/2">
           <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-emerald-900">
             <path d="M40,290 C70,180 140,80 260,30 C230,110 180,210 60,290 Z" fill="#2d4a3e" />
@@ -377,56 +380,62 @@ export default function LandingPage() {
 
         <ScrollReveal delay={0} offset={16}>
           <div className="text-left max-w-2xl mb-14 space-y-2 relative z-10">
-            <span className="text-xs font-extrabold uppercase tracking-wider text-pink-600 block">Experiência Real</span>
+            <span className="text-xs font-extrabold uppercase tracking-wider text-pink-600 block">Diferenciais Reais</span>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 mb-2 leading-tight">
-              Quem já usa no dia a dia
+              Pensado para a rotina de quem atende em mesa
             </h2>
-            <p className="text-stone-600 text-sm font-medium">Depoimentos reais de profissionais que organizaram suas agendas:</p>
+            <p className="text-stone-600 text-sm font-medium">Sem promessas vazias e sem burocracia. Recursos práticos que resolvem problemas de salão:</p>
           </div>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
           <ScrollReveal delay={80} offset={20}>
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-5 interactive-card h-full flex flex-col justify-between">
-              <p className="text-stone-700 text-xs leading-relaxed italic font-normal">
-                "Antes eu perdia clientes porque demorava 2 horas para responder no WhatsApp enquanto fazia uma fibra. Agora elas mesmas entram no link e escolhem o horário."
-              </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-stone-100">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" alt="Renata" className="w-11 h-11 rounded-full object-cover ring-2 ring-pink-200" />
-                <div>
-                  <span className="font-bold text-stone-900 text-xs block">Renata Silveira</span>
-                  <span className="text-[10px] text-pink-600 font-semibold">Espaço Renata Nails • SP</span>
+            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-4 interactive-card h-full flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs">
+                  <CalendarCheck className="w-6 h-6 text-pink-600" />
                 </div>
+                <h3 className="text-lg font-bold text-stone-900">Cálculo de Duração & Zero Conflitos</h3>
+                <p className="text-stone-600 text-xs leading-relaxed font-normal">
+                  Cada procedimento tem sua duração configurada (ex: fibra 60 min, cutilagem 40 min). O sistema bloqueia os intervalos automaticamente, eliminando clientes encavaladas no mesmo horário.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-stone-100 flex items-center gap-2 text-[11px] font-semibold text-emerald-700">
+                <Check className="w-4 h-4 text-emerald-600" /> Bloqueio atômico de horários
               </div>
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={160} offset={20}>
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-5 interactive-card h-full flex flex-col justify-between">
-              <p className="text-stone-700 text-xs leading-relaxed italic font-normal">
-                "Aqui no salão somos em 4 manicures. Cada uma tem sua comissão certinha e não dá mais confusão de duas clientes marcarem no mesmo horário."
-              </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-stone-100">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80" alt="Camila" className="w-11 h-11 rounded-full object-cover ring-2 ring-pink-200" />
-                <div>
-                  <span className="font-bold text-stone-900 text-xs block">Camila Medeiros</span>
-                  <span className="text-[10px] text-pink-600 font-semibold">Studio Bella Esmalteria • RJ</span>
+            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-4 interactive-card h-full flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs">
+                  <Smartphone className="w-6 h-6 text-pink-600" />
                 </div>
+                <h3 className="text-lg font-bold text-stone-900">Sem App para a Cliente Baixar</h3>
+                <p className="text-stone-600 text-xs leading-relaxed font-normal">
+                  Nada de obrigar a cliente a instalar app pesado da Play Store ou lembrar senhas. Ela clica no link da sua bio do Instagram, escolhe o horário e confirma direto pelo navegador.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-stone-100 flex items-center gap-2 text-[11px] font-semibold text-emerald-700">
+                <Check className="w-4 h-4 text-emerald-600" /> Abre instantâneo em qualquer celular
               </div>
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={240} offset={20}>
-            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-5 interactive-card h-full flex flex-col justify-between">
-              <p className="text-stone-700 text-xs leading-relaxed italic font-normal">
-                "Muito fácil de mexer. Consegui cadastrar meus preços e mandar pras clientes no primeiro dia. Minha agenda de sexta e sábado lota sozinha."
-              </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-stone-100">
-                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=80" alt="Juliana" className="w-11 h-11 rounded-full object-cover ring-2 ring-pink-200" />
-                <div>
-                  <span className="font-bold text-stone-900 text-xs block">Juliana Ferreira</span>
-                  <span className="text-[10px] text-pink-600 font-semibold">Manicure Autônoma • MG</span>
+            <div className="bg-white p-8 rounded-3xl border border-stone-200/90 shadow-soft text-left space-y-4 interactive-card h-full flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center shadow-xs">
+                  <CreditCard className="w-6 h-6 text-pink-600" />
                 </div>
+                <h3 className="text-lg font-bold text-stone-900">Sinal Pix & Redução de No-Show</h3>
+                <p className="text-stone-600 text-xs leading-relaxed font-normal">
+                  Cadastre sua chave Pix no painel e solicite sinal antecipado na reserva. Menos desistências de última hora e previsibilidade financeira para o seu caixa.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-stone-100 flex items-center gap-2 text-[11px] font-semibold text-emerald-700">
+                <Check className="w-4 h-4 text-emerald-600" /> QR Code e Copia e Cola dinâmico
               </div>
             </div>
           </ScrollReveal>
