@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -235,5 +236,28 @@ public class PublicPortalMultiTenantTest {
                         .content(objectMapper.writeValueAsString(loginDtoWrongPass)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", containsString("E-mail ou senha incorretos")));
+
+        // Login direto por e-mail sem tenantSlug (para contas com e-mail único)
+        String uniqueEmail = "direto@profissional.com";
+        professionalRepository.save(ProfessionalEntity.builder()
+                .tenantId(tenantA.getId())
+                .name("Profissional Direto")
+                .email(uniqueEmail)
+                .specialty("Manicure")
+                .password(encodedPassword)
+                .role(ProfessionalRole.TENANT_ADMIN)
+                .active(true)
+                .build());
+
+        AutenticacaoDTO loginDirectDto = new AutenticacaoDTO(uniqueEmail, password, null);
+        var responseDirect = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDirectDto)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String directToken = objectMapper.readTree(responseDirect.getResponse().getContentAsString()).get("token").asText();
+        assertNotNull(directToken);
+        assertEquals(tenantA.getId(), tokenService.getTenantId(directToken));
     }
 }

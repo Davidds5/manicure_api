@@ -20,6 +20,9 @@ public class AutenticacaoService implements UserDetailsService {
     @Autowired
     private ProfessionalRepository professionalRepository;
 
+    @Autowired
+    private br.com.davidds5.manicure_api.repository.TenantRepository tenantRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Long tenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
@@ -37,10 +40,36 @@ public class AutenticacaoService implements UserDetailsService {
                 return (UserDetails) client.get();
             }
         } else {
-            // Global login: only SUPER_ADMIN is allowed without tenant context
+            // 1. Global login: SUPER_ADMIN
             Optional<ProfessionalEntity> superAdmin = professionalRepository.findByEmailAndRole(username, br.com.davidds5.manicure_api.enums.ProfessionalRole.SUPER_ADMIN);
             if (superAdmin.isPresent()) {
                 return (UserDetails) superAdmin.get();
+            }
+
+            // 2. Direct login: profissional vinculado ao salão ativo
+            Optional<ProfessionalEntity> professional = professionalRepository.findByEmail(username);
+            if (professional.isPresent()) {
+                var prof = professional.get();
+                if (prof.getTenantId() != null) {
+                    var tenantOpt = tenantRepository.findById(prof.getTenantId());
+                    if (tenantOpt.isEmpty() || tenantOpt.get().getDeletedAt() != null || tenantOpt.get().getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+                        throw new UsernameNotFoundException("Salão inativo ou suspenso");
+                    }
+                }
+                return (UserDetails) prof;
+            }
+
+            // 3. Direct login: cliente vinculado ao salão ativo
+            Optional<ClientEntity> client = clientRepository.findByEmail(username);
+            if (client.isPresent()) {
+                var c = client.get();
+                if (c.getTenantId() != null) {
+                    var tenantOpt = tenantRepository.findById(c.getTenantId());
+                    if (tenantOpt.isEmpty() || tenantOpt.get().getDeletedAt() != null || tenantOpt.get().getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+                        throw new UsernameNotFoundException("Salão inativo ou suspenso");
+                    }
+                }
+                return (UserDetails) c;
             }
         }
 
