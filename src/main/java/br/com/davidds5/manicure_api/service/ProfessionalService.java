@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import br.com.davidds5.manicure_api.dto.ProfessionalCreatedDTO;
 import br.com.davidds5.manicure_api.dto.ProfessionalDTO;
 import br.com.davidds5.manicure_api.entity.ProfessionalEntity;
+import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
 import br.com.davidds5.manicure_api.mapper.ProfessionalMapper;
 import br.com.davidds5.manicure_api.repository.AppointmentRepository;
@@ -28,6 +29,7 @@ public class ProfessionalService {
     private final ProfessionalMapper professionalMapper;
     private final PasswordEncoder passwordEncoder;
     private final SubscriptionService subscriptionService;
+    private final br.com.davidds5.manicure_api.repository.TenantRepository tenantRepository;
 
     @CacheEvict(value = "professionals", allEntries = true)
     @Transactional
@@ -35,11 +37,17 @@ public class ProfessionalService {
         log.info("Criando novo profissional: {}", dto.getName());
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        if (currentTenantId == null) {
+            throw new BusinessException("Contexto de salão (tenant) obrigatório para cadastrar profissional.");
+        }
         subscriptionService.validateProfessionalLimit(currentTenantId);
 
         ProfessionalEntity entity = professionalMapper.toEntity(dto);
-        if (currentTenantId != null) {
-            entity.setTenantId(currentTenantId);
+        entity.setTenantId(currentTenantId);
+        if (dto.getRole() != null) {
+            entity.setRole(dto.getRole());
+        } else {
+            entity.setRole(br.com.davidds5.manicure_api.enums.ProfessionalRole.PROFESSIONAL);
         }
         
         String senhaCriptografada = passwordEncoder.encode(dto.getPassword());
@@ -58,7 +66,7 @@ public class ProfessionalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(entity.getTenantId())) {
             throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
         }
 
@@ -70,19 +78,32 @@ public class ProfessionalService {
     public List<ProfessionalDTO> findAllActive() {
         log.info("Listando todos os profissionais ativos");
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        List<ProfessionalEntity> professionals;
-        if (currentTenantId != null) {
-            professionals = professionalRepository.findByTenantIdAndActiveTrue(currentTenantId);
-        } else {
-            professionals = professionalRepository.findByActiveTrue();
+        if (currentTenantId == null) {
+            throw new BusinessException("Contexto de salão (tenant) obrigatório.");
         }
+
+        List<ProfessionalEntity> professionals = professionalRepository.findByTenantIdAndActiveTrue(currentTenantId);
 
         List<ProfessionalDTO> collect = professionals
                 .stream()
                 .map(professionalMapper::toDTO)
                 .collect(Collectors.toList());
-        log.debug("Fui no Banco de dados");
-        return collect; 
+        return collect;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfessionalDTO> findByTenantSlug(String tenantSlug) {
+        var tenant = tenantRepository.findBySlugAndDeletedAtIsNull(tenantSlug.toLowerCase().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado com o slug: " + tenantSlug));
+
+        if (tenant.getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+            throw new ResourceNotFoundException("Salão não encontrado ou suspenso: " + tenantSlug);
+        }
+
+        return professionalRepository.findByTenantIdAndActiveTrue(tenant.getId())
+                .stream()
+                .map(professionalMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @CacheEvict(value = "professionals", allEntries = true)
@@ -94,13 +115,16 @@ public class ProfessionalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(existing.getTenantId())) {
             throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
         }
 
         existing.setName(dto.getName());
         existing.setSpecialty(dto.getSpecialty());
         existing.setActive(dto.isActive());
+        if (dto.getRole() != null) {
+            existing.setRole(dto.getRole());
+        }
 
         ProfessionalEntity updated = professionalRepository.save(existing);
         log.info("Profissional atualizado com ID: {}", updated.getId());
@@ -116,7 +140,7 @@ public class ProfessionalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado com ID: " + id));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(existing.getTenantId())) {
             throw new ResourceNotFoundException("Profissional não encontrado com ID: " + id);
         }
 

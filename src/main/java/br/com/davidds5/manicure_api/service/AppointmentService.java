@@ -6,6 +6,7 @@ import br.com.davidds5.manicure_api.entity.*;
 import br.com.davidds5.manicure_api.event.AppointmentCreatedEvent;
 import br.com.davidds5.manicure_api.exceptions.BusinessException;
 import br.com.davidds5.manicure_api.exceptions.ResourceNotFoundException;
+import br.com.davidds5.manicure_api.exceptions.TimeConflictException;
 
 import br.com.davidds5.manicure_api.repository.*;
 import br.com.davidds5.manicure_api.util.Constants;
@@ -32,6 +33,7 @@ public class AppointmentService {
     private final ClientRepository clientRepository;
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
+    private final TenantRepository tenantRepository;
     private final SubscriptionService subscriptionService;
     private final AppointmentData appointmentData;
     private final MeterRegistry meterRegistry;
@@ -121,7 +123,7 @@ public class AppointmentService {
                 });
 
         if (hasConflict) {
-            throw new BusinessException(Constants.TIME_CONFLICT);
+            throw new TimeConflictException(Constants.TIME_CONFLICT);
         }
     }
 
@@ -172,7 +174,16 @@ public class AppointmentService {
         subscriptionService.validateAppointmentLimit(currentTenantId);
 
         ClientEntity client = getClient(dto.getClientId());
-        ProfessionalEntity professional = getProfessional(dto.getProfessionalId());
+        // Pessimistic write lock on professional to avoid race condition / overbooking
+        ProfessionalEntity professional = professionalRepository.findByIdWithLock(dto.getProfessionalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + dto.getProfessionalId()));
+        if (currentTenantId != null && (professional.getTenantId() == null || !currentTenantId.equals(professional.getTenantId()))) {
+            throw new ResourceNotFoundException("Profissional não encontrado: " + dto.getProfessionalId());
+        }
+        if (!professional.getActive()) {
+            throw new BusinessException("Profissional inativo");
+        }
+
         ServiceEntity service = getService(dto.getServiceId());
 
         validateTenantScope(currentTenantId, client, professional, service);
@@ -212,10 +223,80 @@ public class AppointmentService {
     // ================= CREATE PUBLIC (PORTAL DA CLIENTE) =================
 
     @Transactional
+    public AppointmentDTO createPublicAppointmentBySlug(String tenantSlug, PublicAppointmentCreateDTO dto) {
+        TenantEntity tenant = tenantRepository.findBySlugAndDeletedAtIsNull(tenantSlug.toLowerCase().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado: " + tenantSlug));
+        if (tenant.getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+            throw new ResourceNotFoundException("Salão não encontrado ou suspenso: " + tenantSlug);
+        }
+
+        Long tenantId = tenant.getId();
+        // Pessimistic write lock on professional to avoid race condition / overbooking
+        ProfessionalEntity professional = professionalRepository.findByIdWithLock(dto.getProfessionalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + dto.getProfessionalId()));
+
+        if (!tenantId.equals(professional.getTenantId())) {
+            throw new ResourceNotFoundException("Profissional não pertence ao salão indicado.");
+        }
+        if (!professional.getActive()) {
+            throw new BusinessException("Profissional inativo");
+        }
+
+        ServiceEntity service = serviceRepository.findById(dto.getServiceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + dto.getServiceId()));
+
+        if (!tenantId.equals(service.getTenantId())) {
+            throw new BusinessException("Serviço não pertence ao salão indicado.");
+        }
+
+        subscriptionService.validateAppointmentLimit(tenantId);
+        validateFutureDate(dto.getDateTime());
+        validateTimeConflict(professional.getId(), dto.getDateTime(), service.getDuration(), null);
+
+        ClientEntity client = clientRepository.findByEmailAndTenantId(dto.getClientEmail(), tenantId)
+                .or(() -> clientRepository.findByPhoneAndTenantId(dto.getClientPhone(), tenantId))
+                .orElseGet(() -> {
+                    ClientEntity newClient = ClientEntity.builder()
+                            .tenantId(tenantId)
+                            .name(dto.getClientName())
+                            .phone(dto.getClientPhone())
+                            .email(dto.getClientEmail())
+                            .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                            .build();
+                    return clientRepository.save(newClient);
+                });
+
+        client.setName(dto.getClientName());
+        client.setPhone(dto.getClientPhone());
+        clientRepository.save(client);
+
+        AppointmentEntity entity = new AppointmentEntity();
+        entity.setTenantId(tenantId);
+        entity.setClient(client);
+        entity.setProfessional(professional);
+        entity.setService(service);
+        entity.setDateTime(dto.getDateTime());
+        entity.setStatus(AppointmentEntity.AppointmentStatus.SCHEDULED);
+
+        AppointmentEntity saved = appointmentRepository.save(entity);
+
+        eventPublisher.publishEvent(new AppointmentCreatedEvent(
+            saved.getId(),
+            saved.getClient().getEmail(),
+            saved.getClient().getName(),
+            saved.getDateTime()
+        ));
+
+        meterRegistry.counter("api_appointment_created_total").increment();
+        return toDTO(saved);
+    }
+
+    @Transactional
     public AppointmentDTO createPublicAppointment(PublicAppointmentCreateDTO dto) {
         log.info("Criando agendamento público para: {}", dto.getClientName());
 
-        ProfessionalEntity professional = professionalRepository.findById(dto.getProfessionalId())
+        // Pessimistic write lock on professional
+        ProfessionalEntity professional = professionalRepository.findByIdWithLock(dto.getProfessionalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + dto.getProfessionalId()));
 
         if (!professional.getActive()) {
@@ -288,6 +369,8 @@ public class AppointmentService {
 
         if (dto.getDateTime() != null) {
             validateFutureDate(dto.getDateTime());
+            // Lock professional row during update to avoid conflict
+            professionalRepository.findByIdWithLock(existing.getProfessional().getId());
             Integer dur = existing.getService() != null ? existing.getService().getDuration() : 30;
             validateTimeConflict(existing.getProfessional().getId(), dto.getDateTime(), dur, id);
             existing.setDateTime(dto.getDateTime());
@@ -304,6 +387,21 @@ public class AppointmentService {
     }
 
     // ================= OCCUPIED SLOTS =================
+
+    @Transactional(readOnly = true)
+    public List<OccupiedSlotDTO> getOccupiedSlotsBySlug(String tenantSlug, Long professionalId, java.time.LocalDate date) {
+        TenantEntity tenant = tenantRepository.findBySlugAndDeletedAtIsNull(tenantSlug.toLowerCase().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado: " + tenantSlug));
+        if (tenant.getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+            throw new ResourceNotFoundException("Salão não encontrado ou suspenso: " + tenantSlug);
+        }
+        ProfessionalEntity professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado: " + professionalId));
+        if (!tenant.getId().equals(professional.getTenantId())) {
+            throw new ResourceNotFoundException("Profissional não pertence ao salão indicado");
+        }
+        return getOccupiedSlots(professionalId, date);
+    }
 
     @Transactional(readOnly = true)
     public List<OccupiedSlotDTO> getOccupiedSlots(Long professionalId, java.time.LocalDate date) {
@@ -347,7 +445,11 @@ public class AppointmentService {
         AppointmentEntity existing = getAppointment(id);
         validateNotCompleted(existing);
 
-        if (!DateUtil.canCancel(existing.getDateTime())) {
+        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null &&
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_TENANT_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+        if (!isAdmin && !DateUtil.canCancel(existing.getDateTime())) {
             throw new BusinessException(
                     "Cancelamento só com " + Constants.CANCEL_HOURS_AHEAD + "h antecedência"
             );
@@ -386,19 +488,22 @@ public class AppointmentService {
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findAll(Pageable pageable, AppointmentEntity.AppointmentStatus status, LocalDateTime startDate, LocalDateTime endDate) {
-        return appointmentRepository.findWithFilters(status, startDate, endDate, pageable)
+        Long tenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        return appointmentRepository.findWithFilters(tenantId, status, startDate, endDate, pageable)
                 .map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findByClientId(Long clientId, Pageable pageable) {
-        return appointmentRepository.findByClientId(clientId, pageable)
+        Long tenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        return appointmentRepository.findByTenantIdAndClientId(tenantId, clientId, pageable)
                 .map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<AppointmentDTO> findByProfessionalId(Long professionalId, Pageable pageable) {
-        return appointmentRepository.findByProfessionalId(professionalId, pageable)
+        Long tenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+        return appointmentRepository.findByTenantIdAndProfessionalId(tenantId, professionalId, pageable)
                 .map(this::toDTO);
     }
     private AppointmentDTO toDTO(AppointmentEntity entity) {

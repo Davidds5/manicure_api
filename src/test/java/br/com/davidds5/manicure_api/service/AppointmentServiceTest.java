@@ -93,7 +93,10 @@ class AppointmentServiceTest {
         serviceEntity.setId(1L);
         serviceEntity.setTenantId(1L);
         serviceEntity.setName("Manicure Simples");
-        serviceEntity.setPrice(50.0);
+        serviceEntity.setPrice(java.math.BigDecimal.valueOf(50.0));
+
+        org.mockito.Mockito.lenient().when(professionalRepository.findByIdWithLock(org.mockito.ArgumentMatchers.anyLong()))
+                .thenAnswer(inv -> professionalRepository.findById(inv.getArgument(0)));
 
         createDTO = new AppointmentCreateDTO();
         createDTO.setClientId(1L);

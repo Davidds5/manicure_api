@@ -14,4 +14,5 @@ public class ProfessionalDTO {
     private String name;
     private String specialty;
     private Boolean active;
+    private br.com.davidds5.manicure_api.enums.ProfessionalRole role;
 }

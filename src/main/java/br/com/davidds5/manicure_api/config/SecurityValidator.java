@@ -42,7 +42,7 @@ public class SecurityValidator {
             return false;
         }
 
-        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+        if (hasAdminPrivilege(authentication)) {
             return true;
         }
 
@@ -70,7 +70,7 @@ public class SecurityValidator {
             return false;
         }
 
-        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+        if (hasAdminPrivilege(authentication)) {
             return true;
         }
 
@@ -78,5 +78,12 @@ public class SecurityValidator {
         return appointment.getClient() != null 
                 && appointment.getClient().getEmail() != null 
                 && appointment.getClient().getEmail().equals(loggedEmail);
+    }
+
+    private boolean hasAdminPrivilege(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TENANT_ADMIN") 
+                            || a.getAuthority().equals("ROLE_SUPER_ADMIN") 
+                            || a.getAuthority().equals("ROLE_ADMIN"));
     }
 }

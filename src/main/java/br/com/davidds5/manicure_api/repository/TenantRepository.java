@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TenantRepository extends JpaRepository<TenantEntity, Long> {
     boolean existsBySlug(String slug);
     Optional<TenantEntity> findBySlug(String slug);
+    Optional<TenantEntity> findBySlugAndDeletedAtIsNull(String slug);
 }

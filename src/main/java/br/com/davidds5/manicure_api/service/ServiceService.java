@@ -23,12 +23,13 @@ public class ServiceService {
 
     private final ServiceRepository serviceRepository;
     private final ServiceMapper serviceMapper;
+    private final br.com.davidds5.manicure_api.repository.TenantRepository tenantRepository;
 
     @Transactional
     public ServiceDTO createService(ServiceCreateDTO dto) {
         log.info("Criando novo serviço: {}", dto.getName());
 
-        if (dto.getPrice() <= 0) {
+        if (dto.getPrice() == null || dto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
             throw new BusinessException("Preço deve ser maior que zero");
         }
 
@@ -36,11 +37,13 @@ public class ServiceService {
             throw new BusinessException("Duração deve ser maior que zero");
         }
 
-        ServiceEntity entity = serviceMapper.toEntity(dto);
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null) {
-            entity.setTenantId(currentTenantId);
+        if (currentTenantId == null) {
+            throw new BusinessException("Contexto de salão (tenant) obrigatório para cadastrar serviço.");
         }
+
+        ServiceEntity entity = serviceMapper.toEntity(dto);
+        entity.setTenantId(currentTenantId);
         ServiceEntity saved = serviceRepository.save(entity);
 
         return serviceMapper.toDTO(saved);
@@ -52,7 +55,7 @@ public class ServiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com ID: " + id));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(entity.getTenantId())) {
             throw new ResourceNotFoundException("Serviço não encontrado com ID: " + id);
         }
 
@@ -62,15 +65,28 @@ public class ServiceService {
     @Transactional(readOnly = true)
     public List<ServiceDTO> findAll() {
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        List<ServiceEntity> services;
-        if (currentTenantId != null) {
-            services = serviceRepository.findByTenantId(currentTenantId);
-        } else {
-            services = serviceRepository.findAll();
+        if (currentTenantId == null) {
+            throw new BusinessException("Contexto de salão (tenant) obrigatório.");
         }
 
-        return services
+        return serviceRepository.findByTenantId(currentTenantId)
                 .stream()
+                .map(serviceMapper::toDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceDTO> findByTenantSlug(String tenantSlug) {
+        var tenant = tenantRepository.findBySlugAndDeletedAtIsNull(tenantSlug.toLowerCase().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado com o slug: " + tenantSlug));
+
+        if (tenant.getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+            throw new ResourceNotFoundException("Salão não encontrado ou suspenso: " + tenantSlug);
+        }
+
+        return serviceRepository.findByTenantId(tenant.getId())
+                .stream()
+                .filter(s -> Boolean.TRUE.equals(s.getActive()))
                 .map(serviceMapper::toDTO)
                 .toList();
     }
@@ -82,7 +98,7 @@ public class ServiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (existing.getTenantId() == null || !currentTenantId.equals(existing.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(existing.getTenantId())) {
             throw new ResourceNotFoundException("Serviço não encontrado");
         }
 
@@ -94,7 +110,7 @@ public class ServiceService {
             existing.setDescription(dto.getDescription());
         }
 
-        if (dto.getPrice() != null && dto.getPrice() <= 0) {
+        if (dto.getPrice() != null && dto.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
             throw new BusinessException("Preço deve ser maior que zero");
         }
 
@@ -125,7 +141,7 @@ public class ServiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado"));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (entity.getTenantId() == null || !currentTenantId.equals(entity.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(entity.getTenantId())) {
             throw new ResourceNotFoundException("Serviço não encontrado");
         }
 

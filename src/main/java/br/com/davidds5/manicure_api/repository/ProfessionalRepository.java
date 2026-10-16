@@ -15,4 +15,10 @@ public interface ProfessionalRepository extends JpaRepository<ProfessionalEntity
     List<ProfessionalEntity> findByTenantId(Long tenantId);
     Optional<ProfessionalEntity> findByEmail(String email);
     Optional<ProfessionalEntity> findByEmailAndTenantId(String email, Long tenantId);
+    Optional<ProfessionalEntity> findByEmailAndRole(String email, br.com.davidds5.manicure_api.enums.ProfessionalRole role);
+    long countByTenantIdAndActiveTrue(Long tenantId);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM ProfessionalEntity p WHERE p.id = :id")
+    Optional<ProfessionalEntity> findByIdWithLock(@org.springframework.data.repository.query.Param("id") Long id);
 }

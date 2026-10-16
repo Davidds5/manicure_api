@@ -25,9 +25,25 @@ public class AutenticacaoController {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private br.com.davidds5.manicure_api.repository.TenantRepository tenantRepository;
+
     @PostMapping
     public ResponseEntity<?> efetuarLogin(@RequestBody @Valid AutenticacaoDTO data){
+        Long tenantId = null;
+        if (data.tenantSlug() != null && !data.tenantSlug().isBlank()) {
+            var tenantOpt = tenantRepository.findBySlugAndDeletedAtIsNull(data.tenantSlug().toLowerCase().trim());
+            if (tenantOpt.isEmpty() || tenantOpt.get().getStatus() == br.com.davidds5.manicure_api.enums.TenantStatus.SUSPENDED) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                        .body(java.util.Map.of("message", "E-mail ou senha incorretos. Verifique suas credenciais."));
+            }
+            tenantId = tenantOpt.get().getId();
+        }
+
         try {
+            if (tenantId != null) {
+                br.com.davidds5.manicure_api.config.TenantContext.setTenantId(tenantId);
+            }
             var token = new UsernamePasswordAuthenticationToken(data.login(), data.password());
             var autenticacao = manager.authenticate(token);
 
@@ -36,6 +52,8 @@ public class AutenticacaoController {
         } catch (org.springframework.security.core.AuthenticationException ex) {
             return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
                     .body(java.util.Map.of("message", "E-mail ou senha incorretos. Verifique suas credenciais."));
+        } finally {
+            br.com.davidds5.manicure_api.config.TenantContext.clear();
         }
     }
 

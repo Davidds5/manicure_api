@@ -48,43 +48,28 @@ public class TokenService {
         return Instant.now().plus(2, java.time.temporal.ChronoUnit.HOURS);
     }
 
-    public String getRole(String tokenJWT){
-        try{
+    public com.auth0.jwt.interfaces.DecodedJWT decodeToken(String tokenJWT) {
+        try {
             Algorithm algorithms = Algorithm.HMAC256(secret);
             return JWT.require(algorithms)
-            .withIssuer("manicure_api")
-            .build()
-            .verify(tokenJWT)
-            .getClaim("role").asString();
-        }catch(JWTVerificationException exception){
+                    .withIssuer("manicure_api")
+                    .build()
+                    .verify(tokenJWT);
+        } catch (JWTVerificationException exception) {
             throw new RuntimeException("Token JWT inválido ou expirado", exception);
         }
+    }
+
+    public String getRole(String tokenJWT){
+        return decodeToken(tokenJWT).getClaim("role").asString();
     }
 
     public Long getTenantId(String tokenJWT){
-        try{
-            Algorithm algorithms = Algorithm.HMAC256(secret);
-            var claim = JWT.require(algorithms)
-                .withIssuer("manicure_api")
-                .build()
-                .verify(tokenJWT)
-                .getClaim("tenant_id");
-            return claim.isNull() ? null : claim.asLong();
-        }catch(JWTVerificationException exception){
-            throw new RuntimeException("Token JWT inválido ou expirado", exception);
-        }
+        var claim = decodeToken(tokenJWT).getClaim("tenant_id");
+        return claim.isNull() ? null : claim.asLong();
     }
 
     public String getSubject(String tokenJWT){
-        try{
-            Algorithm algorithms = Algorithm.HMAC256(secret);
-            return JWT.require(algorithms)
-            .withIssuer("manicure_api")
-            .build()
-            .verify(tokenJWT)
-            .getSubject();
-        }catch(JWTVerificationException exception){
-            throw new RuntimeException("Token JWT inválido ou expirado", exception);
-        }
+        return decodeToken(tokenJWT).getSubject();
     }
 }

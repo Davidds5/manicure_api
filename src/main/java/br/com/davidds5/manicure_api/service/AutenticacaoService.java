@@ -16,22 +16,34 @@ import java.util.Optional;
 public class AutenticacaoService implements UserDetailsService {
 
     @Autowired
-    ClientRepository clientRepository;
+    private ClientRepository clientRepository;
     @Autowired
-    ProfessionalRepository professionalRepository;
+    private ProfessionalRepository professionalRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username)throws UsernameNotFoundException{
-    
-        Optional<ClientEntity> client = clientRepository.findByEmail(username);
-        if(client.isPresent()){
-            return (UserDetails) client.get();
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Long tenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
+
+        if (tenantId != null) {
+            // Check professional first within tenant
+            Optional<ProfessionalEntity> professional = professionalRepository.findByEmailAndTenantId(username, tenantId);
+            if (professional.isPresent()) {
+                return (UserDetails) professional.get();
+            }
+
+            // Check client within tenant
+            Optional<ClientEntity> client = clientRepository.findByEmailAndTenantId(username, tenantId);
+            if (client.isPresent()) {
+                return (UserDetails) client.get();
+            }
+        } else {
+            // Global login: only SUPER_ADMIN is allowed without tenant context
+            Optional<ProfessionalEntity> superAdmin = professionalRepository.findByEmailAndRole(username, br.com.davidds5.manicure_api.enums.ProfessionalRole.SUPER_ADMIN);
+            if (superAdmin.isPresent()) {
+                return (UserDetails) superAdmin.get();
+            }
         }
 
-        Optional<ProfessionalEntity> professional = professionalRepository.findByEmail(username);
-        if(professional.isPresent()){
-            return (UserDetails) professional.get();
-        }
         throw new UsernameNotFoundException("Usuário não encontrado");
     }
 }

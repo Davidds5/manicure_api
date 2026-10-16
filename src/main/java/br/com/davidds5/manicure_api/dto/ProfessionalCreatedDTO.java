@@ -32,4 +32,7 @@ public class ProfessionalCreatedDTO {
 
     @Builder.Default
     private boolean active = true; 
+
+    @Builder.Default
+    private br.com.davidds5.manicure_api.enums.ProfessionalRole role = br.com.davidds5.manicure_api.enums.ProfessionalRole.PROFESSIONAL;
 }

@@ -36,7 +36,7 @@ public class ServiceController {
 
     @PostMapping
     @Operation(summary = "Criar novo serviço", description = "Adicionar um novo tipo de servico ao catalogo (ex: Manicure, Depilação etc)")
-   @PreAuthorize("hasRole('ADMIN')")
+   @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Serviço criado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),
@@ -98,7 +98,7 @@ public class ServiceController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar serviço", description = "Atualizar os dados (como preco ou duracao) de um servico especifico pelo ID")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Serviço atualizado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Erro de validação", 
@@ -125,7 +125,7 @@ public class ServiceController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar serviço", description ="Remove um servico do catalogo.")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Serviço deletado com sucesso"),
         @ApiResponse(responseCode = "401", description = "Requer token de autenticação"),

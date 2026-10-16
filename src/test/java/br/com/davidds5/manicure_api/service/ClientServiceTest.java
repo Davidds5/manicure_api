@@ -45,8 +45,15 @@ class ClientServiceTest {
     private ClientEntity entity;
     private ClientDTO dto;
 
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        br.com.davidds5.manicure_api.config.TenantContext.clear();
+    }
+
     @BeforeEach
     void setUp() {
+        br.com.davidds5.manicure_api.config.TenantContext.setTenantId(1L);
+
         createDTO = ClientCreatedDTO.builder()
                 .name("Maria Silva")
                 .phone("(11) 99999-9999")
@@ -56,6 +63,7 @@ class ClientServiceTest {
 
         entity = ClientEntity.builder()
                 .id(1L)
+                .tenantId(1L)
                 .name("Maria Silva")
                 .phone("(11) 99999-9999")
                 .email("maria@email.com")
@@ -76,7 +84,7 @@ class ClientServiceTest {
     @Test
     void createClient_Success() {
         when(passwordEncoder.encode(anyString())).thenReturn("senha_criptografada");
-        when(clientRepository.findByEmail(createDTO.getEmail())).thenReturn(Optional.empty());
+        when(clientRepository.findByEmailAndTenantId(createDTO.getEmail(), 1L)).thenReturn(Optional.empty());
         when(clientMapper.toEntity(createDTO)).thenReturn(entity);
         when(clientRepository.save(entity)).thenReturn(entity);
         when(clientMapper.toDTO(entity)).thenReturn(dto);
@@ -86,7 +94,7 @@ class ClientServiceTest {
         assertNotNull(result);
         assertEquals("Maria Silva", result.getName());
 
-        verify(clientRepository).findByEmail(createDTO.getEmail());
+        verify(clientRepository).findByEmailAndTenantId(createDTO.getEmail(), 1L);
         verify(clientMapper).toEntity(createDTO);
         verify(clientRepository).save(entity);
         verify(clientMapper).toDTO(entity);
@@ -94,16 +102,16 @@ class ClientServiceTest {
 
     @Test
     void createClient_EmailAlreadyExists_ThrowsBusinessException() {
-        when(clientRepository.findByEmail(createDTO.getEmail())).thenReturn(Optional.of(entity));
+        when(clientRepository.findByEmailAndTenantId(createDTO.getEmail(), 1L)).thenReturn(Optional.of(entity));
 
-        BusinessException exception = assertThrows(
-                BusinessException.class,
+        var exception = assertThrows(
+                br.com.davidds5.manicure_api.exceptions.DuplicateResourceException.class,
                 () -> clientService.createClient(createDTO)
         );
 
-        assertEquals("Email já cadastrado: " + createDTO.getEmail(), exception.getMessage());
+        assertTrue(exception.getMessage().contains("E-mail já cadastrado neste salão: " + createDTO.getEmail()));
 
-        verify(clientRepository).findByEmail(createDTO.getEmail());
+        verify(clientRepository).findByEmailAndTenantId(createDTO.getEmail(), 1L);
         verify(clientRepository, never()).save(any());
     }
 

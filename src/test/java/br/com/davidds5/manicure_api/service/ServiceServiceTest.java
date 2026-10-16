@@ -50,7 +50,7 @@ class ServiceServiceTest{
         createDTO = new ServiceCreateDTO();
         createDTO.setName("Manicure");
         createDTO.setDescription("Manicure completa");
-        createDTO.setPrice(50.0);
+        createDTO.setPrice(java.math.BigDecimal.valueOf(50.0));
         createDTO.setDuration(60);
         createDTO.setActive(true);
 
@@ -59,7 +59,7 @@ class ServiceServiceTest{
         entity.setTenantId(1L);
         entity.setName("Manicure");
         entity.setDescription("Manicure completa");
-        entity.setPrice(50.0);
+        entity.setPrice(java.math.BigDecimal.valueOf(50.0));
         entity.setDuration(60);
         entity.setActive(true);
 
@@ -67,7 +67,7 @@ class ServiceServiceTest{
         dto.setId(1L);
         dto.setName("Manicure");
         dto.setDescription("Manicure completa");
-        dto.setPrice(50.0);
+        dto.setPrice(java.math.BigDecimal.valueOf(50.0));
         dto.setDuration(60);
         dto.setActive(true);
     }
@@ -92,7 +92,7 @@ class ServiceServiceTest{
     void createService_ShouldThrowException_WhenPriceIsInvalid() {
         
         // Arrange
-        createDTO.setPrice(-20.0);
+        createDTO.setPrice(java.math.BigDecimal.valueOf(-20.0));
 
         // Act
         BusinessException exception = assertThrows(BusinessException.class, () -> serviceService.createService(createDTO));
@@ -162,7 +162,7 @@ class ServiceServiceTest{
         ServiceUpdateDTO updated = new ServiceUpdateDTO();
         updated.setName("Mao do pe");
         updated.setDescription("Feito co rapides");
-        updated.setPrice(40.0);
+        updated.setPrice(java.math.BigDecimal.valueOf(40.0));
         updated.setDuration(20);
         updated.setActive(true);
 

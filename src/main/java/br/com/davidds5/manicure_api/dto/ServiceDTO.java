@@ -13,7 +13,7 @@ public class ServiceDTO {
     private Long id;
     private String description;
     private String name;
-    private Double price;
+    private java.math.BigDecimal price;
     private Integer duration;
     private boolean active;
 }

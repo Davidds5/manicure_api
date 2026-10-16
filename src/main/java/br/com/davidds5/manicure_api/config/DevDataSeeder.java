@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 
+@Profile("dev")
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
@@ -69,7 +70,7 @@ public class DevDataSeeder implements CommandLineRunner {
                         .tenantId(tenant.getId())
                         .name("Alongamento em Fibra de Vidro")
                         .description("Alongamento completo com fibra de vidro")
-                        .price(140.0)
+                        .price(java.math.BigDecimal.valueOf(140.0))
                         .duration(60)
                         .active(true)
                         .build());
@@ -78,7 +79,7 @@ public class DevDataSeeder implements CommandLineRunner {
                         .tenantId(tenant.getId())
                         .name("Esmaltação em Gel")
                         .description("Esmaltação de alta durabilidade em gel")
-                        .price(75.0)
+                        .price(java.math.BigDecimal.valueOf(75.0))
                         .duration(45)
                         .active(true)
                         .build());
@@ -87,13 +88,13 @@ public class DevDataSeeder implements CommandLineRunner {
                         .tenantId(tenant.getId())
                         .name("Manicure & Pedicure Completa")
                         .description("Cutilagem, hidratação e esmaltação tradicional")
-                        .price(65.0)
+                        .price(java.math.BigDecimal.valueOf(65.0))
                         .duration(50)
                         .active(true)
                         .build());
             }
 
-            log.info("✅ [DevDataSeeder] Conta de teste criada com sucesso: E-mail: {} | Senha: {}", testEmail, "123456");
+            log.info("✅ [DevDataSeeder] Conta de teste criada com sucesso para o e-mail: {}", testEmail);
         }
     }
 }

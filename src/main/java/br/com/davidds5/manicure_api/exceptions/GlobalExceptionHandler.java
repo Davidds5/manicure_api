@@ -85,16 +85,43 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<StandardError> handleDuplicateResourceException(DuplicateResourceException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError error = new StandardError(
+            LocalDateTime.now(),
+            status.value(),
+            "Conflito de dados",
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(TimeConflictException.class)
+    public ResponseEntity<StandardError> handleTimeConflictException(TimeConflictException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError error = new StandardError(
+            LocalDateTime.now(),
+            status.value(),
+            "Horário indisponível",
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<StandardError> handleGenericException(Exception ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        log.error("Erro interno do servidor: {} ", ex.getMessage(), ex);
+        String errorId = java.util.UUID.randomUUID().toString();
+        log.error("Erro interno do servidor [correlationId={}]: {}", errorId, ex.getMessage(), ex);
         StandardError error = new StandardError(
-        LocalDateTime.now(), 
-        status.value(),
-        "Erro interno do servidor", 
-        ex.getMessage(), 
-        request.getRequestURI()
+            LocalDateTime.now(), 
+            status.value(),
+            "Erro interno do servidor", 
+            "Ocorreu um erro interno. Tente novamente mais tarde. (ID: " + errorId + ")", 
+            request.getRequestURI()
         );
 
         return ResponseEntity.status(status).body(error);
@@ -131,11 +158,12 @@ public class GlobalExceptionHandler {
    @ExceptionHandler(DataIntegrityViolationException.class)
    public ResponseEntity<StandardError> handleDataIntegrityException(DataIntegrityViolationException ex, HttpServletRequest request){
     HttpStatus status = HttpStatus.CONFLICT;
+    log.warn("Violação de integridade de dados: {}", ex.getMessage());
     StandardError error = new StandardError(
         LocalDateTime.now(),
         status.value(),
-        "Erro de integridade de dados",
-        "Conflitos de dados: Este registro (ou e-mail) ja esta cadastrado.",
+        "Conflito de dados",
+        "Conflito de integridade: os dados informados violam regras de integridade ou já existem.",
         request.getRequestURI()
     );
     return ResponseEntity.status(status).body(error);

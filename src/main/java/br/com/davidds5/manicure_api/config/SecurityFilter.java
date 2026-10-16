@@ -31,15 +31,17 @@ public class SecurityFilter extends OncePerRequestFilter {
             var tokenJWT = recuperarToken(request);
             if (tokenJWT != null) {
                 try {
-                    var subject = tokenService.getSubject(tokenJWT);
-                    var role = tokenService.getRole(tokenJWT);
-                    var tenantId = tokenService.getTenantId(tokenJWT);
+                    var decodedJWT = tokenService.decodeToken(tokenJWT);
+                    var subject = decodedJWT.getSubject();
+                    var role = decodedJWT.getClaim("role").asString();
+                    var tenantClaim = decodedJWT.getClaim("tenant_id");
+                    var tenantId = tenantClaim.isNull() ? null : tenantClaim.asLong();
 
                     if (tenantId != null) {
                         TenantContext.setTenantId(tenantId);
                     }
 
-                    var authority = new SimpleGrantedAuthority(role);
+                    var authority = new SimpleGrantedAuthority(role != null ? role : "ROLE_PROFESSIONAL");
                     var authentication = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (Exception ex) {

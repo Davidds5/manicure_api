@@ -29,7 +29,7 @@ public class ProfessionalController {
     private final ProfessionalService professionalService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @Operation(summary = "Criar novo profissional", description = "Cadastra um novo profissional no sistema. Requer permissão de ADMIN")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Profissional criado com sucesso"),
@@ -75,7 +75,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @Operation(summary = "Atualizar profissional", description = "Atualiza os dados de um profissional existente. Requer ADMIN")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Profissional atualizado com sucesso"),
@@ -95,7 +95,7 @@ public class ProfessionalController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @Operation(summary = "Deletar profissional", description = "Demitir/Desativar um profissional existente. Requer ADMIN")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Profissional demitido/desativado com sucesso"),

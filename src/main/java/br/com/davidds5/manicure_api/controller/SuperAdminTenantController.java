@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/tenants")
 @Tag(name = "SaaS Admin (Super Admin)", description = "Endpoints administrativos para donos da plataforma SaaS")
 @SecurityRequirement(name = "bearer-key")
-@PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class SuperAdminTenantController {
 
     @Autowired
@@ -45,5 +45,12 @@ public class SuperAdminTenantController {
             @RequestBody @Valid TenantStatusUpdateDTO dto
     ) {
         return ResponseEntity.ok(tenantService.updateTenantStatus(id, dto.status()));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Realiza exclusão lógica (soft delete) e suspensão de um salão")
+    public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
+        tenantService.softDeleteTenant(id);
+        return ResponseEntity.noContent().build();
     }
 }

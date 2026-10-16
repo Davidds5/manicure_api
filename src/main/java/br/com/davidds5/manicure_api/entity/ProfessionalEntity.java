@@ -38,15 +38,23 @@ public class ProfessionalEntity implements UserDetails {
     @Column(nullable = false)
     private Boolean active;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String email;
 
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private br.com.davidds5.manicure_api.enums.ProfessionalRole role = br.com.davidds5.manicure_api.enums.ProfessionalRole.PROFESSIONAL;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (this.role == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     @Override

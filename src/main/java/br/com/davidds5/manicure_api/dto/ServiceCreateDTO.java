@@ -18,7 +18,8 @@ public class ServiceCreateDTO {
 
     @NotNull(message = "Preço é obrigatório")
     @DecimalMin(value = "0.01", message = "Preço deve ser maior que zero")
-    private Double price;
+    @Digits(integer = 8, fraction = 2, message = "Preço inválido")
+    private java.math.BigDecimal price;
 
     @NotNull(message = "Descrição é obrigatória")
     @Size(min = 20, max = 100, message = "Descrição deve ter entre 20 e 100 caracteres")

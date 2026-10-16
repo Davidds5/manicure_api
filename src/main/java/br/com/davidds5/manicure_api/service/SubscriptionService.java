@@ -61,7 +61,7 @@ public class SubscriptionService {
             throw new PlanLimitExceededException("A assinatura do salão está suspensa ou inadimplente. Atualize seu pagamento.");
         }
 
-        long currentProfessionals = professionalRepository.count();
+        long currentProfessionals = professionalRepository.countByTenantIdAndActiveTrue(tenantId);
         if (currentProfessionals >= sub.getMaxProfessionals()) {
             throw new PlanLimitExceededException(
                     String.format("Limite de profissionais do seu plano (%s: máx %d) foi atingido. Faça upgrade de plano para adicionar mais profissionais.",
@@ -83,10 +83,12 @@ public class SubscriptionService {
             throw new PlanLimitExceededException("A assinatura do salão está suspensa ou inadimplente. Atualize seu pagamento.");
         }
 
-        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        java.time.ZoneId zone = java.time.ZoneId.of("America/Sao_Paulo");
+        java.time.ZonedDateTime nowSp = java.time.ZonedDateTime.now(zone);
+        LocalDateTime startOfMonth = nowSp.withDayOfMonth(1).toLocalDate().atStartOfDay();
         LocalDateTime endOfMonth = startOfMonth.plusMonths(1);
 
-        long appointmentsThisMonth = appointmentRepository.count();
+        long appointmentsThisMonth = appointmentRepository.countByTenantIdAndDateTimeBetween(tenantId, startOfMonth, endOfMonth);
         if (appointmentsThisMonth >= sub.getMaxAppointmentsPerMonth()) {
             throw new PlanLimitExceededException(
                     String.format("Limite de agendamentos do seu plano (%s: máx %d/mês) foi atingido. Faça upgrade de plano para continuar agendando.",

@@ -62,6 +62,7 @@ public class TenantService {
                 .password(passwordEncoder.encode(dto.ownerPassword()))
                 .specialty(dto.specialty() != null && !dto.specialty().isBlank() ? dto.specialty() : "Proprietário")
                 .active(true)
+                .role(br.com.davidds5.manicure_api.enums.ProfessionalRole.TENANT_ADMIN)
                 .build();
         owner = professionalRepository.save(owner);
 
@@ -194,9 +195,19 @@ public class TenantService {
     }
 
     @Transactional(readOnly = true)
-    public TenantResponseDTO getPublicTenantBySlug(String slug) {
-        TenantEntity tenant = tenantRepository.findBySlug(slug)
+    public TenantEntity resolveTenantEntityBySlug(String slug) {
+        TenantEntity tenant = tenantRepository.findBySlugAndDeletedAtIsNull(slug.toLowerCase().trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Salão não encontrado: " + slug));
+
+        if (tenant.getStatus() == TenantStatus.SUSPENDED) {
+            throw new ResourceNotFoundException("Salão não encontrado ou suspenso: " + slug);
+        }
+        return tenant;
+    }
+
+    @Transactional(readOnly = true)
+    public TenantResponseDTO getPublicTenantBySlug(String slug) {
+        TenantEntity tenant = resolveTenantEntityBySlug(slug);
 
         return new TenantResponseDTO(
                 tenant.getId(),
@@ -210,6 +221,15 @@ public class TenantService {
                 tenant.getCreatedAt(),
                 tenant.getPixKey()
         );
+    }
+
+    @Transactional
+    public void softDeleteTenant(Long id) {
+        TenantEntity tenant = tenantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Salão/Tenant não encontrado com ID: " + id));
+        tenant.setDeletedAt(java.time.LocalDateTime.now());
+        tenant.setStatus(TenantStatus.SUSPENDED);
+        tenantRepository.save(tenant);
     }
 
     @Transactional(readOnly = true)

@@ -28,8 +28,8 @@ public class ServiceEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
-    private Double price;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal price;
 
     @Column(nullable = false)
     private Integer duration;

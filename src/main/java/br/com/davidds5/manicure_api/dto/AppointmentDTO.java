@@ -21,7 +21,7 @@ public class AppointmentDTO {
     private String professionalName;
     private Long serviceId;
     private String serviceName;
-    private Double servicePrice;
+    private java.math.BigDecimal servicePrice;
     private LocalDateTime dateTime;
     private AppointmentEntity.AppointmentStatus status;
 

@@ -72,7 +72,7 @@ public class AppointmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('PROFESSIONAL') or hasRole('ADMIN')")
     @Operation(summary = "Listar agendamentos", description = "Retorna todos os agendamentos, podendo ser filtrados por status, data inicial e data final")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
@@ -153,7 +153,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/confirm")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('PROFESSIONAL') or hasRole('ADMIN')")
     @Operation(summary = "Confirmar agendamento", description = "Muda o status do agendamento para CONFIRMADO")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Agendamento confirmado com sucesso"),

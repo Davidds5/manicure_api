@@ -70,7 +70,7 @@ public class TestController {
                     .tenantId(tenant.getId())
                     .name("Alongamento em Fibra de Vidro")
                     .description("Alongamento completo com fibra de vidro")
-                    .price(140.0)
+                    .price(java.math.BigDecimal.valueOf(140.0))
                     .duration(60)
                     .active(true)
                     .build());
@@ -79,7 +79,7 @@ public class TestController {
                     .tenantId(tenant.getId())
                     .name("Esmaltação em Gel")
                     .description("Esmaltação de alta durabilidade em gel")
-                    .price(75.0)
+                    .price(java.math.BigDecimal.valueOf(75.0))
                     .duration(45)
                     .active(true)
                     .build());

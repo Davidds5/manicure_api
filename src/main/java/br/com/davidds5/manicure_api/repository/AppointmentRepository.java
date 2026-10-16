@@ -16,6 +16,12 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, Long> {
 
 
+    @Query("SELECT a FROM AppointmentEntity a WHERE (:tenantId IS NULL OR a.tenantId = :tenantId) AND a.client.id = :clientId")
+    Page<AppointmentEntity> findByTenantIdAndClientId(@Param("tenantId") Long tenantId, @Param("clientId") Long clientId, Pageable pageable);
+
+    @Query("SELECT a FROM AppointmentEntity a WHERE (:tenantId IS NULL OR a.tenantId = :tenantId) AND a.professional.id = :professionalId")
+    Page<AppointmentEntity> findByTenantIdAndProfessionalId(@Param("tenantId") Long tenantId, @Param("professionalId") Long professionalId, Pageable pageable);
+
     @Query("SELECT a FROM AppointmentEntity a WHERE a.client.id = :clientId")
     Page<AppointmentEntity> findByClientId(@Param("clientId") Long clientId, Pageable pageable);
 
@@ -35,14 +41,17 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
             @Param("endDate") LocalDateTime endDate,
             @Param("cancelledStatus") AppointmentEntity.AppointmentStatus cancelledStatus);
 
+    long countByTenantIdAndDateTimeBetween(Long tenantId, LocalDateTime start, LocalDateTime end);
+
     @Query("SELECT a FROM AppointmentEntity a WHERE " +
+           "(:tenantId IS NULL OR a.tenantId = :tenantId) AND " +
            "(:status IS NULL OR a.status = :status) AND " +
            "(cast(:startDate as timestamp) IS NULL OR a.dateTime >= :startDate) AND " +
            "(cast(:endDate as timestamp) IS NULL OR a.dateTime <= :endDate)")
-    Page<AppointmentEntity> findWithFilters(@Param("status") AppointmentEntity.AppointmentStatus status,
+    Page<AppointmentEntity> findWithFilters(@Param("tenantId") Long tenantId,
+                                            @Param("status") AppointmentEntity.AppointmentStatus status,
                                             @Param("startDate") LocalDateTime startDate,
                                             @Param("endDate") LocalDateTime endDate,
                                             Pageable pageable);
-
 }
 

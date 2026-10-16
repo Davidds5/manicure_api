@@ -34,7 +34,7 @@ public class PaymentService {
                         "Agendamento não encontrado com ID: " + appointmentId));
 
         Long currentTenantId = br.com.davidds5.manicure_api.config.TenantContext.getTenantId();
-        if (currentTenantId != null && (appointment.getTenantId() == null || !currentTenantId.equals(appointment.getTenantId()))) {
+        if (currentTenantId == null || !currentTenantId.equals(appointment.getTenantId())) {
             throw new ResourceNotFoundException("Agendamento não encontrado com ID: " + appointmentId);
         }
 
@@ -42,7 +42,7 @@ public class PaymentService {
             throw new BusinessException("Pagamento já registrado para este agendamento");
         }
 
-        if (!dto.getAmount().equals(appointment.getService().getPrice())) {
+        if (dto.getAmount() == null || dto.getAmount().compareTo(appointment.getService().getPrice()) != 0) {
             throw new BusinessException("Valor do pagamento deve ser igual ao valor do serviço: R$ "
                     + appointment.getService().getPrice());
         }

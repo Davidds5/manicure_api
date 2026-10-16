@@ -34,12 +34,14 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping
-    @Operation(summary = "Criar novo cliente", description = "Cadrasta um novo cliente no sistema. Acesso publico.")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('PROFESSIONAL') or hasRole('ADMIN')")
+    @Operation(summary = "Criar novo cliente", description = "Cadastra um novo cliente no salão autenticado.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Erro de validacao (email ja cadastrado, telefone invalido, etc)", 
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseException.class))
-        )
+        ),
+        @ApiResponse(responseCode = "409", description = "Conflito: e-mail já cadastrado neste salão")
     })
     public ResponseEntity<EntityModel<ClientDTO>> create(@Valid @RequestBody ClientCreatedDTO dto) {
         ClientDTO client = clientService.createClient(dto);
@@ -53,7 +55,7 @@ public class ClientController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @Operation(summary = "Listar todos os clientes", description = "Retorna uma lista paginada. Permite filtro por nome. Requer permissão de ADMIN.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Clientes listados com sucesso"),
@@ -101,7 +103,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('ADMIN')")
     @Operation(summary = "Deletar cliente", description = "Remove um cliente do sistema. Requer permissão de ADMIN.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Cliente removido com sucesso"),

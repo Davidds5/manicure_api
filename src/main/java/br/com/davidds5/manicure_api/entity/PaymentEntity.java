@@ -28,8 +28,8 @@ public class PaymentEntity {
     @JoinColumn(name = "appointment_id", nullable = false, unique = true)
     private AppointmentEntity appointment;
 
-    @Column(nullable = false)
-    private Double amount;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal amount;
 
     @Column(nullable = false, length = 50)
     private String paymentMethod;
