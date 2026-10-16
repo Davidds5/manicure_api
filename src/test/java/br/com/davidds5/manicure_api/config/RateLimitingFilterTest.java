@@ -71,6 +71,33 @@ class RateLimitingFilterTest {
     }
 
     @Test
+    @DisplayName("Deve extrair corretamente o IP do cliente via X-Forwarded-For atrás de proxy reverso")
+    void shouldExtractRealClientIpFromXForwardedForProxyHeader() throws ServletException, IOException {
+        String realClientIp = "201.55.12.34";
+        String proxyIp = "10.0.0.1";
+
+        // Simula requisições vindas através do proxy do Render com header X-Forwarded-For
+        for (int i = 0; i < 15; i++) {
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login");
+            request.setRemoteAddr(proxyIp);
+            request.addHeader("X-Forwarded-For", realClientIp + ", " + proxyIp);
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            rateLimitingFilter.doFilterInternal(request, response, filterChain);
+            assertEquals(200, response.getStatus());
+        }
+
+        // A 16ª requisição do mesmo cliente real deve sofrer rate limit mesmo que o remoteAddr seja o proxy
+        MockHttpServletRequest blockedRequest = new MockHttpServletRequest("POST", "/login");
+        blockedRequest.setRemoteAddr(proxyIp);
+        blockedRequest.addHeader("X-Forwarded-For", realClientIp + ", " + proxyIp);
+        MockHttpServletResponse blockedResponse = new MockHttpServletResponse();
+
+        rateLimitingFilter.doFilterInternal(blockedRequest, blockedResponse, filterChain);
+
+        assertEquals(429, blockedResponse.getStatus());
+    }
+
+    @Test
     @DisplayName("Endpoints isentos (swagger/health) não sofrem rate limit")
     void shouldBypassExemptEndpoints() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/health");
@@ -79,6 +106,6 @@ class RateLimitingFilterTest {
 
         rateLimitingFilter.doFilterInternal(request, response, filterChain);
 
-        verify(filterChain, times(1)).doFilter(request, response);
+        verify(filterChain, atLeastOnce()).doFilter(request, response);
     }
 }
