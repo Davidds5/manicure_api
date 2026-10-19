@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   Eye, 
   EyeOff, 
-  Store 
+  Store,
+  Sparkles
 } from 'lucide-react';
 import { fetchApi, setAuthToken, removeAuthToken } from '@/lib/api';
 
@@ -25,10 +26,17 @@ function LoginForm() {
 
   const [email, setEmail] = useState('teste@salao.com');
   const [password, setPassword] = useState('123456');
-  const [tenantSlug, setTenantSlug] = useState(initialSlug);
+  const [tenantSlug, setTenantSlug] = useState(initialSlug || 'studio-bella');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleFillDemo = () => {
+    setEmail('teste@salao.com');
+    setPassword('123456');
+    setTenantSlug('studio-bella');
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +51,11 @@ function LoginForm() {
         password,
       };
 
-      if (tenantSlug.trim()) {
-        payload.tenantSlug = tenantSlug.trim().toLowerCase();
+      const cleanSlug = tenantSlug.trim().toLowerCase();
+      if (cleanSlug) {
+        payload.tenantSlug = cleanSlug;
+      } else if (email.trim().toLowerCase() === 'teste@salao.com') {
+        payload.tenantSlug = 'studio-bella';
       }
 
       const res = await fetchApi<{ token: string }>('/login', {
@@ -75,6 +86,24 @@ function LoginForm() {
 
   return (
     <div className="bg-white p-8 sm:p-10 rounded-3xl border border-stone-200/90 shadow-soft">
+      {/* Atalho de Demonstração para Testes */}
+      <div className="mb-6 p-3 rounded-2xl bg-pink-50/80 border border-pink-200/70 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs text-stone-700">
+          <Sparkles className="w-4 h-4 text-pink-600 shrink-0" />
+          <span className="font-medium text-stone-800">
+            Ambiente de Demonstração
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={handleFillDemo}
+          className="px-3 py-1 text-[11px] font-bold rounded-lg bg-white border border-pink-200 text-pink-700 hover:bg-pink-100 transition shadow-2xs cursor-pointer"
+          title="Preencher com credenciais de demonstração (teste@salao.com)"
+        >
+          Preencher Teste
+        </button>
+      </div>
+
       {registered && (
         <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-start gap-3 shadow-xs">
           <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 mt-0.5" />
@@ -91,12 +120,12 @@ function LoginForm() {
 
       {error && (
         <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-3 shadow-xs animate-in fade-in duration-200">
-          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
           <div>
             <p className="font-semibold">{error}</p>
             {error.includes('credenciais') && (
               <p className="text-xs text-rose-600 mt-1">
-                Dica: Se o seu salão possui identificador específico, preencha o campo opcional de identificador do salão abaixo.
+                Dica: Verifique se o identificador do salão (<code className="font-mono bg-rose-100 px-1 py-0.5 rounded text-[11px]">studio-bella</code>) está preenchido corretamente abaixo.
               </p>
             )}
           </div>
@@ -149,7 +178,7 @@ function LoginForm() {
         <div>
           <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
             <span className="uppercase tracking-wider">Identificador do Salão (Slug)</span>
-            <span className="text-[11px] font-normal text-stone-400 capitalize">Opcional</span>
+            <span className="text-[11px] font-normal text-stone-400">Opcional para salão único</span>
           </label>
           <div className="relative">
             <Store className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5 transition-colors" />
@@ -162,7 +191,7 @@ function LoginForm() {
             />
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Preencha caso gerencie um salão específico (ex: <code className="bg-stone-100 text-stone-700 px-1 py-0.5 rounded text-[10px]">studio-bella</code>).
+            Salão de demonstração: <code className="bg-stone-100 text-stone-700 px-1 py-0.5 rounded text-[10px] font-semibold">studio-bella</code>
           </p>
         </div>
 
@@ -197,7 +226,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen text-stone-900 flex flex-col justify-center py-12 px-6 lg:px-8 relative overflow-hidden bg-[#faf7f2]">
-      {/* Ambient Glows com a paleta suave da landing page */}
+      {/* Ambient Glows com a paleta orgânica suave da landing page */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute -top-40 right-1/4 w-[500px] h-[500px] bg-pink-500/10 blur-[130px] rounded-full" />
         <div className="absolute -bottom-40 left-1/4 w-[500px] h-[500px] bg-rose-400/10 blur-[130px] rounded-full" />
