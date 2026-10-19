@@ -1,5 +1,14 @@
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://manicure-api-vi63.onrender.com';
-const API_BASE_URL = rawUrl.trim().replace(/[\r\n\s]+$/, '').replace(/\/+$/, '');
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+export function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return '/backend-api';
+    }
+  }
+  return rawUrl ? rawUrl.trim().replace(/[\r\n\s]+$/, '').replace(/\/+$/, '') : 'https://manicure-api-vi63.onrender.com';
+}
 
 export class ApiError extends Error {
   status: number;
@@ -47,7 +56,8 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const url = cleanEndpoint.startsWith('http') ? cleanEndpoint : `${API_BASE_URL}/${cleanEndpoint}`;
+  const baseUrl = getApiBaseUrl();
+  const url = cleanEndpoint.startsWith('http') ? cleanEndpoint : `${baseUrl}/${cleanEndpoint}`;
 
   let res: Response;
   try {
